@@ -22,14 +22,9 @@ class Config
     
   }
   
-  public function init($site)
+  public function init()
   {
   
-    if(empty($site)){
-      die('No site-name given.');
-    }
-    
-    $this->site = $site;
     $path_config = @realpath(@dirname(__FILE__).'/../../config');
     
     //Set constants
