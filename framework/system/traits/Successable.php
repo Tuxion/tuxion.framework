@@ -126,7 +126,7 @@ trait Successable
       return (bool) $check($this);
     }
     
-    elseif($check instanceof Successable){
+    elseif(uses($check, 'Successable')){
       return $check->success() === true;
     }
     
