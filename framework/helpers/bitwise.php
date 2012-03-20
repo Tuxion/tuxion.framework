@@ -1,4 +1,4 @@
-<?php if(!defined('TX')) die('No direct access.');
+<?php
   
   // check if a bitwise haystack contains the needle bit
   function checkbit($needle, $haystack){

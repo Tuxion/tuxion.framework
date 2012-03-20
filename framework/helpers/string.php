@@ -1,4 +1,4 @@
-<?php if(!defined('TX')) die('No direct access.');
+<?php
 
   /**
   * get an array of all positions of given substr, with an optional starting offset

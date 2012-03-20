@@ -1,12 +1,12 @@
-<?php if(!defined('TX')) die('No direct access.');
+<?php
 
 function Data(){
   $arg = (func_num_args() == 1 ? func_get_arg(0) : (func_num_args() > 1 ? func_get_args() : null));
-  return ($arg instanceof \dependencies\Data ? $arg : new \dependencies\Data($arg));
+  return ($arg instanceof \classes\Data ? $arg : new \classes\Data($arg));
 }
 
 function is_data($data){
-  return (is_object($data) && $data instanceof \dependencies\Data);
+  return (is_object($data) && $data instanceof \classes\Data);
 }
 
 function data_of($data){

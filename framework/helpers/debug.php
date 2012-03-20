@@ -1,4 +1,4 @@
-<?php if(!defined('TX')) die('No direct access.');
+<?php
 
 function error_handler($errno, $errstr='', $errfile='', $errline='', $context=array()){
   
@@ -40,7 +40,7 @@ function exception_handler_image($e){
 function trace(){
   static $tracenum = 1;
   $trace = debug_backtrace(false);
-  echo "<pre>\n<b style=\"color:red\">trace(".func_num_args().") #$tracenum called in <span style=\"cursor:help\" title=\"".$trace[0]['file']."\">".basename($trace[0]['file'], EXT)."</span> @ {$trace[0]['line']}:</b>\n";
+  echo "<pre>\n<b style=\"color:red\">trace(".func_num_args().") #$tracenum called in <span style=\"cursor:help\" title=\"".$trace[0]['file']."\">".basename($trace[0]['file'], '.php')."</span> @ {$trace[0]['line']}:</b>\n";
   if(func_num_args() > 1){
     $i = 1;
     foreach(func_get_args() as $arg){
@@ -123,7 +123,7 @@ function callstack(){
     if(array_key_exists('class', $v)){
       switch($v['class']){
         case 'superclass':
-        case 'dependencies\\UserFunction':
+        case 'classes\\UserFunction':
           continue 2;
       }
     }

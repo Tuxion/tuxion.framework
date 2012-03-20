@@ -1,9 +1,9 @@
-<?php if(!defined('TX')) die('No direct access.');
+<?php
 
 function url($url, $discard_old_querystring=false, $build_on_redirect=false, $keep_module_id=false)
 {
   
-  return new \dependencies\Url(data_of($url), array(
+  return new \classes\Url(data_of($url), array(
     'discard_old_querystring' => $discard_old_querystring,
     'build_on_redirect' => $build_on_redirect,
     'keep_module_id' => $keep_module_id

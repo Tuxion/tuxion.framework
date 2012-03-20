@@ -1,102 +1,40 @@
-<?php if(!defined('TX')) die('No direct access.');
+<?php
 
+//Allows system classes and exceptions to be automatically loaded upon use.
 function __autoload($class)
 {
   
   if(substr_count($class, '\\') === 0){
-    return __autoload('dependencies\\'.$class);
+    return __autoload('classes\\'.$class);
   }
   
   $class_array = explode('\\', $class);
+  $path_system = realpath(dirname(__FILE__).'/../system');
   
-  switch($class_array[0])
-  {
-    
-    case 'dependencies':
-      if(!is_file(PATH_SYSTEM_DEPENDENCIES.DS.$class_array[1].EXT)){
-        throw new \exception\FileMissing('Dependency \'%s\' does not exist', $class);
-        return;
-      }
-      require_once(PATH_SYSTEM_DEPENDENCIES.DS.$class_array[1].EXT);
-      break;
-    
-    case 'exception':
-      if(!is_file(PATH_SYSTEM_EXCEPTIONS.DS.$class_array[1].EXT)){
-        throw new \exception\FileMissing('Exception \'%s\' does not exist', $class);
-        return;
-      }
-      require_once(PATH_SYSTEM_EXCEPTIONS.DS.$class_array[1].EXT);
-      break;
-      
-    default:
-      die("Failed to autoload '$class'; autoloading is restricted to only exception classes or dependency classes.<pre>".callstack().'</pre>');
-      return;
-      
+  switch($class_array[0]){
+    case 'classes': $file = "$path_system/classes/{$class_array[1]}.php"; break;
+    case 'exception': $file = "$path_system/exceptions/{$class_array[1]}.php"; break;
+    default: throw new \exception\Restriction('Failed to autoload "%s"; autoloading is restricted to only exception classes or dependency classes.', $class);
   }
   
-  return $class;
-  
-}
-
-function load_model($component_name, $model_name)
-{
-  
-  $component_name = data_of($component_name);
-  $model_name = data_of($model_name);
-  
-  tx('Component')->check($component_name);
-  
-  if(empty($model_name)){
-    throw new \exception\InvalidArgument("Component name can not be empty");
+  if(!is_file($file)){
+    throw new \exception\FileMissing($file);
   }
   
-  $model_name = ucfirst($model_name);
-  
-  $model = "\\components\\$component_name\\models\\$model_name";
-  
-  if(!class_exists($model, false))
-  {
-    
-    if(!preg_match('~[A-Z][A-Za-z_]+~', $model_name)){
-      throw new \exception\InvalidArgument('Model name contains invalid characters.');
-    }
-    
-    if(!is_file(PATH_COMPONENTS.DS.$component_name.DS.'models'.DS.$model_name.EXT)){
-      throw new \exception\FileMissing("Model '%s' does not exist", $model_name);
-    }
-    
-    require_once(PATH_COMPONENTS.DS.$component_name.DS.'models'.DS.$model_name.EXT);
-  
-  }
-  
-  return $model;
+  require_once($file);
   
 }
 
-function load_module()
-{
-  
-  throw new \exception\Deprecated("The load_module helper has been moved to tx('Controller')->load_module().");
-
-}
-
-function load_plugin($name)
-{
-  
-  return load_html(PATH_PLUGINS.DS.$name.DS.'plugin'.EXT, array('plugin'=>URL_PLUGINS.$name.'/'), true);
-  
-}
-
-function load_html($___path, array $___data=array(), $___once=false)
+function load_html($___path, array $___data=[], $___once=false)
 {
 
-  static $file_checks = array();
+  static $file_checks = [];
   
   if(!in_array($___path, $file_checks)){
     if(is_file($___path)){
       $file_checks[] = $___path;
     }else{
-      throw new \exception\FileMissing("Could not load contents of <b>$___path</b>. It is not a file.");
+      throw new \exception\FileMissing("Could not load contents of <b>%s</b>. It is not a file.", $___path);
     }
   }
   
@@ -119,5 +57,27 @@ function load_html($___path, array $___data=array(), $___once=false)
 function files($pattern)
 {
   $glob = glob($pattern);
-  return (is_array($glob) ? $glob : array());
+  return (is_array($glob) ? $glob : []);
+}
+
+//A shortcut for "core\Loader::load($arg1='Loader'[, $arg-n[, ...]])" and "new \classes\UserFunction([$arg1, ]$arg2)"
+function tx()
+{
+	
+  if(func_num_args() == 0 || is_null(func_get_arg(0))){
+		return core\Loader::loadClass('Loader');
+	}
+  
+  elseif(func_num_args() == 2 && is_string(func_get_arg(0)) && (func_get_arg(1) instanceof \Closure)){
+    return new \classes\UserFunction(func_get_arg(0), func_get_arg(1));
+  }
+  
+  elseif(func_num_args() == 1 && (func_get_arg(0) instanceof \Closure)){
+    return new \classes\UserFunction(null, func_get_arg(0));
+  }
+  
+  else{
+    return call_user_func_array([tx(), 'load'], func_get_args());
+	}
+  
 }

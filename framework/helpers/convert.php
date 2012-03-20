@@ -1,4 +1,4 @@
-<?php if(!defined('TX')) die('No direct access.');
+<?php
 
 function argument_to_string($arg)
 {

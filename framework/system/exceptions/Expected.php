@@ -1,4 +1,4 @@
-<?php namespace exception; if(!defined('TX')) die('No direct access.');
+<?php namespace exception;
 
 class Expected extends Exception
 {
