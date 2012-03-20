@@ -1,17 +1,26 @@
 <?php namespace classes;
 
-class Data extends Successable implements \Serializable, \IteratorAggregate, \ArrayAccess
+class Data implements \Serializable, \IteratorAggregate, \ArrayAccess
 {
+  
+  ###
+  ###  TRAITS
+  ###
+  use \traits\Successable {
+    is as private _is;
+    not as private _not;
+  }
   
   ###
   ###  PROPERTIES
   ###
   
   private
-    $key=false,
-    $data=null,
-    $i=0,
-    $context=false;
+    $key = false,
+    $data = null,
+    $i = 0,
+    $context = false,
+    $set = null;
 
   
   
@@ -19,7 +28,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  SYSTEM
   ###
   
-  // the constructor sets the data and context
+  //the constructor sets the data and context.
   public function __construct($data=null, $context=false, $key=false)
   {
     
@@ -28,12 +37,11 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // if nothing refers to her anymore, we will kill her children
+  //if nothing refers to her anymore, we will kill her children.
   public function __destruct()
   {
     
-    if($this->is_parent())
-    {
+    if($this->is_parent()){
       foreach($this->data as $node){
         unset($node);
       }
@@ -41,7 +49,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // when this object is cloned, all childnodes will be clones aswell and given a new context
+  //when this object is cloned, all childnodes will be clones aswell and given a new context.
   public function __clone()
   {
     
@@ -57,15 +65,15 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   
   }
   
-  // semi-magic method implemented by \Serializable. Called when an instance of this class is serialized and should return serialized data
+  //semi-magic method implemented by \Serializable. Called when an instance of this class is serialized and should return serialized data.
   public function serialize()
   {
     
-    return serialize(array('data'=>$this->data));
+    return serialize(['data'=>$this->data]);
     
   }
   
-  // semi-magic method implemented by \Serializable. Should fill the new instance created by unserialize with the data given in serialize
+  //semi-magic method implemented by \Serializable. Should fill the new instance created by unserialize with the data given in serialize.
   public function unserialize($d)
   {
     
@@ -74,8 +82,8 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // function used internally when it is tried to get a subnode from a string
-  public function _attempt_unserialize()
+  //function used internally when it is tried to get a subnode from a string.
+  public function _attemptUnserialize()
   {
     
     $unserialized = @unserialize($this->get());
@@ -88,14 +96,14 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // semi-magic method implemented by \IteratorAggregate. Called when this object is iterated by foreach() and should return a new \ArrayIterator(); with data to be iterated as arg
+  //semi-magic method implemented by \IteratorAggregate. Called when this object is iterated by foreach() and should return a new \ArrayIterator(); with data to be iterated as arg.
   public function getIterator()
   {
     
     if(!is_array($this->get()))
     {
       
-      if($this->is_set() && is_string($this->get()) && $this->_attempt_unserialize()){
+      if($this->is_set() && is_string($this->get()) && $this->_attemptUnserialize()){
         return $this->getIterator();
       }
       
@@ -109,15 +117,11 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
       $iterator = $this->get();
     }
     
-    // if(count($iterator) == 0 && DEBUG){
-      // echo "<!-- Iterating over empty Data($this->key) -->";
-    // }
-    
     return new \ArrayIterator($iterator);
     
   }
   
-  // simi-magic method implemented by \ArrayAccess
+  //simi-magic method implemented by \ArrayAccess.
   public function offsetGet($key)
   {
     
@@ -125,7 +129,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // simi-magic method implemented by \ArrayAccess
+  //simi-magic method implemented by \ArrayAccess.
   public function offsetSet($key, $val)
   {
     
@@ -133,7 +137,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // simi-magic method implemented by \ArrayAccess
+  //simi-magic method implemented by \ArrayAccess.
   public function offsetExists($key)
   {
   
@@ -141,7 +145,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   
   }
   
-  // simi-magic method implemented by \ArrayAccess
+  //simi-magic method implemented by \ArrayAccess.
   public function offsetUnset($key)
   {
   
@@ -155,35 +159,36 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  GETTERS
   ###
   
-  // the magic get method returns -and if needed creates- a childnode for us
+  //The magic get method returns -and if needed creates- a childnode for us.
   public function __get($key)
   {
     
-    // if this node has been set to a string, we can assume that it might be a serialized object because we're trying to get a subnode of it
+    //if this node has been set to a string, we can assume that it might be a serialized object because we're trying to get a subnode of it.
     if($this->is_leafnode() && is_string($this->get())){
-      $this->_attempt_unserialize();
+      $this->_attemptUnserialize();
     }
     
-    // if this is still a leafnode after unserialization, we clear the node's data and turn it into an array to be filled up with the requested subnode
+    //if this is still a leafnode after unserialization, we clear the node's data and turn it into an array to be filled up with the requested subnode.
     if($this->is_leafnode()){
       $this->clear();
-      $this->data = array();
+      $this->data = [];
+      $this->set = true;
     }
     
-    // extract raw data from the given $key
+    //extract raw data from the given $key.
     $key = data_of($key);
     
-    // allow auto-increament by giving null or empty
+    //allow auto-increament by giving null or empty.
     if(is_null($key) || is_bool($key) || $key === ''){
       $key = $this->i+1;
     }
     
-    // cast floating point numbers to string
+    //cast floating point numbers to string.
     if(is_numeric($key) && !is_int($key)){
       $key = (string) $key;
     }
     
-    // we are now sure that this is an array, if the subnode does not exist we will create one
+    //we are now sure that this is an array, if the subnode does not exist we will create one.
     if(!array_key_exists($key, $this->data))
     {
       
@@ -195,11 +200,12 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
       
     }
     
-    // return requested subnode
+    //return requested subnode.
     return $this->data[$key];
     
   }
   
+  //Returns the node present at given index.
   public function idx($key)
   {
     
@@ -225,7 +231,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
 
-  // the extract function accepts different input types to return a childnode, most importantly; an array to create a chain - array('user', 'name') = ->user->name
+  //The extract function accepts different input types to return a childnode, most importantly; an array to create a chain - array('user', 'name') = ->user->name.
   public function extract($id=null)
   {
     
@@ -248,7 +254,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns the actual value of a node, accepts offset and length to cut strings or arrays
+  //Returns the actual value of a node, accepts offset and length to cut strings or arrays.
   public function get($as=null)
   {
   
@@ -261,6 +267,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
       case 'int':
       case 'integer':
         return (int) $this->data;
+      case 'str':
       case 'string':
         return (string) $this->data;
       case 'bool':
@@ -270,6 +277,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
         return (float) $this->data;
       case 'double':
         return (double) $this->data;
+      case 'arr':
       case 'array':
         return (array) $this->data;
       default:
@@ -279,22 +287,19 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   
   }
   
-  // if this object is treated like a string, it's value will be used instead
+  //If this object is treated like a string, it's value will be used instead.
   public function __toString()
   {
     
-    if(!$this->is_set()){
-      $return = '';
-    }
+    $return = '';
     
-    elseif($this->is_leafnode()){
+    if($this->is_leafnode()){
       $return = $this->get('string');
     }
     
     else{
-      $return = "\n";
       foreach($this->data as $node){
-        $return .= "$node\n";
+        $return .= "$node";
       }
     }
     
@@ -302,40 +307,40 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // Returns all content of this node (including its children) as an array
+  //Returns all content of this node (including its children) as an array.
   public function toArray($serialized=false)
   {
     
     if($this->is_empty()){
-      return array();
+      return [];
     }
     
     if($this->is_leafnode()){
-      return array($this->data);
+      return [$this->data];
     }
     
-    //create output array
-    $array = array();
+    //create output array.
+    $array = [];
     
-    //for every value
+    //for every value.
     foreach($this->data AS $key => $val)
     {
       
-      //if it is set
+      //if it is set.
       if($val->is_set())
       {
         
-        //if val is a leafnode
+        //if val is a leafnode.
         if($val->is_leafnode())
         {
-          //extract its value
+          //extract its value.
           $array[$key] = $val->get();
         }
         
-        //if val is not a leafnode
+        //if val is not a leafnode.
         else
         {
-          //convert its value to a subarray, or a serialized Data object
+          //convert its value to a subarray, or a serialized Data object.
           $sub = $val->toArray();
           
           if(count($sub) > 0){
@@ -352,16 +357,17 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // Iterates this node to create an html select field
-  // makeOptions($name, $title, $value[, $default[, $tooltip[, $multiple]]])
+  //Iterates this node to create an html select field.
+  //makeOptions($name, $title, $value[, $default[, $tooltip[, $multiple]]]).
   public function makeOptions()
   {
     
     //If we're empty then nothing should be done.
-    if($this->is_empty())
+    if($this->is_empty()){
       return;
+    }
     
-    //arguments
+    //arguments.
     if(func_num_args() < 3){
       throw new \exception\InvalidArgument('Expecting at least three arguments to be passed to Data::makeOptions()');
     }
@@ -373,25 +379,30 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     $tooltip = func_num_args() > 4 ? data_of(func_get_arg(4)) : null;
     $multiple = func_num_args() > 5 ? (bool)data_of(func_get_arg(5)) : null;
     
-    //select
+    //select.
     $select = "\n".'<select class="tx-select" name="'.$name.'"'.($multiple ? ' multiple="multiple"' : '').'>'."\n\n";
-    if(!$multiple)
+    if(!$multiple){
       $select .= '  <option value="">-- '.__('Please select an option', 1).' --</option>'."\n\n";
+    }
     
     //Unwind $default.
-    if($default instanceof \classes\Data)
+    if(is_data($default)){
       $default = $default->toArray();
-    else
-      $default = data_of($default);
+    }
     
-    //options
+    else{
+      $default = data_of($default);
+    }
+    
+    //options.
     foreach($this->getIterator() as $row)
     {
       
-      if(!$row instanceof \classes\Data)
-        throw new \exception\InvalidArgument('Input is not a multidimentional Data object. Type found: %s', ucfirst(gettype($row)));
+      if(!is_data($row)){
+        throw new \exception\InvalidArgument('Expecting a data object. %s given', ucfirst(typeof($row)));
+      }
       
-      //resolve title
+      //resolve title.
       if(is_string($title)){
         $title_str = $row->__get($title);
       }
@@ -404,7 +415,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
         throw new \exception\InvalidArgument('$title is of invalid datatype '.ucfirst(gettype($title)).'. String or Callable expected.');
       }
       
-      //resolve value
+      //resolve value.
       if(is_string($value)){
         $value_str = data_of($row->__get($value));
       }
@@ -417,7 +428,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
         throw new \exception\InvalidArgument('$value is of invalid datatype '.ucfirst(gettype($value)).'. String or Callable expected.');
       }
       
-      //resolve default
+      //resolve default.
       if(is_callable($default)){
         $default_bool = $default($row);
       }
@@ -430,7 +441,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
         $default_bool = $default == $value_str;
       }
       
-      //resolve tooltip
+      //resolve tooltip.
       if(is_string($tooltip)){
         $tooltip_str = $row->__get($tooltip);
       }
@@ -451,18 +462,18 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
       
     }
     
-    //end select
+    //end select.
     $select .= '  </select>'."\n\n";
     
     return $select;
     
   }
   
-  // Itterates this node to create an html table
+  //Itterates this node to create an html table.
   public function makeTable()
   {
     
-    //arguments
+    //Arguments.
     if(func_num_args() < 1){
       throw new \exception\InvalidArgument('Expecting at least one argument to be passed to Data::makeTable()');
     }
@@ -483,13 +494,13 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
       $foot = func_num_args() > 2 ? func_get_arg(2) : null;
     }
     
-    //table
+    //Table.
     $table = "\n".'<table class="tx-table">'."\n\n";
     
-    //caption
+    //Caption.
     $table .= is_string($name) ? '  <caption class="tx-table-caption">'.$name.'</caption>'."\n\n" : '';
     
-    //table head
+    //Table head.
     $table .= '  <thead class="tx-table-head">'."\n";
     $table .= '    <tr>'."\n";
     foreach($data as $key => $val){
@@ -498,7 +509,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     $table .= '    </tr>'."\n";
     $table .= '  </thead>'."\n\n";
     
-    //table footer
+    //Table footer.
     $table .= '  <tfoot class="tx-table-foot">';
     if(is_array($foot))
     {
@@ -528,7 +539,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     }
     $table .= '  </tfoot>'."\n\n";
     
-    //table body
+    //Table body.
     $table .= '  <tbody class="tx-table-body">'."\n";
     foreach($this->getIterator() as $row)
     {
@@ -538,7 +549,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
       {
         
         if(!is_array($val)){
-          $val = array($val);
+          $val = [$val];
         }
         
         foreach($val as $i => $v)
@@ -560,15 +571,14 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     }
     $table .= '  </tbody>'."\n\n";
     
-    //close table
+    //close table.
     $table .= '</table>'."\n";
     
     return $table;
     
-    
   }
 
-  // Iterates this node to create a list
+  //Iterates this node to create a list.
   public function makeList()
   {
     
@@ -587,16 +597,20 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
     $list = '<ul'.(is_string($classes) ? ' class="'.$classes.'"' : '').'>'."\n";
     
-    $this->each(function($val, $key)use(&$list, $data){
+    $this->each(function()use(&$list, $data){
+    
+      $val = $this;
+      $key = $this->key();
       
-      $properties = array();
+      $properties = [];
       
       if(is_null($data)){
         $content = ($val->is_parent() ? $key : $val);
       }
       
       elseif($data instanceof \Closure){
-        $content = $data($val, $key, $properties);
+        $data = $data->bindTo($val);
+        $content = $data($properties);
       }
       
       else{
@@ -613,7 +627,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // Itterates this node and its children to create a list
+  //Itterates this node and its children to create a list.
   public function makeRecursiveList()
   {
     
@@ -638,20 +652,29 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     $list = '<ul'.(is_string($classes) ? ' class="'.$classes.'"' : '').'>'."\n";
     $indent = 2;
     
-    $this->walk(function($val, $key, $delta)use(&$indent, &$list, $data){
+    $this->walk(function($delta)use(&$indent, &$list, $data){
       
-      $properties = array();
+      $val = $this;
+      $key = $this->key();
       
-      $content = (is_null($data)
-        ? ($delta > 0
-          ? $key
-          : $val
-        )
-        : (is_callable($data)
-          ? $data($val, $key, $delta, $properties)
-          : $val->extract($data)
-        )
-      );
+      $properties = [];
+      
+      if(is_null($data) && $delta > 0){
+        $content = $key;
+      }
+      
+      elseif(is_null($data)){
+        $content = $val;
+      }
+      
+      elseif($data instanceof \Closure){
+        $data = $data->bindTo($val);
+        $content = $data($delta, $properties);
+      }
+      
+      else{
+        $content = $val->extract($data);
+      }
       
       $list .= str_repeat(' ', $indent);
       
@@ -678,14 +701,14 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // Returns all content of this node (including its children) as JSON
+  //Returns all content of this node (including its children) as JSON.
   public function makeJSON($flags = JSON_FORCE_OBJECT)
   {
     return json_encode($this->toArray(), $flags);
   }
   
-  // returns string representation of all this node's data
-  public function dump($format = true, $l=0)
+  //Returns string representation of all this node's data.
+  public function dump($format=true, $l=0)
   {
     
     $output = ($this->is_godnode() ? get_class($this) : '['.$this->key.']').' = ';
@@ -696,7 +719,9 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
     else
     {
+    
       $l++;
+      
       $output .= ($format ? "\n".str_repeat('  ', $l) : '').get_class($this).'(';
       foreach($this->data as $data){
         $output .= ($format ? "\n".str_repeat('  ', $l+1) : '').$data->dump($format, $l+1).', ';
@@ -709,13 +734,13 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   
   }
 
-  // Returns serialized string representation of this instance
+  //Returns serialized string representation of this instance.
   public function serialized()
   {
     return serialize($this);
   }
   
-  // if the value of this node is a serialized value, this function will return the unserialized result
+  //If the value of this node is a serialized value, this function will return the unserialized result.
   public function unserialized()
   {
     
@@ -739,7 +764,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  CONVERTERS
   ###
   
-  // sets this node the the return value of $this->{$converter}([argument[, ...]])
+  //Sets this node the the return value of $this->{$converter}([argument[, ...]]).
   public function convert()
   {
     
@@ -751,14 +776,14 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     $converter = array_shift($arguments);
     
     if(!is_string($converter)){
-      throw new \exception\InvliadArguments('Data::convert() is expecting argument 1 to be string. %s given.', ucfirst(gettype(func_get_arg(0))));
+      throw new \exception\InvliadArguments('Data::convert() is expecting argument 1 to be string. %s given.', ucfirst(typeof(func_get_arg(0))));
     }
     
     if(!method_exists($this, $converter)){
       throw new \exception\InvliadArguments('Expecting $converter (argument 1 passed to Data::convert()) to be the name of a method of \classes\Data, "%s" given.', $converter);
     }
     
-    $return = call_user_func_array(array($this, $converter), $arguments);
+    $return = call_user_func_array([$this, $converter], $arguments);
     
     if(!is_data($return)){
       throw new \exception\Programmer('Method "%s" executed by Data::convert() did not return a Data node.', $converter);
@@ -774,19 +799,19 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  RETURNS NEW DATA OBJECTS
   ###
   
-  // return a deep clone of $this, the clone will not be in the same context
+  //Return a deep clone of $this, the clone will not be in the same context.
   public function copy()
   {
     return clone $this;
   }
   
-  // return the parent of this node, false when without parent
-  public function & back()
+  //Return the parent of this node, false when without parent.
+  public function back()
   {
     return $this->context;
   }
   
-  // returns a copy of this node having only the subnodes of which the keys were in the argument list passed to having
+  //Returns a copy of this node having only the subnodes of which the keys were in the argument list passed to having.
   public function having()
   {
     
@@ -817,7 +842,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns a copy of this node having only the subnodes which made the given callback return true
+  //Returns a copy of this node having only the subnodes which made the given callback return true.
   public function filter($callback)
   {
     
@@ -826,13 +851,14 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     }
     
     if(!is_callable($callback)){
-      throw new \exception\InvalidArgument('Expecting $callback to be callable. It is not.');
+      throw new \exception\InvalidArgument('Expecting $callback to be a Closure. %s given.', ucfirst(typeof($callback)));
     }
     
     $return = Data();
     
     foreach($this as $k => $v){
-      if($callback($v, $k) === true){
+      $c = $callback->bindTo($v);
+      if($c() === true){
         $return->__get($k)->set($v);
       }
     }
@@ -841,7 +867,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns a new node containing the formatted string based on the contents of this node
+  //Returns a new node containing the formatted string based on the contents of this node.
   public function format($format = '%s')
   {
     
@@ -853,7 +879,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns a new node containing the given value of this node is empty
+  //Returns a new node containing the given value of this node is empty.
   public function otherwise($default)
   {
     
@@ -861,19 +887,21 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // map as new DataArray
+  //Map as new DataArray.
   public function map($callback)
   {
     
-    $array = array();
+    $array = [];
     
     foreach($this as $key => $node)
     {
+    
+      $c = $callback->bindTo($node);
       
       if($node->is_set())
       {
         
-        $val = $callback($node, $key);
+        $val = $c();
         
         if(is_array($val) && count($val) == 1 && is_string(key($val))){
           $array[key($val)] = current($val);
@@ -899,7 +927,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // trim specified characters off the start end end of the node
+  //Trim specified characters off the start end end of the node.
   public function trim($charlist=' ')
   {
     
@@ -914,9 +942,9 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     else
     {
       
-      return $this->copy()->walk(function($node)use($charlist){
-        if($node->is_leafnode()){
-          $node->set(trim($node->get('string'), $charlist));
+      return $this->copy()->walk(function()use($charlist){
+        if($this->is_leafnode()){
+          $this->set(trim($this->get('string'), $charlist));
         }
       });
       
@@ -924,7 +952,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // split the string value of this node into pieces, give string to use it as delimiter or int to split into chunks of given size
+  //Split the string value of this node into pieces, give string to use it as delimiter or int to split into chunks of given size.
   public function split($s=null)
   {
     
@@ -952,7 +980,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns a string created of all childnodes converted to string and joined together by the given $separator
+  //Returns a string created of all childnodes converted to string and joined together by the given $separator.
   public function join($separator='')
   {
     
@@ -968,7 +996,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns a slice of the string or array
+  //Returns a slice of the string or array.
   public function slice($offset=0, $length=null)
   {
     
@@ -980,7 +1008,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // perform a regular expression and return a new data node containing the matches
+  //Perform a regular expression and return a new data node containing the matches.
   public function parse($regex, $flags=0)
   {
     
@@ -1003,7 +1031,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns a lowercased version of the node
+  //Returns a lowercased version of the node.
   public function lowercase()
   {
     
@@ -1018,9 +1046,9 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     else
     {
       
-      return $this->copy()->walk(function($node){
-        if($node->is_leafnode()){
-          $node->set(strtolower($node->get('string')));
+      return $this->copy()->walk(function(){
+        if($this->is_leafnode()){
+          $this->set(strtolower($this->get('string')));
         }
       });
       
@@ -1028,7 +1056,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns an uppercased version of the node
+  //Returns an uppercased version of the node.
   public function uppercase()
   {
     
@@ -1043,9 +1071,9 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     else
     {
       
-      return $this->copy()->walk(function($node){
-        if($node->is_leafnode()){
-          $node->set(strtoupper($node->get('string')));
+      return $this->copy()->walk(function(){
+        if($this->is_leafnode()){
+          $this->set(strtoupper($this->get('string')));
         }
       });
       
@@ -1053,34 +1081,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns an md5 hashed copy of this node
-  // :'( why did you do this???
-  // I hope I can deprecate this soon
-  public function md5()
-  {
-    
-    if(!$this->is_set()){
-      return Data();
-    }
-    
-    if($this->is_leafnode()){
-      return Data(md5($this->get('string')));
-    }
-    
-    else
-    {
-      
-      return $this->copy()->walk(function($node){
-        if($node->is_leafnode()){
-          $node->set(md5($node->get('string')));
-        }
-      });
-      
-    }
-    
-  }
-  
-  // returns a version of this node with all strings html escaped
+  //Returns a version of this node with all strings html escaped.
   public function htmlEscape($flags = 50)
   {
     
@@ -1095,9 +1096,9 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     else
     {
       
-      return $this->copy()->walk(function($node)use($flags){
-        if($node->is_leafnode()){
-          $node->set(htmlentities($node->get('string'), $flags, 'UTF-8'));
+      return $this->copy()->walk(function()use($flags){
+        if($this->is_leafnode()){
+          $this->set(htmlentities($this->get('string'), $flags, 'UTF-8'));
         }
       });
       
@@ -1105,7 +1106,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns a reversed (reversing done based on datatype) copy of this node
+  //Returns a reversed (reversing done based on datatype) copy of this node.
   public function reverse()
   {
     
@@ -1137,7 +1138,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  SETTERS
   ###
   
-  // the magic set function calls ->set()
+  //The magic set function calls ->set().
   public function __set($key, $val)
   {
     
@@ -1145,11 +1146,11 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   
   }
   
-  // Converts given data to Data objects and sets the data of this node to it. args([mixed $merge,] mixed $val)
+  //Converts given data to Data objects and sets the data of this node to it. args([mixed $merge,] mixed $val).
   public function set()
   {
     
-    //handle arguments
+    //Handle arguments.
     switch(func_num_args())
     {
       case 1:
@@ -1165,42 +1166,47 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
         return $this;
     }
     
-    //break out of closures
-    while($val instanceof \Closure){
-      $val = $val($this);
+    //Break out of Closures and Data nodes.
+    while(is_object($val)){
+      
+      if($val instanceof \Closure){
+        $c = $val->bindTo($this);
+        $val = $c();
+        unset($c);
+      }
+      
+      elseif(is_data($val)){
+        $val = $val->get();
+      }
+      
+      else{
+        break;
+      }
+      
     }
     
-    //break out of Data objects
-    if(is_data($val)){
-      $val = $val->get();
-    }
-    
-    //setting empty data is unsetting
-    if($merge === false && ($val === null || $val === array())){
-      $this->un_set();
-      return $this;
-    }
-    
-    //clear before setting
+    //clear before setting.
     if($merge === false){
       $tmpdata = $this->data;
       $this->clear();
     }
     
-    //we will loop through the array, and put each individual value in our data
+    //we will loop through the array, and put each individual value in our data.
     if(is_array($val))
     {
       
-      //set data to be an empty array
+      $this->set = true;
+      
+      //set data to be an empty array.
       if($merge === false || $this->is_leafnode()){
-        $this->data = array();
+        $this->data = [];
       }
       
-      //put the given array into the data object
+      //put the given array into the data object.
       foreach($val AS $key => $subval)
       {
         
-        //if a data object is inserted as value, store a copy of that object to prevent it being in multiple Data nodes
+        //if a data object is inserted as value, store a copy of that object to prevent it being in multiple Data nodes.
         if(is_data($subval))
         {
           
@@ -1219,7 +1225,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
           
         }
         
-        //if anything other than a Data node was inserted, we will create a new node or merge over the old one
+        //if anything other than a Data node was inserted, we will create a new node or merge over the old one.
         else
         {
           
@@ -1243,11 +1249,18 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
       
     }
     
-    //unless it's something else, in which case we'll assume that it is a leafnode
+    //unless it's something else, in which case we'll assume that it is a leafnode.
     else
     {
       
-      $this->data = $val;
+      if(is_null($this->set) && is_null($val)){
+        $this->set = false;
+      }
+      
+      else{
+        $this->set = true;
+        $this->data = $val;
+      }
       
     }
 
@@ -1255,7 +1268,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   
   }
   
-  // Pushes a new value into this node: push([$key=null, ]$val)
+  //Pushes a new value into this node: push([$key=null, ]$val).
   public function push()
   {
     
@@ -1270,7 +1283,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     }
     
     else{
-      throw new \exception\InvalidArguments('Data::push one or two arguments. %s Given.', func_num_args());
+      throw new \exception\InvalidArguments('Data::push() is expecting one or two arguments. %s Given.', func_num_args());
     }
     
     $this->__get($key)->set($val);
@@ -1279,7 +1292,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // Converts given data to Data objects and merges it with the data already present. $deep can be set to any interger to merge into that level of depth
+  //Converts given data to Data objects and merges it with the data already present. $deep can be set to any interger to merge into that level of depth.
   public function merge($val, $deep=true)
   {
     
@@ -1287,7 +1300,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // have this node 'become'- or in essense; inside it's context be replaced by- given Data
+  //Have this node 'become'- or in essense; inside it's context be replaced by- given Data.
   public function become(Data $data)
   {
     
@@ -1303,7 +1316,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // moves this node to given variable, and return the variable for chaining
+  //Moves this node to given variable, and return the variable for chaining.
   public function & moveto(&$to)
   {
   
@@ -1315,7 +1328,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // does the same as move, but also keeps this node present at it's former location
+  //Does the same as move, but also keeps this node present at it's former location.
   public function & copyto(&$to)
   {
     
@@ -1332,7 +1345,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // un_set's this node, or if arguments are given, the nodes inside with names corresponding to the given arguments
+  //Unset's this node, or if arguments are given, the nodes inside with names corresponding to the given arguments.
   public function un_set()
   {
     
@@ -1344,6 +1357,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     }
     
     $this->clear();
+    $this->set = false;
     
     if($this->is_childnode()){
       $this->context->data[$this->key] = null;
@@ -1354,7 +1368,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // remove all data inside this node
+  //Remove all data inside this node.
   public function clear()
   {
     
@@ -1364,19 +1378,15 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // redirect unset() to the data array, and unset self if this contains no more data
+  //Redirect unset() to the data array.
   public function __unset($key)
   {
     
     $this->data[$key]->clear();
     
-    if($this->size() == 0){
-      $this->clear();
-    }
-    
   }
   
-  // used internally to handle context
+  //Used internally to handle context.
   public function _setContext($context, $key)
   {
     
@@ -1396,7 +1406,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // used internally to handle context
+  //Used internally to handle context.
   public function _clearContext()
   {
     
@@ -1413,7 +1423,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  INFORMATION
   ###
   
-  // returns true if the value of this node is equal to true
+  //Returns true if the value of this node is equal to true.
   public function is_true()
   {
   
@@ -1421,7 +1431,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   
   }
   
-  // returns true if the value of this node is equal to false
+  //Returns true if the value of this node is equal to false.
   public function is_false()
   {
   
@@ -1429,15 +1439,15 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   
   }
   
-  // returns true if this node is set, and false if it's node
+  //Returns true if this node is set, and false if it's node.
   public function is_set()
   {
     
-    return ! is_null($this->data);
+    return $this->set;
     
   }
   
-  // returns true if this node has no children
+  //Returns true if this node has no children.
   public function is_leafnode()
   {
     
@@ -1445,7 +1455,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns true if this node has a parent node
+  //Returns true if this node has a parent node.
   public function is_childnode()
   {
     
@@ -1453,7 +1463,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns true if this node has childnodes (is not a leafnode)
+  //Returns true if this node has childnodes (is not a leafnode).
   public function is_parent()
   {
     
@@ -1461,7 +1471,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns true if this node has no parents
+  //Returns true if this node has no parents.
   public function is_godnode()
   {
     
@@ -1469,7 +1479,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns true for empty nodes
+  //Returns true for empty nodes.
   public function is_empty()
   {
     
@@ -1477,13 +1487,13 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns true if the value of this node is numeric
+  //Returns true if the value of this node is numeric.
   public function is_numeric()
   {
     return is_numeric($this->get());
   }
   
-  // returns (int) depth of this node, starting from 1 (first generation) for godnodes
+  //Returns (int) depth of this node, starting from 1 (first generation) for godnodes.
   public function generation()
   {
     
@@ -1498,7 +1508,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns the size of this node: the number of _set_ children or the number of characters
+  //Returns the size of this node: the number of _set_ children or the number of characters.
   public function size()
   {
     
@@ -1516,7 +1526,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns datatype
+  //Returns datatype.
   public function type()
   {
     
@@ -1524,7 +1534,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns the key name that this node is assigned to in it's parent, false if without parent
+  //Returns the key name that this node is assigned to in it's parent, false if without parent.
   public function key()
   {
     
@@ -1532,7 +1542,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns true if the node by given name has a value that could be interpreted as "true"
+  //Returns true if the node by given name has a value that could be interpreted as "true".
   public function check($node_name)
   {
     
@@ -1540,7 +1550,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // returns the key of given data node (or data inside the data node), false if not found
+  //Returns the key of given data node (or data inside the data node), false if not found.
   public function keyof($node)
   {
     
@@ -1571,7 +1581,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  VALIDATION
   ###
   
-  // validates given rules
+  //Validates data based on given rules and creates a user-message based on given name and thrown Validation exception.
   public function validate($name, array $rules)
   {
     
@@ -1609,7 +1619,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  EXTENDING SUCCESSABLE
   ###
   
-  // uses successable to implement greater then with short notation
+  //Uses successable to implement greater then with short notation.
   public function gt($value, $callback=null)
   {
   
@@ -1617,7 +1627,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // uses successable to implement lesser then with short notation
+  //Uses successable to implement lesser then with short notation.
   public function lt($value, $callback=null)
   {
   
@@ -1625,7 +1635,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // uses successable to implement equals with short notation
+  //Uses successable to implement equals with short notation.
   public function eq($value, $callback=null)
   {
   
@@ -1633,7 +1643,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // extend parent::is() functionality with the possibility to give strings to check for $this->is_[check]()
+  //Extend parent::is() functionality with the possibility to give strings to check for $this->is_[check]().
   public function is($check, $callback=null)
   {
     
@@ -1645,17 +1655,17 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
         throw new \exception\InvalidArgument('%s is not a valid check.', ucfirst($check));
       }
       
-      return parent::is($this->{"is_$check"}(), $callback);
+      return $this->_is($this->{"is_$check"}(), $callback);
       
     }
     
     else{
-      return parent::is($check, $callback);
+      return $this->_is($check, $callback);
     }
     
   }
   
-  // extend parent::not() functionality with the possibility to give strings to check for !$this->is_[check]()
+  //Extend parent::not() functionality with the possibility to give strings to check for !$this->is_[check]().
   public function not($check, $callback=null)
   {
   
@@ -1666,12 +1676,12 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
         throw new \exception\InvalidArgument('%s is not a valid check.', ucfirst($check));
       }
       
-      return parent::not($this->{"is_$check"}(), $callback);
+      return $this->_not($this->{"is_$check"}(), $callback);
       
     }
     
     else{
-      return parent::not($check, $callback);
+      return $this->_not($check, $callback);
     }
   
   }
@@ -1682,7 +1692,7 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
   ###  ITTERATORS
   ###
   
-  // call $callback($val, $key) for each node in this Data object
+  //Call $callback($val, $key) for each node in this Data object.
   public function each($callback)
   {
     
@@ -1692,8 +1702,9 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
       return $this;
     }
     
-    foreach($this as $key => $node){
-      $r = $callback($node, $key);
+    foreach($this as $node){
+      $c = $callback->bindTo($node);
+      $r = $callback();
       if($r === false){
         break;
       }
@@ -1703,11 +1714,11 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
     
   }
   
-  // call $callback($val, $key, $delta) for each node and subnodes in this Data object
+  //Call $callback($val, $key, $delta) for each node and subnodes in this Data object.
   public function walk($callback)
   {
     
-    // must give a callable callback
+    //must give a callable callback.
     if(!is_callable($callback)){
       throw new \exception\InvalidArgument('Expecting $callback to be callable. It is not.');
     }
@@ -1724,7 +1735,8 @@ class Data extends Successable implements \Serializable, \IteratorAggregate, \Ar
         $key = key($nodes);
         $node = current($nodes);
         $delta = ($delta==0 && $node->is_parent() ? 1 : $delta);
-        $callback($node, $key, $delta);
+        $c = $callback->bindTo($node);
+        $c($delta);
       
         if($node->is_parent() && $delta >= 0){
           $walker($node);

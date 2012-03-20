@@ -14,7 +14,8 @@ function __autoload($class)
   switch($class_array[0]){
     case 'classes': $file = "$path_system/classes/{$class_array[1]}.php"; break;
     case 'exception': $file = "$path_system/exceptions/{$class_array[1]}.php"; break;
-    default: throw new \exception\Restriction('Failed to autoload "%s"; autoloading is restricted to only exception classes or dependency classes.', $class);
+    case 'traits': $file = "$path_system/traits/{$class_array[1]}.php"; break;
+    default: throw new \exception\Restriction('Failed to autoload "%s"; autoloading is restricted to only exceptions, traits or core classes.', $class);
   }
   
   if(!is_file($file)){

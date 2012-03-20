@@ -1,7 +1,6 @@
 <?php
 
-function url($url, $discard_old_querystring=false, $build_on_redirect=false, $keep_module_id=false)
-{
+function url($url, $discard_old_querystring=false, $build_on_redirect=false, $keep_module_id=false){
   
   return new \classes\Url(data_of($url), array(
     'discard_old_querystring' => $discard_old_querystring,
@@ -79,7 +78,7 @@ function set_status_header($code=200, $text=null){
   
 }
 
-function file_upload_error_message($error_code) {
+function file_upload_error_message($error_code){
   $error_code = data_of($error_code);
   switch ($error_code) { 
   case UPLOAD_ERR_INI_SIZE: 
@@ -100,3 +99,11 @@ function file_upload_error_message($error_code) {
     return 'Unknown upload error'; 
   } 
 } 
+
+function typeof($mixed){
+  return (is_object($mixed) ? sprintf('object(%s)', get_class($mixed)) : gettype($mixed));
+}
+
+function uses($class, $trait_name){
+  return array_key_exists("traits\\$trait_name", class_uses($class));
+}

@@ -1,4 +1,4 @@
-<?php namespace classes;
+<?php namespace traits;
 
 trait Successable
 {
