@@ -10,33 +10,6 @@ function error_handler($errno, $errstr='', $errfile='', $errline='', $context=ar
   
 }
 
-function exception_handler($e){
-  
-  tx('Logging')->log('Debug', 'Uncaught exception', $e->getMessage());
-  tx('Controller')->load_error_template($e);
-  
-}
-
-function exception_handler_image($e){
-  
-  try
-  {
-    
-    $text = (DEBUG ? $e->getMessage() : __('Image could not be loaded.', TX));
-    
-    tx('File')->image()
-      ->create(300, 300, 'black')
-      ->text($text, 'white', 4, 10)
-      ->output();
-    
-    exit;
-    
-  }catch(\exception\Exception $ex){
-    exception_handler($e);
-  }
-  
-}
-
 function trace(){
   static $tracenum = 1;
   $trace = debug_backtrace(false);
@@ -147,22 +120,3 @@ function callstack(){
   }
   
 }
-
-function log_msg($namespace, $message){
-  
-  $namespace_max = 10;
-  if(strlen($namespace) > $namespace_max){
-    $namespace = substr($namespace, 0, floor($namespace_max/2)).'..'.substr($namespace, ceil($namespace_max/2));
-  }
-  $separator = '  '.str_repeat(' ', $namespace_max - strlen($namespace));
-  
-  $file = PATH_BASE.DS.'log.txt';
-  $a = fopen($file, 'a');
-  $dt = date('Ymd His', time());
-  $r = fwrite($a, "\n$dt: $namespace$separator$message");
-  fclose($a);
-  
-  return !!$r;
-  
-}
-

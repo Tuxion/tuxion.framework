@@ -1,8 +1,6 @@
 <?php
 
-  /**
-  * get an array of all positions of given substr, with an optional starting offset
-  */
+  //Get an array of all positions of given substr, with an optional starting offset.
   function strapos($haystack, $needle, $offset=0){
     $return = array();
     while($a = strpos($haystack, $needle, $offset) && $a !== false){
@@ -12,9 +10,7 @@
     return $return;
   }
   
-  /**
-  * get depths of opening/closing character sets in a given string with optional ignoring
-  */
+  //Get depths of opening/closing character sets in a given string with optional ignoring.
   function strapos_depths($haystack, $opening=false, $closing=false, $ignored=false){
   
     $ignore = off;
@@ -49,22 +45,18 @@
   
   }
   
-  /**
-  * extract the classname out of a full-namepspaced string
-  */
+  //extract the classname out of a full-namepspaced string.
   function baseclass($classname){
     return substr(strrchr($classname, '\\'), 1);
   }
   
-  //parse_str with a normal return value
+  //Parse_str with a normal return value.
   function parse_string($input){
     parse_str($input, $output);
     return $output;
   }
   
-  /**
-  * Cut off a string when it is too long.
-  */
+  //Cut off a string when it is too long.
   function str_max($input, $max, $append='')
   {
     $max = (int)$max;
