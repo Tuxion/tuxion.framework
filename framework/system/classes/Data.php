@@ -254,7 +254,7 @@ class Data implements \Serializable, \IteratorAggregate, \ArrayAccess
     
   }
   
-  //Returns the actual value of a node, accepts offset and length to cut strings or arrays.
+  //Returns the actual value of a node.
   public function get($as=null)
   {
   

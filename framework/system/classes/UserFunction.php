@@ -4,7 +4,7 @@ class UserFunction extends Successable
 {
 
 
-  public 
+  public
     $exception=null,
     $action='performing an action',
     $return_value=null;
