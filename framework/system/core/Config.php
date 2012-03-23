@@ -2,25 +2,17 @@
 
 class Config
 {
-
+  
   private
-    $config,
-    $database,
-    $path,
-    $url;
+    $config = [],
+    $database = [];
+  
+  public
+    $paths,
+    $urls;
     
   public
     $site;
-  
-  public function __construct()
-  {
-    
-    $this->config = Data();
-    $this->database = Data();
-    $this->path = Data();
-    $this->url = Data();
-    
-  }
   
   public function init()
   {
@@ -33,61 +25,64 @@ class Config
     }
     
     //Set paths.
-    foreach(require("$path_config/paths.php") as $key => $value){
-      $this->path[$key] = $value;
-    }
+    $this->paths = new \classes\Configuration(require("$path_config/paths.php"));
     
     //Set urls.
-    foreach(require("$path_config/urls.php") as $key => $value){
-      $this->url[$key] = $value;
-    }
+    $this->urls = new \classes\Configuration(require("$path_config/urls.php"));
     
-    //Set user config. (and merge with defaults)
-    // foreach(tx('Sql')->execute_query('SELECT * FROM #__cms_config WHERE autoload = 1') AS $row){
-      // $this->user[$row->key] = $row->value;
-    // }
+    //Set database config.
+    $this->database = $this->_setMulti(require("$path_config/database.php"));
     
-  }
-  
-  public function config()
-  {
-    
-    switch(func_num_args()){
-      case 0: return $this->config[$this->site];
-      case 1: return $this->config[$this->site][func_get_arg(0)];
-      //case 3: tx('Sql')->execute_non_query('UPDATE #__cms_config SET value = \''.mysql_real_escape_string(func_get_arg(1)).'\' WHERE key = \''.mysql_real_escape_string(func_get_arg(1)).'\'');
-      case 2: return $this->config[$this->site][func_get_arg(0)]->set(func_get_arg(1));
-    }
+    //Set configuration.
+    $this->config = $this->_setMulti(require("$path_config/config.php"));
     
   }
   
-  public function database()
+  public function __get($key)
   {
     
-    switch(func_num_args()){
-      case 0: return $this->database[$this->site];
-      case 1: return $this->database[$this->site][func_get_arg(0)];
-    }
+    return $this->__call($key, [tx('Data')->server->HTTP_HOST->get()]);
     
   }
   
-  public function path()
+  public function __call($key, $arguments)
   {
     
-    switch(func_num_args()){
-      case 0: return $this->path;
-      case 1: return $this->path[func_get_arg(0)];
+    if(!(isset($this->{$key}) && is_array($this->{$key}))){
+      throw new \exception\InvalidArgument('Config variable "%s" is not an array.', $key);
     }
+    
+    if(count($arguments) < 1){
+      throw new \exception\InvalidArgument('Expecting at least one argument. 0 Given.');
+    }
+    
+    if(!array_key_exists($arguments[0], $this->{$key})){
+      throw new \exception\NotFound('No configuration settings found for domain: "%s".', $arguments[0]);
+    }
+    
+    return $this->{$key}[$arguments[0]];
     
   }
   
-  public function url()
+  private function _setMulti(array $arr)
   {
     
-    switch(func_num_args()){
-      case 0: return $this->url;
-      case 1: return $this->url[func_get_arg(0)];
+    $return = [];
+    
+    if(array_key_exists('*', $arr)){
+      $return['*'] = $defaults = new \classes\Configuration($arr['*']);
+      unset($arr['*']);
     }
+    
+    foreach($arr as $domain => $values){
+      $return[$domain] = new \classes\Configuration($values, $defaults);
+    }
+    
+    if(!array_key_exists(tx('Data')->server->HTTP_HOST->get(), $return)){
+      $return[tx('Data')->server->HTTP_HOST->get()] = new \classes\Configuration([], $defaults);
+    }
+    
+    return $return;
     
   }
   
