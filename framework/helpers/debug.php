@@ -1,15 +1,5 @@
 <?php
 
-function error_handler($errno, $errstr='', $errfile='', $errline='', $context=array()){
-  
-  if((error_reporting() & $errno) == 0){
-    return;
-  }
-  
-  throw new \exception\Error($errno, $errstr, $errfile, $errline, $context);
-  
-}
-
 function trace(){
   static $tracenum = 1;
   $trace = debug_backtrace(false);
