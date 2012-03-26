@@ -25,10 +25,10 @@ class Config
     }
     
     //Set paths.
-    $this->paths = new \classes\Configuration(require("$path_config/paths.php"));
+    $this->paths = new \classes\Configuration('*', require("$path_config/paths.php"));
     
     //Set urls.
-    $this->urls = new \classes\Configuration(require("$path_config/urls.php"));
+    $this->urls = new \classes\Configuration('*', require("$path_config/urls.php"));
     
     //Set database config.
     $this->database = $this->_setMulti(require("$path_config/database.php"));
@@ -70,16 +70,16 @@ class Config
     $return = [];
     
     if(array_key_exists('*', $arr)){
-      $return['*'] = $defaults = new \classes\Configuration($arr['*']);
+      $return['*'] = $defaults = new \classes\Configuration('*', $arr['*']);
       unset($arr['*']);
     }
     
     foreach($arr as $domain => $values){
-      $return[$domain] = new \classes\Configuration($values, $defaults);
+      $return[$domain] = new \classes\Configuration($domain, $values, $defaults);
     }
     
     if(!array_key_exists(tx('Data')->server->HTTP_HOST->get(), $return)){
-      $return[tx('Data')->server->HTTP_HOST->get()] = new \classes\Configuration([], $defaults);
+      $return[tx('Data')->server->HTTP_HOST->get()] = new \classes\Configuration(tx('Data')->server->HTTP_HOST->get(), [], $defaults);
     }
     
     return $return;
