@@ -12,6 +12,8 @@ tx('Debug');
 //Initiate configuration class.
 tx('Config');
 
-$test = tx('Sql')->query('SELECT * FROM #system_config WHERE `key` = ?s', 'title');
+$test = tx('Sql')->query('SELECT * FROM #system_config');
 
-trace( $test );
+while($row = $test->row()){
+  trace($row);
+}
