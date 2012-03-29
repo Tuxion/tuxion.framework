@@ -3,8 +3,10 @@
 class SqlQuery
 {
   
+  public
+    $connection=null;
+    
   private
-    $connection=null,
     $prepared=false,
     $query,
     $datatypes=[],

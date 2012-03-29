@@ -22,7 +22,7 @@ class Debug
   
   public function exceptionHandler($e)
   {
-    trace($e->getMessage());
+    trace(get_class($e), $e->getMessage());
     trace($e->getTrace());
   }
 

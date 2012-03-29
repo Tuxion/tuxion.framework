@@ -36,11 +36,15 @@ class Sql
       $domain = array_shift($args);
     }
     
+    else{
+      $domain = null;
+    }
+    
     //Check if alternative syntax is used.
     if(is_string($args[0]))
     {
       
-      $queries = explode(';', array_shift($args));
+      $queries = explode(';', trim(array_shift($args), ';'));
       
       foreach($queries as $k => $query)
       {
@@ -75,7 +79,7 @@ class Sql
         $queries[$k] = (new \classes\SqlQuery($this->connection($domain)))->setQuery($query);
       }
       
-      elseif(is_array()){
+      elseif(is_array($query)){
         $queries[$k] = (new \classes\SqlQuery($this->connection($domain), $query));
       }
       
@@ -85,8 +89,8 @@ class Sql
       
     }
     
-    //Create the SqlMultiQuery object.
-    $smq = new \classes\SqlMultiQuery($queries);
+    //Create the SqlMultiQuery object and execute it.
+    return (new \classes\SqlMultiQuery($this->connection($domain), $queries))->execute();
     
   }
   

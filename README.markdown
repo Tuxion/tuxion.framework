@@ -21,7 +21,8 @@ PHP and Javascript programmer.
 
 Tuxion.Framework is licensed under the GPLv3 license. You can read more about this license
 on the [Free Software Foundations website](http://www.gnu.org/licenses/gpl-3.0.html). The
-license is included as LICENSE in this directory.
+license is included as
+[LICENSE in this directory](https://github.com/Tuxion/tuxion.framework/blob/master/LICENSE).
 
 ### Commercial License
 

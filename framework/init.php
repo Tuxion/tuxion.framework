@@ -11,9 +11,3 @@ tx('Debug');
 
 //Initiate configuration class.
 tx('Config');
-
-$test = tx('Sql')->query('SELECT * FROM #system_config');
-
-while($row = $test->row()){
-  trace($row);
-}

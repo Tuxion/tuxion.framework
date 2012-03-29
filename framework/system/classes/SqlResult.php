@@ -8,13 +8,9 @@ class SqlResult
   
   public function __construct(\mysqli_result $result)
   {
-    
-    $rows = [];
-    while($rows[] = $result->fetch_assoc());
-    array_pop($rows);
-    $this->rows = $rows;
+    while($this->rows[] = $result->fetch_assoc());
+    array_pop($this->rows);
     $result->free();
-    
   }
   
   public function row($key=null)
