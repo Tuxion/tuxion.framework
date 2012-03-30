@@ -1,6 +1,6 @@
 <?php namespace core;
 
-class Server
+class Server implements \ArrayAccess
 {
   
   private $data;
@@ -22,8 +22,37 @@ class Server
       throw new \exception\NotFound('Server variable "%s" does not exist.', $key);
     }
     
-    return $this[$k];
+    return $this->data[$k];
     
+  }
+  
+  public function __set($key, $value)
+  {
+    throw new \exception\Restriction('Server variables are read-only.');
+  }
+  
+  //simi-magic method implemented by \ArrayAccess.
+  public function offsetGet($key)
+  {
+    return $this->__get($key);
+  }
+  
+  //simi-magic method implemented by \ArrayAccess.
+  public function offsetSet($key, $val)
+  {
+    throw new \exception\Restriction('Server variables are read-only.');
+  }
+  
+  //simi-magic method implemented by \ArrayAccess.
+  public function offsetExists($key)
+  {
+    return array_key_exists($key, $this->data);
+  }
+  
+  //simi-magic method implemented by \ArrayAccess.
+  public function offsetUnset($key)
+  {
+    throw new \exception\Restriction('Server variables are read-only.');
   }
   
 }
