@@ -12,7 +12,8 @@ function url($url, $discard_old_querystring=false, $build_on_redirect=false, $ke
 
 function set_status_header($code=200, $text=null){
   
-  $stati = array(
+  $stati = [
+    
     200	=> 'OK',
     201	=> 'Created',
     202	=> 'Accepted',
@@ -52,7 +53,8 @@ function set_status_header($code=200, $text=null){
     503	=> 'Service Unavailable',
     504	=> 'Gateway Timeout',
     505	=> 'HTTP Version Not Supported'
-  );
+    
+  ];
   
   if(!array_key_exists($code, $stati)){
     throw new \exception\InvlaidArgument('Invalid status code "%s" given. Valid status codes are: %s.', $code, implode(', ', array_keys($stati)));
@@ -62,7 +64,7 @@ function set_status_header($code=200, $text=null){
     $text = $stati[$code];
   }
 
-  $server_protocol = tx('Data')->server->SERVER_PROTOCOL->get();
+  $server_protocol = tx('Server')->server_protocol;
 
   if(substr(php_sapi_name(), 0, 3) == 'cgi'){
     header("Status: $code $text", true);
