@@ -41,7 +41,7 @@ class Config
   public function __get($key)
   {
     
-    return $this->__call($key, [tx('Data')->server->HTTP_HOST->get()]);
+    return $this->__call($key, [tx('Server')->http_host]);
     
   }
   
@@ -78,8 +78,8 @@ class Config
       $return[$domain] = new \classes\Configuration($domain, $values, $defaults);
     }
     
-    if(!array_key_exists(tx('Data')->server->HTTP_HOST->get(), $return)){
-      $return[tx('Data')->server->HTTP_HOST->get()] = new \classes\Configuration(tx('Data')->server->HTTP_HOST->get(), [], $defaults);
+    if(!array_key_exists(tx('Server')->http_host, $return)){
+      $return[tx('Server')->http_host] = new \classes\Configuration(tx('Server')->http_host, [], $defaults);
     }
     
     return $return;
