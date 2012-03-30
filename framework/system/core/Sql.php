@@ -99,7 +99,7 @@ class Sql
   {
     
     if(is_null($domain)){
-      $domain = tx('Data')->server->HTTP_HOST->get();
+      $domain = tx('Server')->http_host;
     }
     
     if(array_key_exists($domain, $this->connections)){

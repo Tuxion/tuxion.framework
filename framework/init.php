@@ -1,6 +1,6 @@
 <?php
 
-//Require helpers.
+//Load the helpers.
 foreach(glob('helpers/*.php') as $helper) require_once($helper); unset($helper);
 
 //Preload the Loader class. We need it for loading.
@@ -11,3 +11,5 @@ tx('Debug');
 
 //Initiate configuration class.
 tx('Config');
+
+trace( tx('User')->hasPermission('example', 'eatpie') );

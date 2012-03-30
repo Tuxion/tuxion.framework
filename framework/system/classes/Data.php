@@ -6,6 +6,7 @@ class Data implements \Serializable, \IteratorAggregate, \ArrayAccess
   ###
   ###  TRAITS
   ###
+  
   use \traits\Successable {
     is as private _is;
     not as private _not;
@@ -850,7 +851,7 @@ class Data implements \Serializable, \IteratorAggregate, \ArrayAccess
       return $this;
     }
     
-    if(!is_callable($callback)){
+    if(!($callback instanceof \Closure)){
       throw new \exception\InvalidArgument('Expecting $callback to be a Closure. %s given.', ucfirst(typeof($callback)));
     }
     

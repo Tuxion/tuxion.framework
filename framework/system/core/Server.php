@@ -1,58 +1,21 @@
 <?php namespace core;
 
-class Server implements \ArrayAccess
+class Server extends \classes\ArrayObject
 {
-  
-  private $data;
   
   public function __construct()
   {
     
-    $this->data = $_SERVER;
-    unset($_SERVER);
+    $vars = [];
     
-  }
-  
-  public function __get($key)
-  {
-    
-    $k = strtoupper($key);
-    
-    if(!array_key_exists($k, $this->data)){
-      throw new \exception\NotFound('Server variable "%s" does not exist.', $key);
+    foreach($_SERVER as $key => $val){
+      $vars[strtolower($key)] = $val;
     }
     
-    return $this->data[$k];
+    parent::__construct($vars);
+    unset($_SERVER);
+    $this->setArrayPermissions(1,0,0);
     
-  }
-  
-  public function __set($key, $value)
-  {
-    throw new \exception\Restriction('Server variables are read-only.');
-  }
-  
-  //simi-magic method implemented by \ArrayAccess.
-  public function offsetGet($key)
-  {
-    return $this->__get($key);
-  }
-  
-  //simi-magic method implemented by \ArrayAccess.
-  public function offsetSet($key, $val)
-  {
-    throw new \exception\Restriction('Server variables are read-only.');
-  }
-  
-  //simi-magic method implemented by \ArrayAccess.
-  public function offsetExists($key)
-  {
-    return array_key_exists($key, $this->data);
-  }
-  
-  //simi-magic method implemented by \ArrayAccess.
-  public function offsetUnset($key)
-  {
-    throw new \exception\Restriction('Server variables are read-only.');
   }
   
 }
