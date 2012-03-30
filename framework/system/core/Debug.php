@@ -25,5 +25,10 @@ class Debug
     trace(get_class($e), $e->getMessage());
     trace($e->getTrace());
   }
+  
+  public function typeOf($var)
+  {
+    return (is_object($var) ? sprintf('object(%s)', get_class($var)) : gettype($var));
+  }
 
 }

@@ -78,10 +78,6 @@ function set_status_header($code=200, $text=null){
   
 }
 
-function typeof($mixed){
-  return (is_object($mixed) ? sprintf('object(%s)', get_class($mixed)) : gettype($mixed));
-}
-
 function uses($class, $trait_name){
   return array_key_exists("traits\\$trait_name", class_uses($class));
 }
