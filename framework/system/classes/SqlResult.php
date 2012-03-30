@@ -22,8 +22,17 @@ class SqlResult
       return $row;
     }
     
-    elseif(is_int($key)){
-      return $this->rows[$key];
+    elseif(is_int($key))
+    {
+      
+      if(array_key_exists($key, $this->rows)){
+        return $this->rows[$key];
+      }
+      
+      else{
+        return false;
+      }
+      
     }
     
     else{

@@ -38,8 +38,17 @@ class SqlResultset
       return $row;
     }
     
-    elseif(is_int($key)){
-      return $this->results[$key];
+    elseif(is_int($key))
+    {
+      
+      if(array_key_exists($key, $this->results)){
+        return $this->results[$key];
+      }
+      
+      else{
+        return false;
+      }
+      
     }
     
     else{
