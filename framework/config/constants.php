@@ -25,6 +25,12 @@ return [
   'ex_restriction' => 8192,
   'ex_notfound' => 16384,
   'ex_filemissing' => 32768,
-  'ex_inputmissing' => 65536
+  'ex_inputmissing' => 65536,
+  
+  //Permission values.
+  'never' => -1,
+  'no' => 0,
+  'yes' => 1,
+  'always' => 2
   
 ];
