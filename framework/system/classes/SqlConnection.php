@@ -1,23 +1,30 @@
 <?php namespace classes;
 
-class SqlConnection
+class SqlConnection extends \PDO
 {
   
   public
-    $config,
-    $mysqli;
+    $config;
   
   public function __construct($server)
   {
     
     $this->config = $c = tx('Config')->database($server);
-    $this->mysqli = new \mysqli($c->host, $c->user, $c->password, $c->name);
+    $dsn = "{$this->config->type}:host={$this->config->host};".(!is_null($this->config->port) ? "port={$this->config->port};" : '')."dbname={$this->config->name}";
+    parent::__construct($dsn, $this->config->user, $this->config->password);
+    $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
     
   }
   
-  public function __destruct()
-  {
-    $this->mysqli->close();
+  public function quote($value, $parameter_type = self::PARAM_STR)
+  { 
+    
+    if(is_null($value)){
+      return 'NULL';
+    }
+    
+    return parent::quote($value, $parameter_type);
+    
   }
   
 }

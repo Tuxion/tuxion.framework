@@ -5,20 +5,44 @@ trait ArrayContainer
   
   private
     $arr_permissions=7,
-    $arr_validator=null,
     $arr=[];
   
   //Itterate over the array.
   public function each(\Closure $callback)
   {
     
+    $i = 0;
     foreach($this->arr as $key => $value)
     {
-      $callback($value, $key);
+      
+      $r = $callback($value, $key, $i);
+      
+      if($r === false){
+        break;
+      }
+      
+      $i++;
+      
     }
     
     return $this;
     
+  }
+  
+  //Create a new self by itterating over the data and using the return value from the callback and return it.
+  public function map(\Closure $callback)
+  {
+  
+    $r = new \classes\Data;
+    $i = 0;
+    
+    foreach($this->arr as $key => $value){
+      $r->push($callback($value, $key, $i));
+      $i++;
+    }
+    
+    return $r;
+  
   }
   
   //Return the arr.
@@ -29,7 +53,7 @@ trait ArrayContainer
     
     foreach($this->arr as $key => $value)
     {
-      
+    
       if(uses($value, 'ArrayContainer')){
         $value = $value->toArray();
       }
@@ -62,11 +86,22 @@ trait ArrayContainer
     
   }
   
-  //Validator setter.
-  protected function setArrayValidator(\Closure $validator)
+  //Return the length of the array.
+  public function length()
   {
-    $this->arr_validator = $validator->bindTo($this);
-    return $this;
+    return count($this->arr);
+  }
+  
+  //Alias for length()
+  public function num()
+  {
+    return $this->length();
+  }
+  
+  //Alias for length()
+  public function size()
+  {
+    return $this->length();
   }
   
   //Permission setter.
@@ -98,17 +133,6 @@ trait ArrayContainer
     
     if( ! $this->arrayPermission(2)){
       throw new \exception\Restriction('You do not have write permissions.');
-    }
-    
-    if( ! is_null($this->arr_validator))
-    {
-    
-      $v = $this->arr_validator;
-      
-      if(!$v($value, $key)){
-        throw new \exception\InvalidArgument('Invalid value (%s) given.', typeof($value));
-      }
-    
     }
     
     return $this->arr[$key] = $value;

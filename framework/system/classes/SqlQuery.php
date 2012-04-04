@@ -146,7 +146,7 @@ class SqlQuery
     
     //Put data in query.
     $query = preg_replace_callback('~\?~', function()use(&$data){
-      return $this->_toSql(array_shift($data));
+      return array_shift($data);
     }, $query);
     
     //Return the query.
@@ -191,9 +191,13 @@ class SqlQuery
     }
     
     $query = $this->getQuery($conn);
-    $result = $conn->mysqli->query($query);
+    $result = $conn->query($query);
     
-    return new SqlResult($conn->mysqli->query($query));
+    if(!$result){
+      throw new \exception\Sql('Something went wrong while executing a query.');
+    }
+    
+    return new SqlResult($result);
     
   }
   
@@ -267,7 +271,7 @@ class SqlQuery
           }
           
           //Escape the value.
-          $value = $conn->mysqli->real_escape_string($value);
+          $value = $conn->quote($value);
           
         break;
         case 'd'://ouble

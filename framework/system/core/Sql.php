@@ -112,4 +112,10 @@ class Sql
     
   }
   
+  //Create an SqlQueryBuilder object which will return an SqlResult when executed.
+  public function selectAll($component_name, $model_name){}
+
+  //Create an SqlQueryBuilder object which will return the given model when executed.
+  public function selectA($component_name, $model_name){}
+  
 }

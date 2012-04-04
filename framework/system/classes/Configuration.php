@@ -41,17 +41,17 @@ class Configuration
     elseif($this->dbo)
     {
       
-      $result = tx('Sql')->queries($this->domain, [["SELECT value FROM `{$this->dbo['t']}` WHERE key = ?s", $key]])->result(0);
+      $result = tx('Sql')->queries($this->domain, "SELECT value FROM `{$this->dbo['t']}` WHERE `key` = ?s", $key);//[0];
       
-      if($result->hasRows())
+      if($result->num() > 0)
       {
         
         if($this->caching){
-        
+          $this->cache[$key] = $r = $result[0];
         }
         
         else{
-          return $result->row(0)->value;
+          return $result[0]->value;
         }
         
       }

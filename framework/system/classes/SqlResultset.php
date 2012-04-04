@@ -3,29 +3,36 @@
 class SqlResultset extends ArrayObject
 {
   
-  public
-    $num = 0;
-  
-  protected
-    $connection;
-  
-  public function __construct(SqlConnection $connection)
+  public function __construct(\PDOStatement $statement)
   {
     
-    $this->connection = $connection;
-    $i=0;
+    $i = 1;
     
-    while($this->connection->mysqli->more_results())
-    {
-      $this->connection->mysqli->next_result();
-      $result = $this->connection->mysqli->store_result();
-      $this->push(new SqlResult($result));
-      $i++;
+    try{
+    
+      do{
+        $i++;
+        $this->push(new SqlResult($statement));
+      }
+      
+      while($statement->nextRowset());
+      
+    }
+    
+    catch(\PDOException $e){
+      throw new \exception\Sql($e->getMessage().' in query %s.', $i);
+    }
+    
+    catch(\exception\Sql $e){
+      throw new \exception\Sql($e->getMessage().' in query %s.', $i);
     }
     
     $this->setArrayPermissions(1,0,0);
-    $this->num = $i;
     
+  }
+  
+  private function exceptionHandler($e){
+    throw $e;
   }
   
 }

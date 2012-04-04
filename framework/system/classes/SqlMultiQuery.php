@@ -71,9 +71,13 @@ class SqlMultiQuery
     }
     
     $query = $this->getQuery($conn);
-    $conn->mysqli->multi_query($query);
+    $result = $conn->query($query);
     
-    return new SqlResultset($conn);
+    if(!$result){
+      throw new \exception\Sql('Something went wrong while executing a multi-query.');
+    }
+    
+    return new SqlResultset($result);
     
   }
   

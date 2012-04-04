@@ -12,4 +12,7 @@ tx('Debug');
 //Initiate configuration class.
 tx('Config');
 
+header('Content-type: text/html');
+
 trace( tx('User')->hasPermission('example', 'eatpie') );
+trace( tx('User')->hasPermission('example', 'killpeople') );
