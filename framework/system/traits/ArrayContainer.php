@@ -29,7 +29,7 @@ trait ArrayContainer
     
   }
   
-  //Create a new self by itterating over the data and using the return value from the callback and return it.
+  //Return a new DataBranch by itterating over the data and using the return value from the callback and return it.
   public function map(\Closure $callback)
   {
   
@@ -45,8 +45,39 @@ trait ArrayContainer
   
   }
   
-  //Return the arr.
-  public function toArray()
+  //Merge one or more given arrays with arr.
+  public function merge()
+  {
+    
+    //I start at 1.
+    $i = 1;
+    
+    //Loop arguments.
+    foreach(func_get_args() as $array)
+    {
+      
+      //Validate if an array was given.
+      if(!(is_array($array) || uses($array, 'ArrayContainer'))){
+        throw new \exception\InvalidArgument('Expecting every argument to be an array. %s given for argument %s.', ucfirst(typeof($array)), $i);        
+      }
+      
+      //Loop the array.
+      foreach($array as $key => $value){
+        $this->arraySet($key, $value);
+      }
+      
+      //Increament.
+      $i++;
+      
+    }
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Return the arr and optionally any of the arr's in the subnodes.
+  public function toArray($recursive = true)
   {
     
     $arr = [];
@@ -54,7 +85,7 @@ trait ArrayContainer
     foreach($this->arr as $key => $value)
     {
     
-      if(uses($value, 'ArrayContainer')){
+      if($recursive && uses($value, 'ArrayContainer')){
         $value = $value->toArray();
       }
       
