@@ -152,33 +152,56 @@ class Permissions
   private function calculateUserPermissions($user_id, $component_id, $key = null)
   {
     
-    $results = tx('Sql')->queries([
+    //Get a reference to component info for pretty errors.
+    $cinfo = tx('Component')[$component_id];
+    
+    //Define queries.
+    $queries = [
       
-      //all groups role
-      ['SELECT *
+      //Get permissions for the global group role.
+      ['SELECT `key`, `value`
         FROM `#system_permissions_role` AS `pr`
-        INNER JOIN `#system_roles_to_user_groups` AS `rtug` ON `pr`.`role_id` = `rtug`.`role_id`
-        WHERE `rtug`.`user_group_id` IN (SELECT `user_group_id` FROM `#system_user_to_user_groups` WHERE `user_id` = ?i)',
-        $user_id
+        WHERE `role_id` = (SELECT `id` FROM `#system_roles` WHERE `is_user_global_role` = 1 AND `component_id` = ?i)',
+        $component_id
       ],
       
-      //check all groups always/never - in case of conflict: programmer exception
-      ['SELECT *
+      //Get permissions for the global group.
+      ['SELECT `key`, `value`
+        FROM `#system_permissions_user_global` AS `pugl`
+        WHERE `component_id` = ?i',
+        $component_id
+      ],
+      
+      //Get permissions for the roles assigned to every group that the user is a member of.
+      ['SELECT `key`, `value`
+        FROM `#system_permissions_role` AS `pr`
+        INNER JOIN `#system_roles_to_user_groups` AS `rtug` ON `pr`.`role_id` = `rtug`.`role_id`
+        INNER JOIN `#system_roles` AS `r` ON `pr`.`role_id` = `r`.`id`
+        WHERE `rtug`.`user_group_id` IN (SELECT `user_group_id` FROM `#system_user_to_user_groups` WHERE `user_id` = ?i)
+        AND `r`.`component_id` = ?i',
+        $user_id, $component_id
+      ],
+      
+      //Get permissions for every group that the user is a member of.
+      ['SELECT `key`, `value`
         FROM `#system_permissions_user_group` AS `pug`
-        WHERE `pug`.`user_group_id` IN (SELECT `user_group_id` FROM `#system_user_to_user_groups` WHERE `user_id` = ?i)',
-        $user_id
+        WHERE `pug`.`user_group_id` IN (SELECT `user_group_id` FROM `#system_user_to_user_groups` WHERE `user_id` = ?i)
+        AND `component_id` = ?i',
+        $user_id, $component_id
       ],
       
-      //check default group role always/never
-      ['SELECT *
+      //Get permissions for the role assigned to the user's default group.
+      ['SELECT `key`, `value`
         FROM `#system_permissions_role` AS `pr`
         INNER JOIN `#system_roles_to_user_groups` AS `rtug` ON `pr`.`role_id` = `rtug`.`role_id`
-        WHERE `rtug`.`user_group_id` = (SELECT `default_group_id` FROM `#system_roles_to_user_groups` WHERE `id` = ?i)',
-        $user_id
+        INNER JOIN `#system_roles` AS `r` ON `pr`.`role_id` = `r`.`id`
+        WHERE `rtug`.`user_group_id` = (SELECT `default_group_id` FROM `#system_users` WHERE `id` = ?i)
+        AND `r`.`component_id` = ?i',
+        $user_id, $component_id
       ],
       
-      //check default group always/never
-      ['SELECT *
+      //Get permissions assigned to the user's default group.
+      ['SELECT `key`, `value`
         FROM `#system_permissions_user_group` AS `pug`
         INNER JOIN `#system_user_to_user_groups` AS `utug` ON `pug`.`id` = `utug`.`user_group_id`
         INNER JOIN `#system_users` AS `u` ON `utug`.`user_id` = `u`.`id`
@@ -186,22 +209,135 @@ class Permissions
         $user_id, $component_id
       ],
       
-      //check user-level role yes/no
-      ['SELECT *
+      //Get permissions for the role assigned to this user.
+      ['SELECT `key`, `value`
         FROM `#system_permissions_role` AS `pr`
         INNER JOIN `#system_roles_to_users` AS `rtu` ON `pr`.`role_id` = `rtu`.`role_id`
         INNER JOIN `#system_roles` AS `r` ON `pr`.`role_id` = `r`.`id`
-        WHERE `rtu`.`user_id` = ?i AND `r`.`component_id = ?i`',
+        WHERE `rtu`.`user_id` = ?i AND `r`.`component_id` = ?i',
         $user_id, $component_id
       ],
       
-      //check user-level yes/no
-      ['SELECT * FROM `#system_permissions_user` WHERE `user_id` = ?i AND `component_id` = ?i', $user_id, $component_id]
+      //Get user-specific permissions.
+      ['SELECT `key`, `value` FROM `#system_permissions_user` WHERE `user_id` = ?i AND `component_id` = ?i', $user_id, $component_id]
     
-    ]);
+    ];
     
-    trace($results);
-    return new \classes\ArrayObject(['eatpie' => true, 'killpeople' => null]);
+    $results = $results = tx('Sql')->queries($queries);
+    $permissions = [];
+    
+    //Merge the global role permissions with the global permissions.
+    $global_permissions = array_merge($results[0]->toArray(false), $results[1]->toArray(false));
+    
+    //Merge group role permissions with group permissions.
+    $group_permissions = array_merge($results[2]->toArray(false), $results[3]->toArray(false));
+    
+    //Merge the default group role-permissions with the default group-permissions.
+    $default_group_permissions = array_merge($results[4]->toArray(false), $results[5]->toArray(false));
+    
+    //Merge the user role permissions with the user specific permissions.
+    $user_permissions = array_merge($results[6]->toArray(false), $results[7]->toArray(false));
+    
+    //Set the global permissions.
+    foreach($global_permissions as $p){
+      $permissions[$p->key] = $p->value;
+    }
+    
+    //Normalize group permissions and check for conflicts.
+    $tmp_permissions = [];
+    foreach($group_permissions as $p)
+    {
+      
+      //Check if a different group had already defined this permission.
+      if(array_key_exists($p->key, $tmp_permissions))
+      {
+        
+        //Check if an ALWAYS/NEVER conflict has already occurred.
+        if($tmp_permissions[$p->key] == -3){
+          continue;
+        }
+        
+        //Check if we are trying to overwrite a YES/NO conflict with YES or NO.
+        elseif(in_array($p->value, [YES, NO]) && $tmp_permissions[$p->key] == -2){
+          continue;
+        }
+        
+        //Check if we are trying to overwrite ALWAYS or NEVER with YES or NO. We may not!
+        elseif(in_array($tmp_permissions[$p->key], [ALWAYS, NEVER]) && in_array($p->value, [YES, NO])){
+          continue;
+        }
+        
+        //Check if an ALWAYS/NEVER conflict occurs.
+        elseif(abs($p->value - $tmp_permissions[$p->key]) == 3){
+          $tmp_permissions[$p->key] = -3;
+          continue;
+        }
+        
+        //Check if a YES/NO conflict occurs.
+        elseif(in_array($p->value, [YES, NO]) && abs($p->value - $tmp_permissions[$p->key]) == 1){
+          $tmp_permissions[$p->key] = -2;
+          continue;
+        }
+        
+      }
+      
+      //Set.
+      $tmp_permissions[$p->key] = $p->value;
+      
+    }
+    
+    //Overwrite the global permissions with the normalized group permissions.
+    foreach($tmp_permissions as $key => $value)
+    {
+      
+      //Only overwrite if the new value is stronger.
+      if(in_array($value, [-2, YES, NO]) && in_array($permissions[$key], [ALWAYS, NEVER])){
+        continue;
+      }
+      
+      $permissions[$key] = $value;
+      
+    }
+    
+    //Overwrite the combined permission with the values we have in our default_group_permissions.
+    foreach($default_group_permissions as $p)
+    {
+      
+      //We can not overwrite ALWAYS or NEVER or ALWAYS/NEVER conflicts with YES or NO.
+      if(in_array($p->value, [YES, NO]) && in_array($permissions[$p->key], [-3, ALWAYS, NEVER])){
+        continue;
+      }
+      
+      $permissions[$p->key] = $p->value;
+      
+    }
+    
+    //Overwrite the combined permissions with user specific permissions.
+    foreach($user_permissions as $p){
+      $permissions[$p->key] = $p->value;
+    }
+    
+    //Check for errors and cast to booleans.
+    foreach($permissions as $key => $value)
+    {
+      
+      //Still a permission conflict? We must ABORT!!
+      if($value == -2){
+        throw new \exception\PermissionConflict('An unresolved YES/NO conflict occurred with the "%s" permission in %s for user %s.', $key, $cinfo->title, $user_id);
+      }
+      
+      //Still a permission conflict? We must ABORT!!
+      elseif($value == -3){
+        throw new \exception\PermissionConflict('An unresolved ALWAYS/NEVER conflict occurred with the "%s" permission in %s for user %s.', $key, $cinfo->title, $user_id);
+      }
+      
+      //Cast to boolean.
+      $permissions[$key] = ($value > 0);
+      
+    }
+    
+    //Return the calculated permissions in an ArrayObject.
+    return new \classes\ArrayObject($permissions);
     
   }
   
