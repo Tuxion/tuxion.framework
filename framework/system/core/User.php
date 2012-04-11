@@ -50,7 +50,7 @@ class User
   
   public function hasPermission($component, $key)
   {
-    
+
     //Are we dealing with a logged-in user?
     if($user = $this->getActiveUser())
     {
@@ -71,13 +71,3 @@ class User
   }
   
 }
-
-
-
-
-
-
-
-
-
-

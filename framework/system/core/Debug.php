@@ -17,7 +17,7 @@ class Debug
     }
     
     throw new \exception\Error($errno, $errstr, $errfile, $errline, $context);
-    
+
   }
   
   public function exceptionHandler($e)

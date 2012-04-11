@@ -31,8 +31,4 @@ class SqlResultset extends ArrayObject
     
   }
   
-  private function exceptionHandler($e){
-    throw $e;
-  }
-  
 }

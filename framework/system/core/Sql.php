@@ -17,7 +17,6 @@ class Sql
   //queries([string $domain=<current_domain>, ]string $queries[, $param[, ...]])
   public function queries()
   {
-    
     //Handle arguments.
     $args = func_get_args();
     
