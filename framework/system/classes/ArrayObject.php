@@ -8,11 +8,7 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
   //The constructor accepts the initial array.
   public function __construct(array $arr)
   {
-    
-    foreach($arr as $key => $value){
-      $this->arraySet($key, $value);
-    }
-    
+    $this->set($arr);
   }
   
   //Magic get.
@@ -48,7 +44,7 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
   //Simi-magic method implemented by \ArrayAccess.
   public function offsetExists($key)
   {
-    return array_key_exists($key, $this->data);
+    return array_key_exists($key, $this->arr);
   }
   
   //Simi-magic method implemented by \ArrayAccess.

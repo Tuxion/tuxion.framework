@@ -47,14 +47,6 @@ class DataBranch extends ArrayObject
     
   }
   
-  //Can not cast non-scalar value to string.
-  public function __toString()
-  {
-    
-    throw new \exception\Restriction('Can not cast non scalar value at key "%s" to string.', $this->key());
-    
-  }
-  
   //Extract a sub-node based on the given argument.
   public function extract()
   {
@@ -87,13 +79,51 @@ class DataBranch extends ArrayObject
     
   }
   
+  //Extend the toArray method to take DataLeafs and DataUndefined nodes into account.
+  public function toArray($recursive=true)
+  {
+    
+    $array = parent::toArray($recursive);
+    
+    if($recursive === false){
+      return $array;
+    }
+    
+    $normalizer = function($array)use(&$normalizer)
+    {
+      
+      foreach($array as $key => $value)
+      {
+        
+        if($value instanceof DataLeaf){
+          $array[$key] = $value->get();
+        }
+        
+        elseif($value instanceof DataUndefined){
+          unset($array[$key]);
+        }
+        
+        elseif(is_array($value)){
+          $array[$key] = $normalizer($array);
+        }
+        
+      }
+      
+      return $array;
+      
+    };
+    
+    return $normalizer($array);
+    
+  }
+  
   //Extend the arrayGet of ArrayObject to allow new DataUndefined nodes to be created if non-existing nodes are requested.
-  protected function arrayGet($key)
+  public function arrayGet($key)
   {
     
     //If the requested node does not exist, we will create an Undefined node.
     if(!$this->offsetExists($key)){
-      $this->arraySet($key, new \classes\DataUndefined($this, $key));
+      return $this->arraySet($key, new \classes\DataUndefined($this, $key));
     }
     
     return parent::arrayGet($key);
@@ -101,7 +131,7 @@ class DataBranch extends ArrayObject
   }
   
   //Extend the arraySet of ArrayObject to ensure that only DataBranches or DataLeafs are used.
-  protected function arraySet($key, $value)
+  public function arraySet($key, $value)
   {
     
     //Numeric keys will be cast to integers, and increase the I of this DataBranch.
@@ -116,9 +146,9 @@ class DataBranch extends ArrayObject
       
     }
     
-    //Null keys will trigger auto-increment.
-    elseif(is_null($key)){
-      $key = $this->i++;0
+    //Null or empty keys will trigger auto-increment.
+    elseif(is_null($key) || empty($key)){
+      $key = $this->i;
     }
     
     //Array values will make new DataBranches.
@@ -126,9 +156,19 @@ class DataBranch extends ArrayObject
       $value = new self($value, $this, $key);
     }
     
+    //DataUndefined will be cloned and used.
+    elseif($value instanceof DataUndefined){
+      $value = clone $value;
+    }
+    
     //Scalar values will make new DataLeafs.
     else{
       $value = new DataLeaf($value, $this, $key);
+    }
+    
+    //If this will create a node, increase the i.
+    if(!$this->offsetExists($key)){
+      $this->i++;
     }
     
     return parent::arraySet($key, $value);

@@ -7,6 +7,18 @@ trait ArrayContainer
     $arr_permissions=7,
     $arr=[];
   
+  //Set the entire array.
+  public function set(array $arr)
+  {
+    
+    foreach($arr as $key => $value){
+      $this->arraySet($key, $value);
+    }
+    
+    return $this;
+    
+  }
+  
   //Iterate over the array.
   public function each(\Closure $callback)
   {
@@ -171,7 +183,7 @@ trait ArrayContainer
       }
       
       //Validate if an array was given.
-      if(!(is_array($array)){
+      if(!is_array($array)){
         throw new \exception\InvalidArgument('Expecting every argument to be an array. %s given for argument %s.', ucfirst(typeof($array)), $i);        
       }
       
@@ -232,7 +244,7 @@ trait ArrayContainer
   }
   
   //Unset nodes the given key(s).
-  public function unset()
+  public function remove()
   {
     
     $keys = (func_num_args() == 1 ? func_get_arg(0) : (func_num_args() > 1 ? func_get_args() : null));

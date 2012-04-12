@@ -38,11 +38,11 @@ class DataUndefined
     
   }
   
-  //Return "DataUndefined".
-  public function __toString()
+  //Replace this DataUndefined node with a new Data node that is generated based on given $value.
+  public function set($value)
   {
     
-    return 'DataUndefined';
+    return $this->parent->arraySet($this->key, $value);
     
   }
   

@@ -118,7 +118,7 @@ class DataLeaf
   }
   
   //Return a new DataLeaf, containing the value of this one but uppercased.
-  public function lowercase()
+  public function uppercase()
   {
     
     return new self(strtoupper($this->get('str')));

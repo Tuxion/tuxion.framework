@@ -35,7 +35,7 @@ trait Data
   }
   
   //Returns true if this node is set, and false if it's node.
-  public function isSet()
+  public function isDefined()
   {
     return !($this instanceof \classes\DataUndefined);
   }
