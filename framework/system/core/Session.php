@@ -1,6 +1,6 @@
 <?php namespace core;
 
-class Session extends \classes\Data
+class Session extends \classes\DataBranch
 {
 
   private

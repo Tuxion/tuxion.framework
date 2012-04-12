@@ -9,6 +9,16 @@ class User
   public function init()
   {
     
+    //Create the system data if it doesn't exist.
+    if( ! tx('Session')->system->isDefined()){
+      tx('Session')->system->set([]);
+    }
+    
+    //Create the users data if it doesn't exist.
+    if( ! tx('Session')->system->users->isDefined()){
+      tx('Session')->system->users->set([]);
+    }
+    
     $this->users =& tx('Session')->system->users;
     
     $this->users[0] = array(
@@ -32,8 +42,8 @@ class User
   public function getActiveUser()
   {
     
-    $active = $this->users->filter(function(){
-      return $this->check('active');
+    $active = $this->users->filter(function($node){
+      return $node->check('active');
     });
     
     if($active->size() > 1){

@@ -19,6 +19,34 @@ trait ArrayContainer
     
   }
   
+  //Return the node that is present at given $index.
+  public function idx($index)
+  {
+    
+    if($index < 0) $index = $this->size() + $index;
+    if($index < 0) $index = 0;
+
+    if($this->isEmpty()){
+      throw new \exception\Programmer('The array is empty.');
+    }
+    
+    $tmp = $this->arr;
+      
+    reset($tmp);
+    $i = 0;
+
+    do{
+      if($i < $index){
+        $i++;
+      }else{
+        return current($tmp);
+      }
+    }
+    
+    while($i <= $index && next($tmp));    
+    
+  }
+  
   //Iterate over the array.
   public function each(\Closure $callback)
   {

@@ -8,3 +8,6 @@ require_once('system/core/Loader.php');
 
 //Initiate debugging class.
 tx('Debug');
+
+//Initiate configuration class.
+tx('Config');
