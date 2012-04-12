@@ -7,7 +7,7 @@ trait ArrayContainer
     $arr_permissions=7,
     $arr=[];
   
-  //Itterate over the array.
+  //Iterate over the array.
   public function each(\Closure $callback)
   {
     
@@ -29,11 +29,49 @@ trait ArrayContainer
     
   }
   
-  //Return a new DataBranch by itterating over the data and using the return value from the callback and return it.
+  //Iterate over the array and it's sub-arrays.
+  public function walk(\Closure $callback)
+  {
+    
+    $walker = function($nodes) use (&$walker, $callback)
+    {
+    
+      $delta = 0;
+      
+      do
+      {
+      
+        $key = key($nodes);
+        $node = current($nodes);
+        $delta = ($delta==0 && uses($node, 'ArrayContainer') ? 1 : $delta);
+        $c = $callback->bindTo($node);
+        $c($delta);
+      
+        if(uses($node, 'ArrayContainer') && $delta >= 0){
+          $walker($node->toArray(false));
+          $delta = -1;
+          continue;
+        }
+        
+        $delta = 0;
+        if(next($nodes)===false) break;
+      
+      }
+      while(true);
+    
+    };
+    
+    $walker($this->arr);
+    
+    return $this;
+    
+  }
+  
+  //Return a new DataBranch by iterating over the data and using the return value from the callback and return it.
   public function map(\Closure $callback)
   {
   
-    $r = new \classes\Data;
+    $r = new \classes\DataBranch;
     $i = 0;
     
     foreach($this->arr as $key => $value){
@@ -43,6 +81,77 @@ trait ArrayContainer
     
     return $r;
   
+  }
+  
+  //Return a new DataBranch, excluding the nodes that were not in the given keys.
+  public function having()
+  {
+    
+    $return = new \classes\DataBranch;
+    
+    if(func_num_args() == 1 && is_array(func_get_arg(0))){
+      $keys = func_get_arg(0);
+    }
+    
+    else{
+      $keys = array_flatten(func_get_args());
+    }
+    
+    foreach($keys as $key1 => $key2)
+    {
+      
+      if(is_string($key1)){
+        $return->arraySet($key1, $this->arrayGet($key2));
+      }
+      
+      else{
+        $return->arraySet($key2, $this->arrayGet($key2));
+      }
+      
+    }
+    
+    return $return;
+    
+  }
+  
+  //Return a new DataBranch containing only the nodes that made the given callback return true.
+  public function filter(\Closure $callback)
+  {
+    
+    $return = new \classes\DataBranch;
+    
+    foreach($this->arr as $k => $v){
+      if($callback($v, $k) === true){
+        $return->arraySet($k, $v);
+      }
+    }
+    
+    return $return;
+    
+  }
+  
+  //Returns a DataLeaf created of all child-nodes converted to string and joined together by the given $separator.
+  public function join($separator='')
+  {
+    
+    $return = '';
+    $s = '';
+    
+    foreach($this->arr as $value){
+      $return .= $s . $value;
+      $s = $separator;
+    }
+    
+    return new \classes\DataLeaf($return);
+    
+  }
+  
+  //Returns a slice of the array in the form of a DataBranch.
+  public function slice($offset=0, $length=null)
+  {
+    
+    return new \classes\DataBranch(array_slice($this->arr, $offset, $length));
+    
   }
   
   //Merge one or more given arrays with arr.
@@ -56,8 +165,13 @@ trait ArrayContainer
     foreach(func_get_args() as $array)
     {
       
+      //Cast ArrayContainers to arrays.
+      if(uses($array, 'ArrayContainer')){
+        $array = $array->toArray(false);
+      }
+      
       //Validate if an array was given.
-      if(!(is_array($array) || uses($array, 'ArrayContainer'))){
+      if(!(is_array($array)){
         throw new \exception\InvalidArgument('Expecting every argument to be an array. %s given for argument %s.', ucfirst(typeof($array)), $i);        
       }
       
@@ -66,7 +180,7 @@ trait ArrayContainer
         $this->arraySet($key, $value);
       }
       
-      //Increament.
+      //Increment.
       $i++;
       
     }
@@ -76,7 +190,7 @@ trait ArrayContainer
     
   }
   
-  //Return the arr and optionally any of the arr's in the subnodes.
+  //Return the arr and optionally any of the arr's in the sub-nodes.
   public function toArray($recursive = true)
   {
     
@@ -110,7 +224,25 @@ trait ArrayContainer
     }
     
     else{
-      throw new \exception\InvalidArguments('Expecting one or two arguments. %s Given.', func_num_args());
+      throw new \exception\InvalidArgument('Expecting one or two arguments. %s Given.', func_num_args());
+    }
+    
+    return $this;
+    
+  }
+  
+  //Unset nodes the given key(s).
+  public function unset()
+  {
+    
+    $keys = (func_num_args() == 1 ? func_get_arg(0) : (func_num_args() > 1 ? func_get_args() : null));
+    
+    if(is_scalar($keys)){
+      return $this->arrayUnset($keys);
+    }
+    
+    foreach($keys as $key){
+      $this->arrayUnset($key);
     }
     
     return $this;
@@ -143,7 +275,7 @@ trait ArrayContainer
   }
   
   //Native getter.
-  private function arrayGet($key)
+  public function arrayGet($key)
   {
     
     if( ! $this->arrayPermission(1)){
@@ -159,7 +291,7 @@ trait ArrayContainer
   }
   
   //Native setter.
-  private function arraySet($key, $value)
+  public function arraySet($key, $value)
   {
     
     if( ! $this->arrayPermission(2)){
@@ -171,7 +303,7 @@ trait ArrayContainer
   }
   
   //Native unsetter.
-  private function arrayUnset($key)
+  public function arrayUnset($key)
   {
     
     if( ! $this->arrayPermission(4)){
@@ -185,9 +317,19 @@ trait ArrayContainer
   }
   
   //Permission check.
-  private function arrayPermission($int)
+  protected function arrayPermission($int)
   {
+    
     return checkbit($int, $this->arr_permissions);
+    
+  }
+  
+  //Returns true for empty nodes.
+  public function isEmpty()
+  {
+    
+    return empty($this->arr);
+    
   }
   
 }

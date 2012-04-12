@@ -5,21 +5,29 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
   
   use \traits\ArrayContainer;
   
+  //The constructor accepts the initial array.
   public function __construct(array $arr)
   {
-    $this->arr = $arr;
+    
+    foreach($arr as $key => $value){
+      $this->arraySet($key, $value);
+    }
+    
   }
   
+  //Magic get.
   public function __get($key)
   {
     return $this->arrayGet($key);
   }
   
+  //Magic set.
   public function __set($key, $value)
   {
     return $this->arraySet($key, $value);
   }
   
+  //Magic unset.
   public function __unset($key)
   {
     return $this->arrayUnset($key);
