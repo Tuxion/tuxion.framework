@@ -29,25 +29,31 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
     return $this->arrayUnset($key);
   }
   
-  //Simi-magic method implemented by \ArrayAccess.
+  //Magic isset.
+  public function __isset($key)
+  {
+    return $this->offsetExists($key);
+  }
+  
+  //Semi-magic method implemented by \ArrayAccess.
   public function offsetGet($key)
   {
     return $this->arrayGet($key);
   }
   
-  //Simi-magic method implemented by \ArrayAccess.
+  //Semi-magic method implemented by \ArrayAccess.
   public function offsetSet($key, $val)
   {
     return $this->arraySet($key, $val);
   }
   
-  //Simi-magic method implemented by \ArrayAccess.
+  //Semi-magic method implemented by \ArrayAccess.
   public function offsetExists($key)
   {
     return array_key_exists($key, $this->arr);
   }
   
-  //Simi-magic method implemented by \ArrayAccess.
+  //Semi-magic method implemented by \ArrayAccess.
   public function offsetUnset($key)
   {
     return $this->arrayUnset($key);

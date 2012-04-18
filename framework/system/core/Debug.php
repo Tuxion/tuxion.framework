@@ -5,6 +5,7 @@ class Debug
 
   public function init()
   {
+    error_reporting(E_ALL | E_STRICT);
     set_error_handler([$this, 'errorHandler']);
     set_exception_handler([$this, 'exceptionHandler']);
   }
