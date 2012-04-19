@@ -1,2 +1,3 @@
 RewriteEngine On
 RewriteRule .*  framework/init.php
+RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type},L]
