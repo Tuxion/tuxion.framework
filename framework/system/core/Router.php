@@ -18,19 +18,20 @@ class Router
     //Enter a log entry.
     tx('Log')->message(__CLASS__, 'class initialize', 'Router class initializing.');
     
-    //Clean the request path.
-    $this->_cleanRequestPath();
-    
-    //Did we redirect yet?
-    if($this->redirected()){
-      return $this->_handleRedirect();
-    }
-    
     //Get the path.
     $path = tx('Request')->url->segments->path;
     
     //Bite off the system base.
-    $path = trim(substr($path, strlen(tx('Config')->urls->path)+1), '/ ');
+    $path = $start = trim(substr($path, strlen(tx('Config')->urls->path)+1), '/ ');
+    
+    //Clean the request path.
+    $path = $this->cleanPath($path);
+    
+    //Redirect if this changed the path at all.
+    if($path !== $start){
+      $this->redirect(url("/$path"));
+      return $this->_handleRedirect();
+    }
     
     //Route!
     $this->_route($path);
@@ -41,19 +42,12 @@ class Router
   }
   
   //Cleans up the request-URI-path in order for it to match our routing systems.
-  private function _cleanRequestPath()
+  public function cleanPath($path)
   {
-    
-    //Get the path.
-    $path = tx('Request')->url->segments->path;
-    
-    //Bite off the system base.
-    $path = trim(substr($path, strlen(tx('Config')->urls->path)+1), '/ ');
-    
     
     //OK!
     if($path === ''){
-      return;
+      return $path;
     }
     
     //Do the following.
@@ -125,27 +119,13 @@ class Router
     //And keep repeating it as long as it is still changing stuff.
     while($path !== $start);
     
-    //Add the root back to the path.
-    $path = '/'.(tx('Config')->urls->path).'/'.$path;
-    
-    //Redirect if this changed the path at all.
-    if($path !== tx('Request')->url->segments->path)
-    {
-      
-      //Cut off the base path.
-      $path = preg_replace('~^/'.addslashes(tx('Config')->urls->path).'~', '', $path);
-      
-      //Redirect.
-      $this->redirect(url($path));
-      
-    }
-    
-    return $this;
+    //Return the new path.
+    return $path;
     
   }
   
   //Route to the right endpoint based on given path.
-  public function _route($path, &$history=[])
+  private function _route($path, &$history=[])
   {
     
     //Split the route into segments.
@@ -239,7 +219,7 @@ class Router
     //Get component info.    
     $cinfo = tx('Component')[$component_name];
     
-    trace("That will be '{$cinfo->title}'.");
+    trace("That would be '{$cinfo->title}'.");
     
   }
   
