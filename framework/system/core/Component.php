@@ -13,6 +13,7 @@ class Component implements \ArrayAccess
     
   }
   
+  //Return a component object.
   public function __get($key)
   {
     return \classes\Component::get($key);

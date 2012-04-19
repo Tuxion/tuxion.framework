@@ -49,31 +49,18 @@ class Component
     
   }
   
-  //Return the controller with the given $name from this component.
-  public function getController($name)
+  //Load all controllers in this component, so that they may fill their Route objects.
+  public function loadControllers()
   {
     
-    if(array_key_exists($name, $this->controllers)){
-      return $this->controllers[$name];
+    $route = $R = \classes\Router::create("com/{$this->name}");
+    
+    foreach(glob($this->getPath().'/controllers/*.php') as $file){
+      require_once($file);
     }
-    
-    $path = $this->getPath().'/controllers/'.$name.'.php';
-    $class = "\\components\\controllers\\{$this->name}\\$name";
-    
-    if(!file_exists($path)){
-      throw new \exception\FileMissing($path);
-    }
-    
-    require_once($path);
-    
-    if(!class_exists($class, false)){
-      throw new \exception\NotFound('Could not find class "%s".', $class);
-    }
-    
-    $this->controllers[$name] = $c = new $class;
-    return $c;
     
   }
+  
   
   //Get model meta-data for the given model $name.
   public function getModelInfo($name)

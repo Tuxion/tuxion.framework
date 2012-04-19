@@ -9,6 +9,7 @@ class Router
   
   //Public properties.
   public
+    $path,
     $redirect_url=false;
   
   //When we initiate, we will clean the request path and load the defined routes.
@@ -22,7 +23,7 @@ class Router
     $path = tx('Request')->url->segments->path;
     
     //Bite off the system base.
-    $path = $start = trim(substr($path, strlen(tx('Config')->urls->path)+1), '/ ');
+    $path = $this->path = $start = trim(substr($path, strlen(tx('Config')->urls->path)+1), '/ ');
     
     //Clean the request path.
     $path = $this->cleanPath($path);
@@ -34,7 +35,8 @@ class Router
     }
     
     //Route!
-    $this->_route($path);
+    set_exception_handler([$this, '_handleException']);
+    $this->_route();
     
     //Enter a log entry.
     tx('Log')->message(__CLASS__, 'class initialize', 'Router class initialized.');
@@ -125,8 +127,11 @@ class Router
   }
   
   //Route to the right endpoint based on given path.
-  private function _route($path, &$history=[])
+  private function _route(&$history=[])
   {
+    
+    //Get the path.
+    $path = $this->path;
     
     //Split the route into segments.
     $segments = explode('/', $path);
@@ -157,7 +162,7 @@ class Router
         
         //No component identifier?
         if(count($segments) == 1){
-          return $this->_handleException(new \exception\NotFound('Just /com leads to nothing. Ever.'));
+          throw new \exception\NotFound('Just /com leads to nothing. Ever.');
         }
         
         //Get the component name.
@@ -165,7 +170,7 @@ class Router
         
         //Still no component identifier? :(
         if(count($tmp) == 1){
-          return $this->_handleException(new \exception\NotFound('Just /com leads to nothing. Ever.'));
+          throw new \exception\NotFound('Just /com leads to nothing. Ever.');
         }
         
         //The component name.
@@ -197,11 +202,12 @@ class Router
         
         //Check if it wasn't found.
         if($result->count() == 0){
-          return $this->_handleException(new \exception\NotFound('"%s" Is not a valid alias.', $alias));
+          throw new \exception\NotFound('"%s" Is not a valid alias.', $alias);
         }
         
         //Reroute to the alias.
-        return $this->_route($result[0]->value.substr(end($segments), strlen($alias)), $history);
+        $this->path = $result[0]->value.substr(end($segments), strlen($alias));
+        return $this->_route($history);
         
     }
     
@@ -213,21 +219,67 @@ class Router
     
     //Are we allowed to use numeric component identifiers?
     if(is_numeric($component_name) && tx('Config')->config->route_allow_numeric_components !== true){
-      return $this->_handleException(new \exception\NotFound('"%s" Is not a valid component.', $component_name));
+      throw new \exception\NotFound('"%s" Is not a valid component.', $component_name);
     }
     
     //Get component info.    
     $cinfo = tx('Component')[$component_name];
     
-    trace("That would be '{$cinfo->title}'.");
+    //Get all other relevant components.
+    $components = tx('Sql')->query('
+      SELECT `c`.*
+      FROM `#system_components` AS `c`
+      INNER JOIN `#system_component_extensions` AS `ce` ON `c`.`id` = `ce`.`extended_by_id`
+      WHERE `ce`.`component_id` = ?i',
+      $cinfo->id
+    )
+    
+    //Get an array of only their names.
+    ->map(function($row){
+      return $row->name;
+    })
+    
+    //Add our main component to the mix.
+    ->push($cinfo->name);
+    
+    //Load all of their controllers.
+    foreach($components as $component){
+      tx('Component')[$component]->loadControllers();
+    }
+    
+    //Return.. ehm... true!
+    return true;
     
   }
   
-  //Handles exceptions that are encountered during the routing process.
-  private function _handleException($e)
+  //Returns true if the given path matches the current request path.
+  public function matchPath($path)
   {
     
-    echo $e->getMessage();
+    $current_segments = explode('/', $this->path);
+    $given_segments = explode('/', $this->cleanPath($path));
+    
+    foreach($given_segments as $i => $segment)
+    {
+      
+      //If we are longer than the current path. It is always false.
+      if(!array_key_exists($i, $current_segments)){
+        return false;
+      }
+      
+      //If we start with $, we are always a match.
+      if($segment{0} === '$'){
+        continue;
+      }
+      
+      //Match the segment.
+      if($segment !== $current_segments[$i]){
+        return false;
+      }
+      
+    }
+    
+    return true;
     
   }
   
@@ -253,6 +305,14 @@ class Router
   {
     
     return ($this->redirect_url instanceof \classes\Url);
+    
+  }
+  
+  //Handles exceptions that are encountered during the routing process.
+  public function _handleException($e)
+  {
+    
+    tx('Debug')->exceptionHandler($e);
     
   }
   
