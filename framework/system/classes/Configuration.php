@@ -11,12 +11,11 @@ class Configuration
     $caching = true,
     $dbo = false;
   
-  public function __construct($domain, array $values = array(), Configuration $defaults = null, array $cache = [])
+  public function __construct($domain, array $values = array(), Configuration $defaults = null)
   {
     
     $this->domain = $domain;
     $this->values = $values;
-    $this->cache = $cache;
     $this->defaults = (is_null($defaults) ? false : $defaults);
     
     if($this->_get('config_table', false)){
@@ -32,8 +31,9 @@ class Configuration
   public function __get($key)
   {
     
+    
     //Check if the value is already in the cache.
-    if($this->caching && array_key_exists($key, $this->cache) && $this->cache[$key] !== null){
+    if($this->caching && array_key_exists($key, $this->cache)){
       return $this->cache[$key];
     }
     
@@ -41,30 +41,32 @@ class Configuration
     elseif($this->dbo)
     {
       
-      $result = tx('Sql')->queries($this->domain, "SELECT value FROM `{$this->dbo['t']}` WHERE `key` = ?s", $key);//[0];
+      $result = tx('Sql')->queries($this->domain, "SELECT value FROM `{$this->dbo['t']}` WHERE `key` = ?s", $key)[0];
       
       if($result->num() > 0)
       {
         
         if($this->caching){
-          $this->cache[$key] = $r = $result[0];
+          $this->cache[$key] = $r = $result[0]->value;
         }
         
         else{
-          return $result[0]->value;
+          $r = $result[0]->value;
         }
         
-      }
-      
-      else{
-        $this->cache[$key] = null;
+        return $r;
+        
       }
       
     }
     
-    else{
-      return $this->_get($key);
+    $r = $this->_get($key);
+    
+    if($this->caching){
+      $this->cache[$key] = $r;
     }
+    
+    return $r;
     
   }
   

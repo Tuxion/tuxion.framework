@@ -6,7 +6,7 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
   use \traits\ArrayContainer;
   
   //The constructor accepts the initial array.
-  public function __construct(array $arr)
+  public function __construct(array $arr=[])
   {
     $this->set($arr);
   }
