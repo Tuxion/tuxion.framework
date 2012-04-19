@@ -4,6 +4,7 @@ class Error extends \ErrorException
 {
 
   protected $context;
+  protected static $ex_code = EX_ERROR;
   
   public function __construct($errno, $errstr, $errfile, $errline, $context)
   {
@@ -35,6 +36,11 @@ class Error extends \ErrorException
   public function getContext()
   {
     return $this->context;
+  }
+  
+  public function getExCode()
+  {
+    return static::$ex_code;
   }
 
 }
