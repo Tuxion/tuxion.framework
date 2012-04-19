@@ -2,7 +2,17 @@
 
 class Component implements \ArrayAccess
 {
-
+  
+  //Initiate.
+  public function init()
+  {
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Component class initializing.');
+    tx('Log')->message(__CLASS__, 'class initialize', 'Component class initialized.');
+    
+  }
+  
   public function __get($key)
   {
     return \classes\Component::get($key);

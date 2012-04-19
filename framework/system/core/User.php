@@ -9,6 +9,9 @@ class User
   public function init()
   {
     
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'User class initializing.');
+    
     //Create the system data if it doesn't exist.
     if( ! tx('Session')->system->isDefined()){
       tx('Session')->system->set([]);
@@ -25,6 +28,9 @@ class User
       'active' => true,
       'id' => 1
     );
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'User class initialized.');
     
   }
   

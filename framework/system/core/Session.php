@@ -6,13 +6,19 @@ class Session extends \classes\DataBranch
   private
     $id;
   
-  public function __construct()
+  public function init()
   {
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Session class initializing.');
     
     session_start();
     $this->id = session_id();
     $this->set($_SESSION);
     session_unset();
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Session class initialized.');
     
   }
   

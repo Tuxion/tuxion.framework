@@ -3,11 +3,14 @@
 class Debug
 {
 
-  public function init()
+  public function __construct()
   {
+    
+    //Set error variables.
     error_reporting(E_ALL | E_STRICT);
     set_error_handler([$this, 'errorHandler']);
     set_exception_handler([$this, 'exceptionHandler']);
+    
   }
   
   public function errorHandler($errno, $errstr='', $errfile='', $errline='', $context=array())
@@ -23,8 +26,14 @@ class Debug
   
   public function exceptionHandler($e)
   {
+    
+    //Log it.
+    tx('Log')->error(__CLASS__, $e);
+    
     trace(get_class($e), $e->getMessage());
     trace($e->getTrace());
+    exit;
+    
   }
   
   public function typeOf($var)

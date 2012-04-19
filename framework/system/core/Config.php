@@ -17,6 +17,7 @@ class Config
   public function init()
   {
   
+    //The path to the configuration folder.
     $path_config = @realpath(@dirname(__FILE__).'/../../config');
     
     //Set constants
@@ -35,6 +36,9 @@ class Config
     
     //Set configuration.
     $this->config = $this->_setMulti(require("$path_config/config.php"));
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Config class initialized.');
     
   }
   

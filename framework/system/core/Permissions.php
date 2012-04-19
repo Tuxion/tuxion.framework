@@ -7,6 +7,18 @@ class Permissions
     $user_cache = [],
     $guest_cache = [];
   
+  //Initialize.
+  public function init()
+  {
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Permissions class initializing.');
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Permissions class initialized.');
+    
+  }
+  
   public function getUserPermission($user_id, $component, $key)
   {
     

@@ -3,17 +3,21 @@
 class Component
 {
 
+  //Public properties.
   public
     $id,
     $name,
     $title;
     
+  //Private properties.
   private
     $controllers=[];
-    
+  
+  //Private static properties.
   private static
     $instances=[];
-    
+  
+  //Try to find and return the component that could be identified with given identifier.
   public static function get($id)
   {
     
@@ -22,7 +26,7 @@ class Component
     }
     
     try{
-      $cinfo = tx('Sql')->query('SELECT * FROM `#system_components` WHERE `'.(is_int($id) ? 'id' : 'name').'` = ?', $id)[0];
+      $cinfo = tx('Sql')->query('SELECT * FROM `#system_components` WHERE `'.(is_numeric($id) ? 'id' : 'name').'` = ?', $id)[0];
     }
     
     catch(\exception\NotFound $e){
@@ -35,6 +39,7 @@ class Component
     
   }
   
+  //The constructor stores component info.
   public function __construct(ArrayObject $cinfo)
   {
     
@@ -44,6 +49,7 @@ class Component
     
   }
   
+  //Return the controller with the given $name from this component.
   public function getController($name)
   {
     
@@ -52,7 +58,7 @@ class Component
     }
     
     $path = $this->getPath().'/controllers/'.$name.'.php';
-    $class = "\\components\\{$this->name}\\controllers\\$name";
+    $class = "\\components\\controllers\\{$this->name}\\$name";
     
     if(!file_exists($path)){
       throw new \exception\FileMissing($path);
@@ -69,6 +75,15 @@ class Component
     
   }
   
+  //Get model meta-data for the given model $name.
+  public function getModelInfo($name)
+  {
+    
+    # code...
+    
+  }
+  
+  //Create a new instance of the given model name and return it.
   public function createModel($name)
   {
     
@@ -76,6 +91,7 @@ class Component
     
   }
   
+  //Get the path that leads to this component.
   public function getPath()
   {
     

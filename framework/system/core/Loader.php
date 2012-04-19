@@ -50,6 +50,18 @@ class Loader
     return self::$objects[$class_name];
     
   }
+  
+  //Initialize.
+  public function init()
+  {
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Loader class initializing.');
+
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Loader class initialized.');
+    
+  }
 	
   //A somewhat higher-level non-static version of static::load().
 	public function load()

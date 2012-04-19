@@ -59,6 +59,18 @@ class Security
     //The default hashing algorithm to use.
     $HASH_DEFAULT = 'sha256';
   
+  //Initialize.
+  public function init()
+  {
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Security class initializing.');
+    
+    //Enter a log entry.
+    tx('Log')->message(__CLASS__, 'class initialize', 'Security class initialized.');
+    
+  }
+  
   /**
    * Checks the password supplied is strong enough.
    *
