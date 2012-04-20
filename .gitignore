@@ -1,2 +1,4 @@
 
 /notes
+*.backup
+error.log

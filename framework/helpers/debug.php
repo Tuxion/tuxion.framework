@@ -15,7 +15,7 @@ function trace(){
   }elseif(func_num_args() == 1){
     var_dump(func_get_arg(0));
   }else{
-    echo $trace;
+    var_dump($trace);
   }
   echo "\n</pre>";
   $tracenum++;

@@ -22,12 +22,8 @@ class User
       tx('Session')->system->users->set([]);
     }
     
+    //Keep a reference to this "users" object.
     $this->users =& tx('Session')->system->users;
-    
-    $this->users[0] = array(
-      'active' => true,
-      'id' => 1
-    );
     
     //Enter a log entry.
     tx('Log')->message(__CLASS__, 'class initialize', 'User class initialized.');
