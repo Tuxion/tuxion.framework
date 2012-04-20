@@ -47,6 +47,14 @@ class DataBranch extends ArrayObject
     
   }
   
+  //Extend join()
+  public function join($separator='')
+  {
+    
+    return new \classes\DataLeaf(parent::join($separator));
+    
+  }
+  
   //Extract a sub-node based on the given argument.
   public function extract()
   {

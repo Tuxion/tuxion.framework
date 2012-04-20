@@ -107,11 +107,11 @@ trait ArrayContainer
     
   }
   
-  //Return a new DataBranch by iterating over the data and using the return value from the callback and return it.
+  //Return a new self by iterating over the data and using the return value from the callback and return it.
   public function map(\Closure $callback)
   {
   
-    $r = new \classes\DataBranch;
+    $r = new self;
     $i = 0;
     
     foreach($this->arr as $key => $value){
@@ -127,7 +127,7 @@ trait ArrayContainer
   public function having()
   {
     
-    $return = new \classes\DataBranch;
+    $return = new self;
     
     if(func_num_args() == 1 && is_array(func_get_arg(0))){
       $keys = func_get_arg(0);
@@ -158,7 +158,7 @@ trait ArrayContainer
   public function filter(\Closure $callback)
   {
     
-    $return = new \classes\DataBranch;
+    $return = new self;
     
     foreach($this->arr as $k => $v){
       if($callback($v, $k) === true){
@@ -170,7 +170,7 @@ trait ArrayContainer
     
   }
   
-  //Returns a DataLeaf created of all child-nodes converted to string and joined together by the given $separator.
+  //Returns a string created of all child-nodes converted to string and joined together by the given $separator.
   public function join($separator='')
   {
     
@@ -182,15 +182,15 @@ trait ArrayContainer
       $s = $separator;
     }
     
-    return new \classes\DataLeaf($return);
+    return $return;
     
   }
   
-  //Returns a slice of the array in the form of a DataBranch.
+  //Returns a slice of the array in the form of a new self.
   public function slice($offset=0, $length=null)
   {
     
-    return new \classes\DataBranch(array_slice($this->arr, $offset, $length));
+    return new self(array_slice($this->arr, $offset, $length));
     
   }
   
@@ -255,17 +255,34 @@ trait ArrayContainer
   public function push()
   {
     
-    if(func_num_args() == 1){
-      $this->arr[] = func_get_arg(0);
+    //Handle arguments.
+    $args = func_get_args();
+    
+    //Were enough arguments given?
+    if(count($args) < 1){
+      throw new \exception\InvalidArgument('Expecting at least one argument. None given.');
     }
     
-    elseif(func_num_args() == 2){
-      $this->arr[func_get_arg(0)] = func_get_arg(1);
+    //Get the value and key.
+    $value = array_pop($args);
+    $key = (empty($args) ? null : array_pop($args));
+    
+    //Calculate a key if none was given.
+    if(is_null($key))
+    {
+      
+      //Get all the numeric array keys.
+      $keys = array_filter(array_keys($this->arr), function($var){
+        return is_numeric($var);
+      });
+      
+      //Make a new key based on that.
+      $key = (empty($keys) ? 0 : max($keys)+1);
+      
     }
     
-    else{
-      throw new \exception\InvalidArgument('Expecting one or two arguments. %s Given.', func_num_args());
-    }
+    //Set.
+    $this->arraySet($key, $value);
     
     return $this;
     
