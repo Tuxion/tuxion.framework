@@ -1,15 +1,10 @@
 <?php namespace components\controllers\example;
 
-//trace( $file, $this->getPath(), $R, $R->is('$test/foo') );
+//trace( $file, $this, $R, $R->is('/example') );
 
-$R->with('nyerk', function(){
-  
-  trace($this->is('foo'));
-  
-});
+//var_dump($R->is('test'));
 
-$R->with('test', function(){
-  
-  echo 'You are home!';
-  
-});
+$R('test')
+  ->pre(function(){
+    echo 'hoi';
+  });

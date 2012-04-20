@@ -10,71 +10,63 @@ class Router
   //Private properties.
   private
     $type=15,
+    $root=false,
     $base=null;
   
   //Returns an instance of self.
   public static function create()
   {
     
-    self::_handleArguments(func_get_args(), $type, $path);
+    tx('Router')->_handleArguments(func_get_args(), $type, $path);
     return new self($type, $path);
     
   }
   
-  //Accepts an array with up to 2 arguments and returns an array with keys "type" and "path".
-  private static function _handleArguments($args, &$type=null, &$path=null)
+  //Return all routes with optional filtering.
+  public static function routes()
   {
     
-    //Handle arguments.
-    if(count($args) == 2){
-      $type = $args[0];
-      $path = $args[1];
+    //No filters.
+    if(func_num_args() == 0){
+      return self::$routes;
     }
     
-    //Only one argument has been given.
-    elseif(count($args) == 1)
+    //Prepare variables.
+    tx('Router')->_handleArguments(func_get_args(), $type, $path);
+    $matches = [];
+    
+    //Iterate our routes to filter them down.
+    foreach(self::$routes as $key => $route)
     {
       
-      //Is it the type?
-      if(is_int($args[0])){
-        $type = $args[0];
-        $path = null;
+      if(!is_null($path) && $path != $route->path){
+        continue;
       }
       
-      //Is it the path?
-      elseif(is_string($args[0])){
-        $type = null;
-        $path = $args[0];
+      if(!is_null($type) && !checkbit($type, $route->type)){
+        continue;
       }
       
-      //It is NOTHING!
-      else{
-        throw new \exception\InvalidArgument('Expecting a string or integer. %s given.', ucfirst(typeof($args[0])));
-      }
+      $matches[$key] = $route;
       
     }
     
-    //An invalid amount of arguments were given.
-    else{
-      throw new \exception\InvalidArgument('Expecting one or two arguments. %s Given.', count($args));
-    }
-    
-    return ['type' => $type, 'path' => $path];
+    return $matches;
     
   }
   
   //The constructor sets the base.
-  public function __construct($type=null, $base=null)
+  public function __construct($type=null, $base=null, $root=false)
   {
     
     $this->base = $base;
+    $this->root = $root;
     
     if(is_int($type)){
       $this->type == $type;
     }
     
   }
-  
   
   //Alias of get()
   public function __invoke()
@@ -89,10 +81,13 @@ class Router
   {
     
     //Handle Arguments.
-    $route = self::_handleArguments(func_get_args(), $type, $path);
+    $route = tx('Router')->_handleArguments(func_get_args(), $type, $path);
     
     //Set type to default.
     $type = (is_null($type) ? $this->type : $type);
+    
+    //Make the path full.
+    $path = $this->fullPath($path);
     
     //Make the key.
     $key = "$type:$path";
@@ -126,7 +121,7 @@ class Router
     }
     
     //Handle the remaining arguments.
-    $args = self::_handleArguments($args);
+    $args = tx('Router')->_handleArguments($args);
     $path = $args['path'];
     $type = (is_null($args['type']) ? $this->type : $args['type']);
     
@@ -149,10 +144,11 @@ class Router
   }
   
   //Returns true if the given path would match the current request in this Router. 
-  public function is($path='')
+  public function is()
   {
     
-    return tx('Router')->matchPath("{$this->base}/$path");
+    tx('Router')->_handleArguments(func_get_args(), $type, $path);
+    return tx('Router')->matchPath($type, $this->fullPath($path));
     
   }
   
@@ -161,6 +157,33 @@ class Router
   {
     
     return (! $this->is($path));
+    
+  }
+  
+  private function fullPath($path='')
+  {
+    
+    //Empty path.
+    if(empty($path)){
+      return $this->base;
+    }
+    
+    //Absolute path.
+    if($path{0} == '/')
+    {
+      
+      //Is this object allowed to use absolute paths?
+      if($this->root === false){
+        throw new \exception\Restriction('You can not use absolute paths here, you tried: "%s".', $path);
+      }
+      
+      //Return the cleaned path.
+      return tx('Router')->cleanPath($this->root.$path);
+      
+    }
+    
+    //Relative path.
+    return $this->base.'/'.tx('Router')->cleanPath($path);
     
   }
   

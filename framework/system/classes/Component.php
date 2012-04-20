@@ -53,7 +53,7 @@ class Component
   public function loadControllers()
   {
     
-    $route = $R = \classes\Router::create("com/{$this->name}");
+    $route = $R = new \classes\Router(null, "com/{$this->name}", 'com');
     
     foreach(glob($this->getPath().'/controllers/*.php') as $file){
       require_once($file);
