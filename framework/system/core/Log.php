@@ -34,7 +34,11 @@ class Log
     }
     
     //Log it!
-    return $this->log($namespace, ucfirst(str_replace('\\', ': ', get_class($e))), $e->getMessage());
+    return $this->log(
+      $namespace,
+      ucfirst(str_replace('\\', ': ', get_class($e))),
+      $e->getMessage().' ('.basename($e->getFile()).':'.$e->getLine().')'
+    );
     
   }
   

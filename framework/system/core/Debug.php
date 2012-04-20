@@ -27,8 +27,10 @@ class Debug
   public function exceptionHandler($e)
   {
     
-    //Log it.
-    tx('Log')->error(__CLASS__, $e);
+    //Log it if it hasn't already logged itself.
+    if(!tx('Config')->config->log_error_caught){
+      tx('Log')->error(__CLASS__, $e);
+    }
     
     trace(get_class($e), $e->getMessage());
     trace($e->getTrace());
