@@ -311,27 +311,37 @@ class Router
       return;
     }
     
-    //Get all other relevant components.
-    $components = tx('Sql')->query('
-      SELECT `c`.*
-      FROM `#system_components` AS `c`
-      INNER JOIN `#system_component_extensions` AS `ce` ON `c`.`id` = `ce`.`extended_by_id`
-      WHERE `ce`.`component_id` = ?i',
-      $cinfo->id
-    )
+    //Load controllers recursively.
+    $loadControllers = (function($com)use(&$loadControllers){
+      
+      //Remember which components we have included.
+      static $history=[];
+      
+      //Detect cyclic reference.
+      if(in_array($com->id, $history)){
+        return;
+      }
+      
+      //Add this component to the history.
+      $history[] = $com->id;
+      
+      //Load the controllers of components extended by this component.
+      $com->getExtendedComponents()->each(function($com)use(&$loadControllers){
+        $loadControllers($com);
+      });
+      
+      //Load the controllers of this components.
+      $com->loadControllers();
+      
+      //Load the controllers of components extending this component.
+      $com->getExtendingComponents()->each(function($com)use(&$loadControllers){
+        $loadControllers($com);
+      });
+      
+    });
     
-    //Get an array of only their names.
-    ->map(function($row){
-      return $row->name;
-    })
-    
-    //Add our main component to the mix.
-    ->push($cinfo->name);
-    
-    //Load all of their controllers.
-    foreach($components as $component){
-      tx('Component')[$component]->loadControllers();
-    }
+    //Start loading.
+    $loadControllers($cinfo);
     
     //Everything OK! Progress the state simple route progression.
     $this->state = 4;
