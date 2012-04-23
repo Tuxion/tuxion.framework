@@ -133,10 +133,10 @@ class Mime
   {
       
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Mime class initializing.');
+    tx('Log')->message(__CLASS__, 'Mime class initializing.');
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Mime class initialized.');
+    tx('Log')->message(__CLASS__, 'Mime class initialized.');
     
   }
   

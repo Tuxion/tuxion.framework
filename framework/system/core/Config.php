@@ -38,7 +38,7 @@ class Config
     $this->config = $this->_setMulti(require("$path_config/config.php"));
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Config class initialized.');
+    tx('Log')->message(__CLASS__, 'Config class initialized.');
     
   }
   

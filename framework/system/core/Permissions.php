@@ -12,10 +12,10 @@ class Permissions
   {
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Permissions class initializing.');
+    tx('Log')->message(__CLASS__, 'Permissions class initializing.');
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Permissions class initialized.');
+    tx('Log')->message(__CLASS__, 'Permissions class initialized.');
     
   }
   

@@ -19,7 +19,7 @@ class Router
   {
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Router class initializing.');
+    tx('Log')->message(__CLASS__, 'Router class initializing.');
     
     //Get the path.
     $path = tx('Request')->url->segments->path;
@@ -52,7 +52,7 @@ class Router
     $this->_route();
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Router class initialized.');
+    tx('Log')->message(__CLASS__, 'Router class initialized.');
     
     exit;
     
@@ -279,7 +279,7 @@ class Router
           
       }
       
-      tx('Log')->message($path);//.BR;
+      tx('Log')->message(__CLASS__, 'routing', $path);//.BR;
       
       //Call preprocessors.
       foreach(\classes\Router::routes(tx('Request')->method(), $path) as $key => $route){
@@ -330,7 +330,7 @@ class Router
         $loadControllers($com);
       });
       
-      //Load the controllers of this components.
+      //Load the controllers of this component.
       $com->loadControllers();
       
       //Load the controllers of components extending this component.
@@ -343,7 +343,7 @@ class Router
     //Start loading.
     $loadControllers($cinfo);
     
-    //Everything OK! Progress the state simple route progression.
+    //Everything OK! Progress the state to simple route progression.
     $this->state = 4;
     
   }

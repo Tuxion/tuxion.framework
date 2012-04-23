@@ -6,7 +6,7 @@ class Route
   //Private properties.
   private
     $pres=[],
-    $ends=[],
+    $end,
     $posts=[];
     
   //Public properties.
@@ -37,7 +37,15 @@ class Route
   public function end(\Closure $callback)
   {
     
-    $this->pres[] = new \classes\RouteEndPoint($callback);
+    //Figure out if this new endpoint is more important than the last.
+    if(!empty($this->end))
+    {
+      
+      
+      
+    }
+    
+    $this->end = new \classes\RouteEndPoint($callback);
     
     return $this;
     
@@ -47,7 +55,7 @@ class Route
   public function post(\Closure $callback)
   {
     
-    $this->pres[] = new \classes\RoutePostProcessor($callback);
+    $this->posts[] = new \classes\RoutePostProcessor($callback);
     
     return $this;
     

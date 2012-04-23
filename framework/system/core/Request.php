@@ -18,7 +18,7 @@ class Request
   {
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Request class initializing.');
+    tx('Log')->message(__CLASS__, 'Request class initializing.');
     
     //Set the request-method.
     switch(tx('Server')->request_method){
@@ -111,7 +111,7 @@ class Request
     $this->url = \classes\Url::create("$scheme://$server$port$req_uri", true, false);
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Request class initialized.');
+    tx('Log')->message(__CLASS__, 'Request class initialized.');
     
   }
   

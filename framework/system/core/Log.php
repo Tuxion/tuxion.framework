@@ -3,18 +3,6 @@
 class Log
 {
 
-  //Initialize.
-  public function init()
-  {
-    
-    //Enter a log entry.
-    $this->message(__CLASS__, 'class initialize', 'Log class initializing.');
-    
-    //Enter a log entry.
-    $this->message(__CLASS__, 'class initialize', 'Log class initialized.');
-    
-  }
-
   //Log an exception.
   public function error($namespace, $e)
   {

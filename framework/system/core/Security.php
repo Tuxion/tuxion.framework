@@ -64,10 +64,10 @@ class Security
   {
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Security class initializing.');
+    tx('Log')->message(__CLASS__, 'Security class initializing.');
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'class initialize', 'Security class initialized.');
+    tx('Log')->message(__CLASS__, 'Security class initialized.');
     
   }
   
