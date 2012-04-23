@@ -2,9 +2,7 @@
 
 //trace( $file, $this, $R, $R->is('/example') );
 
-//var_dump($R->is('test'));
-
 $R('test')
-  ->pre(function(){
-    echo 'hoi';
-  });
+   ->end(function(){
+     echo 'hoi';
+   });

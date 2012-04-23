@@ -32,7 +32,7 @@ class Loader
       
       //Validate class presence.
       if( ! class_exists($class) ){
-        die(sprintf('The class "%s" is not defined in it\'s file.', $class));
+        die(sprintf('The class "%s" is not defined in its file.', $class));
       }
       
       //Create a single instance and store it in self::$objects

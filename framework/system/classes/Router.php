@@ -13,15 +13,6 @@ class Router
     $root=false,
     $base=null;
   
-  //Returns an instance of self.
-  public static function create()
-  {
-    
-    tx('Router')->_handleArguments(func_get_args(), $type, $path);
-    return new self($type, $path);
-    
-  }
-  
   //Return all routes with optional filtering.
   public static function routes()
   {
@@ -81,7 +72,7 @@ class Router
   {
     
     //Handle Arguments.
-    $route = tx('Router')->_handleArguments(func_get_args(), $type, $path);
+    tx('Router')->_handleArguments(func_get_args(), $type, $path);
     
     //Set type to default.
     $type = (is_null($type) ? $this->type : $type);
@@ -117,7 +108,10 @@ class Router
     
     //Validate the callback.
     if(!($cb instanceof \Closure)){
-      throw new \exception\InvalidArgument('Expecting the last argument to be an instance of \Closure. %s given.', ucfirst(typeof($cb)));
+      throw new \exception\InvalidArgument(
+        'Expecting the last argument to be an instance of \Closure. %s given.',
+        ucfirst(typeof($cb))
+      );
     }
     
     //Handle the remaining arguments.

@@ -54,8 +54,6 @@ class Router
     //Enter a log entry.
     tx('Log')->message(__CLASS__, 'Router class initialized.');
     
-    exit;
-    
   }
   
   //Cleans up the request-URI-path in order for it to match our routing systems.
@@ -209,7 +207,7 @@ class Router
         //The first segment.
         case 0:
           
-          //We are at the first segment, yet we don't have a future. We will use this as alias.
+          //We are at the first segment, yet we don't have a future. We will use this as empty alias.
           if(count($this->future) == 0){
             $this->state = 3;
           }
@@ -325,10 +323,11 @@ class Router
       //Add this component to the history.
       $history[] = $com->id;
       
-      //Load the controllers of components extended by this component.
-      $com->getExtendedComponents()->each(function($com)use(&$loadControllers){
-        $loadControllers($com);
-      });
+      //On second thought: This may not me necessary.
+      // //Load the controllers of components extended by this component.
+      // $com->getExtendedComponents()->each(function($com)use(&$loadControllers){
+      //   $loadControllers($com);
+      // });
       
       //Load the controllers of this component.
       $com->loadControllers();
