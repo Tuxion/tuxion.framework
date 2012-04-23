@@ -31,7 +31,7 @@ class Error extends \ErrorException
     
     parent::__construct($message, 0, $errno, $errfile, $errline);
     
-    if(tx('Config')->config->log_error_caught){
+    if(tx('Config')->config->log_exception_caught){
       tx('Log')->error(__CLASS__, $this);
     }
     

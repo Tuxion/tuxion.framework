@@ -21,7 +21,7 @@ class Exception extends \Exception
     
     parent::__construct($message);
     
-    if(tx('Config')->config->log_error_caught){
+    if(tx('Config')->config->log_exception_caught){
       tx('Log')->error(__CLASS__, $this);
     }
     

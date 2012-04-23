@@ -28,7 +28,7 @@ class Debug
   {
     
     //Log it if it hasn't already logged itself.
-    if(!tx('Config')->config->log_error_caught){
+    if(!tx('Config')->config->log_exception_caught){
       tx('Log')->error(__CLASS__, $e);
     }
     

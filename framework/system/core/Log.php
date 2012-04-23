@@ -19,8 +19,8 @@ class Log
   public function error($namespace, $e)
   {
     
-    //The log_errors setting.
-    $c = tx('Config')->config->log_errors;
+    //The log_exceptions setting.
+    $c = tx('Config')->config->log_exceptions;
     
     //Is error logging even enabled?
     if($c === false){
