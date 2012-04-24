@@ -14,6 +14,6 @@
 // //    });
 
 $R('test')
-  ->end(function(){
-    $this->reroute();
+  ->end('hoi', function(){
+    echo 'bla';
   });

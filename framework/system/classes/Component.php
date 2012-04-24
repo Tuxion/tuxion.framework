@@ -61,7 +61,7 @@ class Component
     $this->name = $cinfo->name;
     $this->title = $cinfo->title;
     
-    tx('log')->message(__CLASS__, 'component loaded', $this->title);
+    tx('Log')->message(__CLASS__, 'component loaded', $this->title);
     
   }
   

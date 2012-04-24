@@ -93,7 +93,7 @@ class Route
   public function hasEnd()
   {
     
-    return !! $this->end;
+    return !empty($this->end);
     
   }
   
@@ -105,6 +105,18 @@ class Route
       $pre->apply(func_get_args());
     }
     
+  }
+  
+  //Call he endpoint of this route.
+  public function _callEnd()
+  {
+  
+    if(!$this->hasEnd()){
+      throw new \exception\Programmer('No endpoint to call.');
+    }
+    
+    $this->end->apply(func_get_args());
+  
   }
   
   //Call this route's post-processors with the given arguments.

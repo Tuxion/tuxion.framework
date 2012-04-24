@@ -27,7 +27,7 @@ class Router
     $matches = [];
     
     //Iterate our routes to filter them down.
-    foreach(self::$routes as $key => $route)
+    foreach(self::$routes as $route)
     {
       
       if(!is_null($path) && $path != $route->path){
@@ -38,7 +38,7 @@ class Router
         continue;
       }
       
-      $matches[$key] = $route;
+      $matches[] = $route;
       
     }
     

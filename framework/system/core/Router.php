@@ -290,7 +290,7 @@ class Router
     $routes = \classes\Router::routes(tx('Request')->method(), $path);
     
     //Test if we did.
-    if(empty($routes) || !current($routes)->hasEnd()){
+    if(empty($routes) || !$routes[0]->hasEnd()){
       throw new \exception\NotFound('This page does not exist.');
     }
     

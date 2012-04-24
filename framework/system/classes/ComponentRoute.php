@@ -35,7 +35,7 @@ class ComponentRoute
   public function end($description, \Closure $callback)
   {
     
-    
+    $this->route->end($description, $callback);
     
   }
 
