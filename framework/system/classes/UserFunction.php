@@ -1,43 +1,44 @@
 <?php namespace classes;
 
-class UserFunction extends Successable
+class UserFunction
 {
-
-
+  
+  //Trait includes.
+  use \traits\Successable;
+  
+  //Public properties.
   public
     $exception=null,
-    $action='performing an action',
+    $description='performing an operation',
     $return_value=null;
   
-  public function __construct($action=null, \Closure $closure)
+  //Executes a closure and catches any expected exceptions.
+  public function __construct($description=null, \Closure $callback, array $arguments = [])
   {
     
-    if(!is_null($action)){
-      $this->action = strtolower(trim($action, ' .!?'));
+    if(!is_null($description)){
+      $this->description = strtolower(trim($description, ' .!?'));
     }
     
     try{
-      $this->return_value = $closure();
+      $this->return_value = call_user_func_array($callback, $arguments);
     }
     
-    catch(\exception\Expected $e)
-    {
-      
-      tx('Logging')->log('UserFunction', 'Exception caught', $e->getMessage());
-      
-      $this->_success(false);
+    catch(\exception\Expected $e){
+      $this->_success = false;
       $this->exception = $e;
       return;
     }
     
-    $this->_success(true);
+    $this->_success = true;
     
   }
   
-  public function getUserMessage($action=null)
+  //Creates a message based on exceptions caught and operation description.
+  public function getUserMessage($description=null)
   {
     
-    if($this->success()){
+    if($this->success){
       $message = '"%s" was successful';
     }
     
@@ -69,20 +70,10 @@ class UserFunction extends Successable
     
     return ucfirst(sprintf(
       $message,
-      (is_null($action) ? $this->action : strtolower(trim($action, ' .!?'))),
+      (is_null($description) ? $this->description : strtolower(trim($description, ' .!?'))),
       ($this->exception instanceof \Exception ? ucfirst(strtolower(trim($this->exception->getMessage(), ' .!?'))) : 'No exception')
     )).'.';
   
-  }
-  
-  public function failure($callback=null)
-  {
-    
-    if($this->success() !== true)
-      tx('Logging')->log('UserFunction', 'Exception handled');
-    
-    return parent::failure($callback);
-    
   }
   
 }

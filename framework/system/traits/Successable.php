@@ -85,7 +85,7 @@ trait Successable
     }
     
     elseif(uses($check, 'Successable')){
-      return $check->success() === true;
+      return $check->_success === true;
     }
     
     else{
