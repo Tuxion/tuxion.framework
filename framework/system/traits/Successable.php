@@ -3,51 +3,34 @@
 trait Successable
 {
   
-  private $success=null;
+  //Implement traits.
+  use Readonly;
   
-  // sets the success state to the boolean that is given, or returned by given callback
-  public function is($check, $callback=null)
+  private $_success=null;
+  
+  //Sets the success state to the boolean that is given, or returned by given callback.
+  public function is($check)
   {
     
-    $check = $this->_doCheck($check);
-    
-    if(is_callable($callback) && $check){
-      $return = $callback($this);
-      if(!is_null($return)) return Data($return);
-    }
-    
-    else{
-      $this->success = $check;
-    }
-    
+    $this->_success = $this->_doCheck($check);
     return $this;
     
   }
   
-  // sets the success state to the opposite of what $this->is() would set it to with the same arguments
-  public function not($check, $callback=null)
+  //Sets the success state to the opposite of what $this->is() would set it to with the same arguments.
+  public function not($check)
   {
     
-    $check = $this->_doCheck($check);
-    
-    if(is_callable($callback) && !$check){
-      $return = $callback($this);
-      if(!is_null($return)) return Data($return);
-    }
-    
-    else{
-      $this->success = !$check;
-    }
-    
+    $this->_success = !$this->_doCheck($check);
     return $this;
     
   }
   
-  // combines the current success state with what the new success state would be if is() would be called with the given arguments
+  //Combines the current success state with what the new success state would be if is() would be called with the given arguments.
   public function andIs($check)
   {
     
-    if($this->success === false){
+    if($this->_success === false){
       return $this;
     }
     
@@ -55,11 +38,11 @@ trait Successable
     
   }
   
-  // combines the current success state with what the new success state would be if not() would be called with the given arguments
+  //Combines the current success state with what the new success state would be if not() would be called with the given arguments.
   public function andNot($check)
   {
     
-    if($this->success === false){
+    if($this->_success === false){
       return $this;
     }
     
@@ -67,58 +50,33 @@ trait Successable
     
   }
   
-  // returns true, or executes $callback($this) if $this->success is true
-  public function success($callback=null)
+  //Returns true, or executes $callback($this) if $this->_success is true.
+  public function success(callable $callback)
   {
   
-    if(is_callable($callback)){
-      if($this->success === true){
-        $return = $callback($this);
-        if(!is_null($return)) return Data($return);
-      }
+    if($this->_success === true){
+      $return = $callback($this);
+      if(!is_null($return)) return $return;
     }
+      
+    return $this;
     
-    else{
-      return $this->success;
+  }
+  
+  //Returns true, or executes $callback($this) if $this->_success is false.
+  public function failure(callable $callback=null)
+  {
+    
+    if($this->_success === false){
+      $return = $callback($this);
+      if(!is_null($return)) return $return;
     }
     
     return $this;
     
   }
   
-  // returns true, or executes $callback($this) if $this->success is false
-  public function failure($callback=null)
-  {
-    
-    if(is_callable($callback)){
-      if($this->success === false){
-        $return = $callback($this);
-        if(!is_null($return)) return Data($return);
-      }
-    }
-    
-    else{
-      return !$this->success;
-    }
-    
-    return $this;
-    
-  }
-  
-  // used internally to control success detection for actions in subnodes
-  public function _success()
-  {
-    
-    if(func_num_args() == 0){
-      return $this->success;
-    }
-    
-    $this->success = is_null(func_get_arg(0)) ? null : (bool) func_get_arg(0);
-    return $this;
-    
-  }
-  
-  // convert given $check to boolean
+  //Convert given $check to boolean.
   private function _doCheck($check)
   {
     

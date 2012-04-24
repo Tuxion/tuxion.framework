@@ -66,7 +66,7 @@ class DataLeaf
   public function set($value)
   {
     
-    if(!is_scalar($value)){
+    if(is_array($value)){
       throw new \exception\InvalidArgument('Expecting $value to be scalar. %s given.', ucfirst(typeof($value)));
     }
     
@@ -172,6 +172,14 @@ class DataLeaf
   {
     
     return gettype($this->value);
+    
+  }
+  
+  //Returns true of this node can be considered empty.
+  public function isempty()
+  {
+    
+    return empty($this->value);
     
   }
   

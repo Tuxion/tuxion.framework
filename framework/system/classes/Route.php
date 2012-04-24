@@ -34,30 +34,15 @@ class Route
   }
   
   //Add an endpoint to this route.
-  public function end()
+  public function end(\Closure $callback)
   {
     
-    //Handle arguments.
-    $args = func_get_args();
-    
-    if(!empty($args)){
-      $callback = array_pop($args);
-    }
-    
-    else{
-      throw new \exception\InvalidArgument('Too few arguments given.');
-    }
-    
-    if(!empty($args)){
-      $overwrite = (bool) array_pop($args);
-    }
-    
-    else{
-      $overwrite = false;
-    }
-    
-    if(!empty($this->end) && !$overwrite){
-      return $this;
+    //Figure out if this new endpoint is more important than the last.
+    if(!empty($this->end))
+    {
+      
+      
+      
     }
     
     $this->end = new \classes\RouteEndPoint($callback);

@@ -8,11 +8,11 @@ function Data(){
     return $data;
   }
   
-  if(is_scalar($data)){
-    return new \classes\DataLeaf($data);
+  if(is_array($data)){
+    return new \classes\DataBranch($data);
   }
   
-  return new \classes\DataBranch($data);
+  return new \classes\DataLeaf($data);
   
 }
 

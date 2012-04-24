@@ -71,7 +71,7 @@ trait Data
   }
   
   //Extend the Successable trait is() function.
-  public function is($check, $callback=null)
+  public function is($check)
   {
     
     
@@ -81,21 +81,23 @@ trait Data
       $check = ucfirst($check);
       
       if(!method_exists($this, "is$check")){
-        throw new \exception\InvalidArgument('%s is not a valid check.', $check);
+        throw new \exception\InvalidArgument('"%s" is not a valid check.', $check);
       }
       
-      return $this->_is($this->{"is$check"}(), $callback);
+      $r = $this->_is($this->{"is$check"}());
       
     }
     
     else{
-      return $this->_is($check, $callback);
+      $r = $this->_is($check);
     }
+    
+    return Data($r);
     
   }
   
   //Extend the Successable trait not() function.
-  public function not($check, $callback=null)
+  public function not($check)
   {
   
     if(is_string($check))
@@ -104,20 +106,23 @@ trait Data
       $check = ucfirst($check);
       
       if(!method_exists($this, "is$check")){
-        throw new \exception\InvalidArgument('%s is not a valid check.', $check);
+        throw new \exception\InvalidArgument('"%s" is not a valid check.', $check);
       }
       
-      return $this->_not($this->{"is$check"}(), $callback);
+      $r = $this->_not($this->{"is$check"}());
       
     }
     
     else{
-      return $this->_not($check, $callback);
+      $r = $this->_not($check);
     }
+    
+    return Data($r);
   
   }
   
-  //Return the direct parent, or if an integer is provided as first argument, the ancestor that many levels back, where 1 is the direct parent.
+  //Return the direct parent, or if an integer is provided as first argument, the ancestor that many levels
+  //back, where 1 is the direct parent.
   public function parent($ancestor=1)
   {
     

@@ -3,13 +3,21 @@
 class Component
 {
 
+  //Public properties.
+  public
+    $id,
+    $name,
+    $title;
+    
+  //Private properties.
+  private
+    $controllers=[],
+    $extended,
+    $extending;
+  
   //Private static properties.
   private static
     $instances=[];
-    
-  //Public static properties.
-  public static
-    $active=null;
   
   //Try to find and return the component that could be identified with given identifier.
   public static function get($id, ArrayObject $cinfo=null)
@@ -23,10 +31,7 @@ class Component
     {
     
       try{
-        $cinfo = tx('Sql')->query('
-          SELECT * FROM `#system_components` WHERE `'.(is_numeric($id) ? 'id' : 'name').'` = ?',
-          $id
-        )[0];
+        $cinfo = tx('Sql')->query('SELECT * FROM `#system_components` WHERE `'.(is_numeric($id) ? 'id' : 'name').'` = ?', $id)[0];
       }
       
       catch(\exception\NotFound $e){
@@ -40,18 +45,6 @@ class Component
     return $c;
     
   }
-  
-  //Public properties.
-  public
-    $id,
-    $name,
-    $title;
-    
-  //Private properties.
-  private
-    $controllers=[],
-    $extended,
-    $extending;
   
   //The constructor stores component info.
   public function __construct(ArrayObject $cinfo)
@@ -123,20 +116,9 @@ class Component
   public function loadControllers()
   {
     
-    //Glob the files!
-    $files = files($this->getPath().'/controllers/*.php');
+    $route = $R = new \classes\Router(null, "com/{$this->name}", 'com');
     
-    //No files? No routes!
-    if(empty($files)){
-      return $this;
-    }
-    
-    //Prepare variables that can be used inside the controller.
-    $route = $R = new \classes\ComponentRouter(null, "com/{$this->name}", 'com', $this);
-    $component = $this;
-    
-    //Include the controller files.
-    foreach($files as $file){
+    foreach(glob($this->getPath().'/controllers/*.php') as $file){
       require_once($file);
     }
     
