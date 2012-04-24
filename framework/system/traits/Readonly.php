@@ -2,18 +2,14 @@
 
 trait Readonly
 {
-
-  //Try to return a read-only property.
-  public function __get($key)
-  {
+  
+  //Magic read.
+  // public function __get($key)
+  // {
     
-    if(!property_exists($this, "_$key")){
-      throw new \exception\Programmer('Property %s does not exist.', $key);
-    }
+  //   return $this->_read($key);
     
-    return $this->{"_$key"};
-    
-  }
+  // }
   
   //Warn the programmer when setting read-only properties.
   public function __set($key, $value)
@@ -24,6 +20,18 @@ trait Readonly
     }
     
     throw new \exception\Programmer('Property %s is read-only.', $key);
+    
+  }
+  
+  //Try to return a read-only property.
+  private function _read($key)
+  {
+    
+    if(!property_exists($this, "_$key")){
+      throw new \exception\Programmer('Property %s does not exist.', $key);
+    }
+    
+    return $this->{"_$key"};
     
   }
 

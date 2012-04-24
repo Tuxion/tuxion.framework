@@ -12,14 +12,11 @@ require_once('system/core/Loader.php');
 //Load the config class.
 tx('Config');
 
-//Enter a log entry now that we can.
-tx('Log')->message('root', 'system initialize', 'Helpers and loader loaded.');
-
 //Load the debug class.
 tx('Debug');
 
 //Let the controllers do the rest of the work.
 tx('Router');
 
-//Enter a log entry to indicate the end of the system.
-tx('Log')->message('root', '--', '------');
+//Log the end of the page-load.
+tx('Log')->message('[page-load completed]');

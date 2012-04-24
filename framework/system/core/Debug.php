@@ -32,8 +32,15 @@ class Debug
       tx('Log')->error(__CLASS__, $e);
     }
     
-    trace(get_class($e), $e->getMessage());
-    trace($e->getTrace());
+    echo '<h1>'.get_class($e).'</h1><h3>'.$e->getMessage().'</h3>';
+    
+    foreach($e->getTrace() as $trace){
+      echo '<b title="'.@$trace['file'].'">'.basename(@$trace['file']).'</b>';
+      echo '@<i>'.@$trace['line'].'</i>';
+      echo "\t:\t<code>".@$trace['class'].@$trace['type'].@$trace['function'].'()</code>';
+      echo BR;
+    }
+    
     exit;
     
   }
