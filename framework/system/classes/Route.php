@@ -24,40 +24,76 @@ class Route
   }
   
   //Add a preprocessor to this route.
-  public function pre(\Closure $callback)
+  public function pre($description, \Closure $callback)
   {
     
-    $this->pres[] = new \classes\RoutePreProcessor($callback);
+    $this->pres[] = new \classes\RoutePreProcessor($description, $callback);
     
     return $this;
     
   }
   
   //Add an endpoint to this route.
-  public function end(\Closure $callback)
+  public function end()
   {
     
-    //Figure out if this new endpoint is more important than the last.
-    if(!empty($this->end))
-    {
-      
-      
-      
+    //Handle arguments.
+    $args = func_get_args();
+    
+    //We need a callback!
+    if(empty($args)){
+      throw new \exception\InvalidArgument('Too few arguments given.');
     }
     
-    $this->end = new \classes\RouteEndPoint($callback);
+    //We have a callback! :D
+    $callback = array_pop($args);
     
+    //We need a description!
+    if(empty($args)){
+      throw new \exception\InvalidArgument('Too few arguments given.');
+    }
+    
+    //We have a description! :D
+    $description = array_pop($args);
+    
+    //Was an overwrite given?
+    if(!empty($args)){
+      $overwrite = array_shift($args);
+    }
+    
+    //Nope.
+    else{
+      $overwrite = false;
+    }
+    
+    //Should we set it?
+    if(!empty($this->end) && !$overwrite){
+      return $this;
+    }
+    
+    //Yep.
+    $this->end = new \classes\RouteEndPoint($description, $callback);
+    
+    //Enable chaining.
     return $this;
     
   }
   
   //Add a post-processor to this route.
-  public function post(\Closure $callback)
+  public function post($description, \Closure $callback)
   {
     
-    $this->posts[] = new \classes\RoutePostProcessor($callback);
+    $this->posts[] = new \classes\RoutePostProcessor($description, $callback);
     
     return $this;
+    
+  }
+  
+  //Return true if an endpoint has been set for this route.
+  public function hasEnd()
+  {
+    
+    return !! $this->end;
     
   }
   

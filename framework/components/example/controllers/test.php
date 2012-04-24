@@ -2,9 +2,18 @@
 
 //trace( $file, $this, $R, $R->is('/example') );
 
-//var_dump($R->is('test'));
+// trace($R);
+// trace($R);
+// trace($R);
+// trace($R);
+// trace($R);
+
+// // $R('test')
+// //    ->end(function(){
+// //      echo 'hoi';
+// //    });
 
 $R('test')
-  ->pre(function(){
-    echo 'hoi';
+  ->end(function(){
+    $this->reroute();
   });

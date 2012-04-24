@@ -32,10 +32,10 @@ class ComponentRoute
   }
   
   //Check the database to see if this end may overwrite the previous.
-  public function end()
+  public function end($description, \Closure $callback)
   {
     
-    # code...
+    
     
   }
 
