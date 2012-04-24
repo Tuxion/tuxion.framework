@@ -61,21 +61,13 @@ function files($pattern)
   return (is_array($glob) ? $glob : []);
 }
 
-//A shortcut for "core\Loader::load($arg1='Loader'[, $arg-n[, ...]])" and "new \classes\UserFunction([$arg1, ]$arg2)"
+//A shortcut for "core\Loader::load($arg1='Loader'[, $arg-n[, ...]])"
 function tx()
 {
 	
   if(func_num_args() == 0 || is_null(func_get_arg(0))){
 		return core\Loader::loadClass('Loader');
 	}
-  
-  elseif(func_num_args() == 2 && is_string(func_get_arg(0)) && (func_get_arg(1) instanceof \Closure)){
-    return new \classes\UserFunction(func_get_arg(0), func_get_arg(1));
-  }
-  
-  elseif(func_num_args() == 1 && (func_get_arg(0) instanceof \Closure)){
-    return new \classes\UserFunction(null, func_get_arg(0));
-  }
   
   else{
     return call_user_func_array([tx(), 'load'], func_get_args());
