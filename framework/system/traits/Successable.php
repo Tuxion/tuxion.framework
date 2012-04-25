@@ -3,16 +3,13 @@
 trait Successable
 {
   
-  //Implement traits.
-  use Readonly;
-  
-  private $_success=null;
+  public $success=null;
   
   //Sets the success state to the boolean that is given, or returned by given callback.
   public function is($check)
   {
     
-    $this->_success = $this->_doCheck($check);
+    $this->success = $this->_doCheck($check);
     return $this;
     
   }
@@ -21,7 +18,7 @@ trait Successable
   public function not($check)
   {
     
-    $this->_success = !$this->_doCheck($check);
+    $this->success = !$this->_doCheck($check);
     return $this;
     
   }
@@ -30,7 +27,7 @@ trait Successable
   public function andIs($check)
   {
     
-    if($this->_success === false){
+    if($this->success === false){
       return $this;
     }
     
@@ -42,7 +39,7 @@ trait Successable
   public function andNot($check)
   {
     
-    if($this->_success === false){
+    if($this->success === false){
       return $this;
     }
     
@@ -50,11 +47,11 @@ trait Successable
     
   }
   
-  //Returns true, or executes $callback($this) if $this->_success is true.
+  //Returns true, or executes $callback($this) if $this->success is true.
   public function success(callable $callback)
   {
   
-    if($this->_success === true){
+    if($this->success === true){
       $return = $callback($this);
       if(!is_null($return)) return $return;
     }
@@ -63,11 +60,11 @@ trait Successable
     
   }
   
-  //Returns true, or executes $callback($this) if $this->_success is false.
+  //Returns true, or executes $callback($this) if $this->success is false.
   public function failure(callable $callback=null)
   {
     
-    if($this->_success === false){
+    if($this->success === false){
       $return = $callback($this);
       if(!is_null($return)) return $return;
     }
@@ -85,7 +82,7 @@ trait Successable
     }
     
     elseif(uses($check, 'Successable')){
-      return $check->_success === true;
+      return $check->success === true;
     }
     
     else{

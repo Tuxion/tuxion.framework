@@ -16,7 +16,7 @@ class UserFunction
   public function __construct($description=null, \Closure $callback, array $arguments = [])
   {
     
-    if(!is_null($description)){
+    if(is_string($description)){
       $this->description = strtolower(trim($description, ' .!?'));
     }
     
@@ -25,12 +25,12 @@ class UserFunction
     }
     
     catch(\exception\Expected $e){
-      $this->_success = false;
+      $this->success = false;
       $this->exception = $e;
       return;
     }
     
-    $this->_success = true;
+    $this->success = true;
     
   }
   
