@@ -5,7 +5,8 @@ class Router
   
   //Private static properties.
   private static
-    $routes=[];
+    $routes=[],
+    $withs=[];
     
   //Private properties.
   private
@@ -43,6 +44,19 @@ class Router
     }
     
     return $matches;
+    
+  }
+  
+  //Reiterate the uncalled withs.
+  public static function reWith()
+  {
+    
+    foreach(self::$withs as $path => $cb){
+      if(tx('Router')->matchPath($path)){
+        $cb();
+        unset(self::$withs[$path]);
+      }
+    }
     
   }
   
@@ -119,18 +133,19 @@ class Router
     $path = $args['path'];
     $type = (is_null($args['type']) ? $this->type : $args['type']);
     
-    //Validate if we are going to need to call the closure at all.
-    if($this->not($path)){
-      return $this;
-    }
-    
     //Make the new base path.
-    $path = tx('Router')->cleanPath($this->base.'/'.$path);
+    $path = $this->fullPath($path);
     
     //Create the closure in the right context and call it.
     $context = new self($this->type, $path);
     $cb = $cb->bindTo($context);
-    $cb();
+    
+    //Call or store the callback?
+    if(tx('Router')->matchPath($path)){
+      $cb();
+    }else{
+      self::$withs[$path] = $cb;
+    }
     
     //Enable chaining.
     return $this;
