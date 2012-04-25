@@ -18,7 +18,10 @@ class DataBranch extends ArrayObject
     }
     
     if(!is_array($data)){
-      throw new \exception\InvalidArgument('Expecting $data to be array or to use ArrayContainer. %s given.', ucfirst(typeof($data)));
+      throw new \exception\InvalidArgument(
+        'Expecting $data to be array or to use ArrayContainer. %s given.',
+        ucfirst(typeof($data))
+      );
     }
     
     $this->_setContext($key, $parent);
@@ -26,24 +29,14 @@ class DataBranch extends ArrayObject
     
   }
   
-  //Destroy the children when the parent dies.
-  public function __destruct()
-  {
-    
-    foreach($this->arr as $key => $node){
-      unset($this->arr[$key]);
-    }
-    
-  }
-  
   //Clone our children when we get ourselves cloned.
   public function __clone()
   {
     
-    foreach($this->arr as $key => $val){
+    $this->each(function($val, $key){
       $this->arraySet($key, clone $val);
       $this->arrayGet($key)->_setContext($this, $key);
-    }
+    });
     
   }
   
@@ -75,15 +68,25 @@ class DataBranch extends ArrayObject
       
   }
   
-  //Return true if the sub-node under the given key has a value of true, or true-ish when $strict is set to false.
+  //Return true if the sub-node under the given key has a value of true, or true-ish when
+  //$strict is setto false.
   public function check($key, $strict=true)
   {
     
     if($strict === false){
-      return ($this->offsetExists($key) && ($this->arrayGet($key) instanceof DataBranch) || ($this->arrayGet($key) instanceof DataLeaf && $this->arrayGet($key)->get() === true));
+      return ($this->offsetExists($key)
+        && ($this->arrayGet($key) instanceof DataBranch)
+        || ($this->arrayGet($key) instanceof DataLeaf
+          && $this->arrayGet($key)->get() === true
+        )
+      );
     }
     
-    return ($this->offsetExists($key) && ($this->arrayGet($key) instanceof DataLeaf && $this->arrayGet($key)->get() === true));
+    return ($this->offsetExists($key)
+      && ($this->arrayGet($key) instanceof DataLeaf
+        && $this->arrayGet($key)->get() === true
+      )
+    );
     
   }
   
@@ -125,7 +128,8 @@ class DataBranch extends ArrayObject
     
   }
   
-  //Extend the arrayGet of ArrayObject to allow new DataUndefined nodes to be created if non-existing nodes are requested.
+  //Extend the arrayGet of ArrayObject to allow new DataUndefined nodes to be created if
+  //non-existing nodes are requested.
   public function arrayGet($key)
   {
     

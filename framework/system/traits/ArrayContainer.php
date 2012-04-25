@@ -7,6 +7,16 @@ trait ArrayContainer
     $arr_permissions=7,
     $arr=[];
   
+  //Destroy the children when the parent dies.
+  public function __destruct()
+  {
+    
+    foreach($this->arr as $key => $node){
+      unset($this->arr[$key]);
+    }
+    
+  }
+    
   //Set the entire array.
   public function set(array $arr)
   {
