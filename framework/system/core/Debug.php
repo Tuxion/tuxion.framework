@@ -41,8 +41,6 @@ class Debug
       echo BR;
     }
     
-    exit;
-    
   }
   
   public function typeOf($var)
