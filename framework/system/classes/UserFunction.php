@@ -10,7 +10,8 @@ class UserFunction
   public
     $exception=null,
     $description='performing an operation',
-    $return_value=null;
+    $return_value=null,
+    $output=null;
   
   //Executes a closure and catches any expected exceptions.
   public function __construct($description=null, \Closure $callback, array $arguments = [])
@@ -21,7 +22,10 @@ class UserFunction
     }
     
     try{
+      ob_start();
       $this->return_value = call_user_func_array($callback, $arguments);
+      $this->output = ob_get_contents();
+      ob_end_clean();
     }
     
     catch(\exception\Expected $e){
