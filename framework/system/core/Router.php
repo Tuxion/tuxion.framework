@@ -112,7 +112,7 @@ class Router
         $segment = preg_replace('~[\.]+$~', '', $segment);
         
         //Trim off the illegal characters off the end and start.
-        $segment = trim($segment, ' ');
+        $segment = trim($segment, '+');
         
         //Detect premature endpoints.
         if(strpos($segment, '.')){

@@ -26,8 +26,8 @@ class RoutePreProcessor extends RouteProcessor
       $discard = false;
     }
     
-    if(!is_bool($path)){
-      throw new \exception\InvalidArgument('Expecting $discard to be boolean. %s given.', ucfirst(typeof($path)));
+    if(!is_bool($discard)){
+      throw new \exception\InvalidArgument('Expecting $discard to be boolean. %s given.', ucfirst(typeof($discard)));
     }
     
     tx('Router')->reroute($path, !$discard);

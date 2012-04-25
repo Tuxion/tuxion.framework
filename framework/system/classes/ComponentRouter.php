@@ -20,7 +20,19 @@ class ComponentRouter extends Router
   public function get()
   {
     
-    return new \classes\ComponentRoute(call_user_func_array("parent::get", func_get_args()));
+    $route = call_user_func_array("parent::get", func_get_args());
+    
+    if(substr_count($route->path, '/') < 1
+    || strstr($route->path, '/', true) !== 'com'
+    || explode('/', $route->path)[1][0] == '$'
+    ){
+      throw new \exception\Restriction(
+        'Invalid route "%s". Your route must start with "com/<component_name>".',
+        $route->path
+      );
+    }
+    
+    return new \classes\ComponentRoute($route);
     
   }
   

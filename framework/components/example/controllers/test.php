@@ -13,7 +13,17 @@
 // //      echo 'hoi';
 // //    });
 
+$R('/ $example2');
+
 $R('test')
-  ->end('hoi', function(){
-    echo 'bla';
+  ->pre('Rerouting to someplace else.', function(){
+    $this->reroute('nyerk/foo/bar');
   });
+
+$R->with('nyerk/foo', function(){
+  
+  $this('bar')->end('Display the right bar.', function(){
+    echo 'Hallo!';
+  });
+  
+});
