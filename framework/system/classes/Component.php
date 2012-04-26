@@ -132,13 +132,16 @@ class Component
     }
     
     //Prepare variables that can be used inside the controller.
-    $route = $R = new \classes\ComponentRouter(null, "com/{$this->name}", 'com', $this);
+    $controller = (new ComponentController(null, 'com', "com/{$this->name}"))->setComponent($this);
+    c($controller);
     $component = $this;
     
     //Include the controller files.
     foreach($files as $file){
       require_once($file);
     }
+    
+    c(null);
     
     //Enable chaining.
     return $this;

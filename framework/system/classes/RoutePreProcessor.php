@@ -38,8 +38,8 @@ class RoutePreProcessor extends RouteProcessor
     //Reroute.
     tx('Router')->reroute($path, !$discard);
     
-    //Reiterate the with() blocks.
-    \classes\Router::reWith();
+    //Reiterate the run callbacks blocks.
+    \classes\Controller::rerun();
     
   }
   

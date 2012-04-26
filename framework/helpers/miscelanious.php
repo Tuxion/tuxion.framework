@@ -1,5 +1,31 @@
 <?php
 
+//Set or invoke a route object.
+function c(){
+  
+  static $c=null;
+  
+  if(func_num_args() == 0){
+    return $c;
+  }
+  
+  if(func_num_args() == 1
+    && ( func_get_arg(0) instanceof \classes\Controller
+      || func_get_arg(0) instanceof \classes\ComponentController
+      || is_null(func_get_arg(0))
+    )
+  ){
+    return $c = func_get_arg(0);
+  }
+  
+  if(is_null($c)){
+    throw new \exception\Restriction('You can not use the c function here.');
+  }
+  
+  return call_user_func_array([$c, 'get'], func_get_args());
+  
+}
+
 function url(){
   return call_user_func_array('classes\\Url::create', func_get_args());
 }
@@ -51,7 +77,10 @@ function set_status_header($code=200, $text=null){
   ];
   
   if(!array_key_exists($code, $stati)){
-    throw new \exception\InvlaidArgument('Invalid status code "%s" given. Valid status codes are: %s.', $code, implode(', ', array_keys($stati)));
+    throw new \exception\InvlaidArgument(
+      'Invalid status code "%s" given. Valid status codes are: %s.',
+      $code, implode(', ', array_keys($stati))
+    );
   }
   
   if(!is_string($text)){
