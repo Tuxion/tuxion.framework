@@ -5,7 +5,6 @@ abstract class RouteProcessor
   
   //Private properties.
   private
-    $called=false,
     $description,
     $callback;
   
@@ -43,23 +42,18 @@ abstract class RouteProcessor
     }
     
     if(empty($allowed)){
-      throw new \exception\Programmer('There is no controller method called %s.', $key);
+      throw new \exception\Programmer('There is no processor method named "%s".', $key);
     }
     
-    throw new \exception\Programmer('The %s method can only be used in %s.', $key, implode(' and ', $allowed));
-    
-  }
-  
-  //Call the associated callback with the given arguments.
-  public function call()
-  {
-    
-    return $this->apply(func_get_args());
+    throw new \exception\Programmer(
+      'The %s method can only be used in %s.',
+      $key, implode(' and ', $allowed)
+    );
     
   }
   
   //Call the associated callback with the arguments in given array.
-  public function apply(array $args=[])
+  public function execute()
   {
     
     //Make sure the callback is not executed twice.
@@ -69,9 +63,6 @@ abstract class RouteProcessor
     
     //Create the userFunction.
     $func = new \classes\UserFunction($this->description, $this->callback);
-    
-    
-    $this->called = true;
     
     //Enable chaining.
     return $this;

@@ -22,7 +22,7 @@ function c(){
     throw new \exception\Restriction('You can not use the c function here.');
   }
   
-  return call_user_func_array([$c, 'get'], func_get_args());
+  return call_user_func_array([$c, 'getSubController'], func_get_args());
   
 }
 

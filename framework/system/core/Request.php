@@ -6,12 +6,12 @@ class Request
   //Private properties.
   private
     $method = -1,
-    $accept = [],
-    $data = null;
+    $accept = [];
   
   //Public properties.
   public
-    $url=null;
+    $data = null,
+    $url = null;
     
   //The init method fills the data based on the request method.
   public function init()
@@ -26,7 +26,10 @@ class Request
       case 'POST': $this->method = POST; break;
       case 'PUT': $this->method = PUT; break;
       case 'DELETE': $this->method = DELETE; break;
-      default: throw new \exception\Unexpected('Unsupported request method: %s.', tx('Server')->request_method);
+      default: throw new \exception\Unexpected(
+        'Unsupported request method: %s.',
+        tx('Server')->request_method
+      );
     }
     
     //Store the accept headers.
@@ -42,7 +45,13 @@ class Request
     {
       
       if(substr_count(tx('Server')->http_content_type, ';') > 0){
-        $type = trim(substr(tx('Server')->http_content_type, 0, strpos(tx('Server')->http_content_type, ';')));
+        $type = trim(
+          substr(
+            tx('Server')->http_content_type,
+            0,
+            strpos(tx('Server')->http_content_type, ';')
+          )
+        );
       }
       
       else{
@@ -112,14 +121,6 @@ class Request
     
     //Enter a log entry.
     tx('Log')->message(__CLASS__, 'Request class initialized.');
-    
-  }
-  
-  //Return the request data.
-  public function data()
-  {
-    
-    return $this->data;
     
   }
   

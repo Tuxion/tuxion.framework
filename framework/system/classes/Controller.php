@@ -18,28 +18,14 @@ class Controller
     }
     
     //Prepare variables.
-    tx('Router')->_handleArguments(func_get_args(), $type, $path);
+    Router::handleArguments(func_get_args(), $type, $path);
     $matches = [];
-    
-    //Exclusive filter.
-    if(func_num_args() == 2)
-    {
-      
-      $key = "$type:$path";
-      
-      if(array_key_exists($key, self::$controllers)){
-        $matches[] = self::$controllers[$key];
-      }
-      
-      return $matches;
-      
-    }
     
     //Iterate our controllers to filter them down.
     foreach(self::$controllers as $controller)
     {
       
-      if(!is_null($path) && $path != $controller->path){
+      if(!is_null($path) && $path != $controller->base){
         continue;
       }
       
@@ -174,33 +160,48 @@ class Controller
   }
   
   //Call this controller's preprocessors with the given arguments.
-  public function _callPres()
+  public function callPres(DataBranch $input, array $params)
   {
     
     foreach($this->pres as $pre){
-      $pre->apply(func_get_args());
+      $pre->setProperties(['input' => $input]);
+      $pre->setarguments($params);
+      $pre->execute();
     }
     
   }
   
   //Call he endpoint of this controller.
-  public function _callEnd()
+  public function callEnd(DataBranch $input, DataBranch $output, array $params)
   {
   
     if(!$this->hasEnd()){
       throw new \exception\Programmer('No endpoint to call.');
     }
-    
-    $this->end->apply(func_get_args());
+      
+    $this->end->setProperties([
+      'input' => $input,
+      'output' => $output
+    ]);
+    $this->end->setarguments($params);
+    $this->end->execute();
   
   }
   
   //Call this controller's post-processors with the given arguments.
-  public function _callPosts()
+  public function callPosts(DataBranch $input, DataBranch $output, array $params)
   {
     
-    foreach($this->posts as $post){
-      $post->apply(func_get_args());
+    foreach($this->posts as $post)
+    {
+      
+      $post->setProperties([
+        'input' => $input,
+        'output' => $output
+      ]);
+      $post->setarguments($params);
+      $post->execute();
+      
     }
     
   }
@@ -209,16 +210,16 @@ class Controller
   public function __invoke()
   {
     
-    return call_user_func_array([$this, 'get'], func_get_args());
+    return call_user_func_array([$this, 'getSubController'], func_get_args());
     
   }
   
-  //Return the controller object for the route indicated by the given arguments.
-  public function get()
+  //Return a new controller, having it's base set at the given path relative to the base of this controller.
+  public function getSubController()
   {
     
     //Handle Arguments.
-    tx('Router')->_handleArguments(func_get_args(), $type, $path);
+    Router::handleArguments(func_get_args(), $type, $path);
     
     //Set type to default.
     $type = (is_null($type) ? $this->type : $type);
@@ -261,14 +262,6 @@ class Controller
     
   }
   
-  //Returns true if this route is matched by the current page-load.
-  public function active()
-  {
-    
-    return tx('Router')->matchPath($this->base);
-    
-  }
-  
   private function fullPath($path='')
   {
     
@@ -287,12 +280,12 @@ class Controller
       }
       
       //Return the cleaned path.
-      return tx('Router')->cleanPath($this->root.$path);
+      return Router::cleanPath($this->root.$path);
       
     }
     
     //Relative path.
-    return $this->base.'/'.tx('Router')->cleanPath($path);
+    return $this->base.'/'.Router::cleanPath($path);
     
   }
   

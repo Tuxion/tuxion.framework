@@ -16,14 +16,17 @@ class ComponentController extends Controller
     
   }
   
-  //Set the component after create a new self.
-  public function get()
+  //Set the component after creating a new self.
+  public function getSubController()
   {
     
-    $new = call_user_func_array('parent::get', func_get_args());
+    //Get the original return value.
+    $new = call_user_func_array('parent::getSubController', func_get_args());
     
+    //Break up it's path.
     $segments = explode('/', $new->base);
     
+    //Validate it's path.
     if(count($segments) < 2 || $segments[0] !== 'com' || $segments[1][0] == '$'){
       throw new \exception\Restriction(
         'Invalid component-route "%s". Component routes must start with "com/<component_name>".',
@@ -31,7 +34,10 @@ class ComponentController extends Controller
       );
     }
     
+    //Set the component.
     $new->setComponent($this->component);
+    
+    //Return it.
     return $new;
     
   }
@@ -40,7 +46,7 @@ class ComponentController extends Controller
   public function end()
   {
     
-    parent::end($description, $callback);
+    return call_user_func_array('parent::end', func_get_args());
     
   }
   

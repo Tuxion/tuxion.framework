@@ -15,8 +15,8 @@ tx('Config');
 //Load the debug class.
 tx('Debug');
 
-//Let the controllers do the rest of the work.
-tx('Router');
+//Do everything you need to do to output the data.
+tx('Output');
 
 //Log the end of the page-load.
 tx('Log')->message('[page-load completed]');
