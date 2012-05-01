@@ -80,6 +80,11 @@ class Log
       throw new \exception\InvalidArgument('Invalid arguments given.');
     }
     
+    //If the key is an object, we are going to find it's ID.
+    if(is_object($key)){
+      $key = get_object_name($key);
+    }
+    
     //Log it!
     return $this->log($key, $event, $message, $newline);
     
@@ -90,7 +95,11 @@ class Log
   {
     
     //Check if logging is enabled.
-    if((is_null(tx('Config')->config->logging) ? tx('Config')->config->debug : tx('Config')->config->logging) !== true){
+    if((is_null(tx('Config')->config->logging)
+        ? tx('Config')->config->debug
+        : tx('Config')->config->logging
+      ) !== true
+    ){
       return false;
     }
     

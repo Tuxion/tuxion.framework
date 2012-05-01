@@ -8,8 +8,8 @@ class Component implements \ArrayAccess
   {
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'Component class initializing.');
-    tx('Log')->message(__CLASS__, 'Component class initialized.');
+    tx('Log')->message($this, 'Component class initializing.');
+    tx('Log')->message($this, 'Component class initialized.');
     
   }
   

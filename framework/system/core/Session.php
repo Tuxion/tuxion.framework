@@ -10,7 +10,7 @@ class Session extends \classes\DataBranch
   {
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'Session class initializing.');
+    tx('Log')->message($this, 'Session class initializing.');
     
     session_start();
     $this->id = session_id();
@@ -18,7 +18,7 @@ class Session extends \classes\DataBranch
     session_unset();
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'Session class initialized.');
+    tx('Log')->message($this, 'Session class initialized.');
     
   }
   

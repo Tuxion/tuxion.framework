@@ -56,10 +56,10 @@ class Loader
   {
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'Loader class initializing.');
+    tx('Log')->message($this, 'Loader class initializing.');
 
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'Loader class initialized.');
+    tx('Log')->message($this, 'Loader class initialized.');
     
   }
 	

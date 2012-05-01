@@ -10,7 +10,7 @@ class User
   {
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'User class initializing.');
+    tx('Log')->message($this, 'User class initializing.');
     
     //Create the system data if it doesn't exist.
     if( ! tx('Session')->system->isDefined()){
@@ -26,7 +26,7 @@ class User
     $this->users =& tx('Session')->system->users;
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'User class initialized.');
+    tx('Log')->message($this, 'User class initialized.');
     
   }
   
