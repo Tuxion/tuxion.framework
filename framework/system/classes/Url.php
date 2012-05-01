@@ -34,8 +34,14 @@ class Url
   {
     
     return new self($url, array(
-      'discard_old_querystring' => (is_null($discard_old_querystring) ? self::$defaults['discard_old_querystring'] : $discard_old_querystring),
-      'build_on_redirect' => (is_null($build_on_redirect) ? self::$defaults['build_on_redirect'] : $build_on_redirect)
+      'discard_old_querystring' => (is_null($discard_old_querystring)
+        ? self::$defaults['discard_old_querystring']
+        : $discard_old_querystring
+      ),
+      'build_on_redirect' => (is_null($build_on_redirect)
+        ? self::$defaults['build_on_redirect']
+        : $build_on_redirect
+      )
     ));
     
   }
@@ -57,7 +63,7 @@ class Url
       "(?:\://)?". //thingy
       "(?:(?<!\?)(?<=\://)(?<domain>(?:[a-zA-Z0-9\-]+)(?:\.[a-zA-Z0-9\-]+)*))?". //domain
       "(?:(?<!\?)(?<port>\:\d+))?". //port
-      "(?:(?<!\?)(?<path>[\w%+_\-/\.]*))?". //path
+      "(?:(?<!\?)(?<path>[^?#]*))?". //path
       "(?:\?(?<query>(?:[^#]+(?:=[^#]+)?)(?:&(?:amp;)?[^#]+(?:=[^#]+)?)*))?". //query
       "(?:#?(?<anchor>.+))?$~"; //anchor
     
@@ -69,7 +75,14 @@ class Url
     foreach($segments as $key => $val)
     {
 
-      if(is_numeric($key) || (empty($val) && !checkbit(constant('self::'.strtoupper($key)), $flags)) || ($flags > 0 && !checkbit(constant('self::'.strtoupper($key)), $flags))){
+      if(is_numeric($key)
+        || (empty($val)
+          && !checkbit(constant('self::'.strtoupper($key)), $flags)
+        )
+        || ($flags > 0
+          && !checkbit(constant('self::'.strtoupper($key)), $flags)
+        )
+      ){
         unset($segments[$key]);
       }
 
@@ -129,23 +142,29 @@ class Url
     //Get the URL object that represents the current request URL.
     $old_url = (($options['build_on_redirect'] && tx('Router')->redirected())
       ? tx('Router')->redirect_url
-      : (tx('Request')->url instanceof self
-        ? tx('Request')->url
-        : false
-      )
+      : (tx('Request')->url instanceof self ? tx('Request')->url : false)
     );
   
     //Parse input to segments.
     $segments = self::parse($this->input);
     
     //scheme segment.
-    $this->segments->scheme = (array_key_exists('scheme', $segments) ? $segments['scheme'] : ($old_url ? $old_url->segments->scheme : 'http'));
+    $this->segments->scheme = (array_key_exists('scheme', $segments)
+      ? $segments['scheme']
+      : ($old_url ? $old_url->segments->scheme : 'http')
+    );
 
     //Domain segment.
-    $this->segments->domain = (array_key_exists('domain', $segments) ? $segments['domain'] : ($old_url ? $old_url->segments->domain : ''));
+    $this->segments->domain = (array_key_exists('domain', $segments)
+      ? $segments['domain']
+      : ($old_url ? $old_url->segments->domain : '')
+    );
     
     //Meta: external.
-    $this->meta->external = (tx('Request')->url instanceof self ? (tx('Request')->url->segments->domain !== $this->segments->domain) : false);
+    $this->meta->external = (tx('Request')->url instanceof self
+      ? (tx('Request')->url->segments->domain !== $this->segments->domain)
+      : false
+    );
     
     //Detect what to do with the path segment, if it's been given.
     if(array_key_exists('path', $segments))
@@ -196,7 +215,10 @@ class Url
     
     //No path segment given.
     else{
-      $this->segments->path = ($this->meta->external === true ? '/' : ($old_url ? $old_url->segments->path : '/'));
+      $this->segments->path = ($this->meta->external === true
+        ? '/'
+        : ($old_url ? $old_url->segments->path : '/')
+      );
     }
     
     //Parse the data that has been given as query string.
