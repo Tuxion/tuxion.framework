@@ -1,0 +1,7 @@
+RewriteEngine On
+
+RewriteRule ^i/com/(\w+)/(.*)$ framework/components/$1/includes/$2 [END]
+RewriteRule ^i/theme/(\w+)/(.*)$ framework/themes/$1/includes/$2 [END]
+
+RewriteRule .* framework/init.php
+RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type}]

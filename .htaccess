@@ -1,3 +1,9 @@
 RewriteEngine On
-RewriteRule .*  framework/init.php
-RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type},L]
+
+RewriteRule ^i/com/(\w+)/(.*)$ framework/components/$1/includes/$2 [E=REWRITE:1,L]
+RewriteRule ^i/theme/(\w+)/(.*)$ framework/themes/$1/includes/$2 [E=REWRITE:1,L]
+
+RewriteCond %{ENV:REDIRECT_REWRITE} !1
+RewriteRule .* framework/init.php
+
+RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type}]
