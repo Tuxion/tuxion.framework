@@ -15,7 +15,11 @@ function __autoload($class)
     case 'classes': $file = "$path_system/classes/{$class_array[1]}.php"; break;
     case 'exception': $file = "$path_system/exceptions/{$class_array[1]}.php"; break;
     case 'traits': $file = "$path_system/traits/{$class_array[1]}.php"; break;
-    default: throw new \exception\Restriction('Failed to autoload "%s"; autoloading is restricted to only exceptions, traits or core classes.', $class);
+    case 'interfaces': $file = "$path_system/interfaces/{$class_array[1]}.php"; break;
+    default: throw new \exception\Restriction(
+      'Failed to auto-load "%s"; auto-loading is restricted to only'.
+      'exceptions, interfaces, traits or core classes.', $class
+    );
   }
   
   if(!is_file($file)){
