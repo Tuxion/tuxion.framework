@@ -14,7 +14,7 @@ class Component
   //Try to find and return the component that could be identified with given identifier.
   public static function get($id, ArrayObject $cinfo=null)
   {
-    
+
     if(array_key_exists($id, self::$instances)){
       return self::$instances[$id];
     }
@@ -61,7 +61,7 @@ class Component
     $this->name = $cinfo->name;
     $this->title = $cinfo->title;
     
-    tx('Log')->message(__CLASS__, 'component loaded', $this->title);
+    tx('Log')->message($this, 'component loaded', $this->title);
     
   }
   
@@ -120,7 +120,7 @@ class Component
   }
   
   //Load all controllers in this component, so that they may fill their Route objects.
-  public function loadControllers()
+  public function loadControllers(Router $router)
   {
     
     //Glob the files!
@@ -132,16 +132,20 @@ class Component
     }
     
     //Prepare variables that can be used inside the controller.
-    $controller = (new ComponentController(null, 'com', "com/{$this->name}"))->setComponent($this);
+    $controller = (new ComponentController(null, 'com', "com/{$this->name}"))
+      ->setRouter($router)
+      ->setComponent($this);
+    
+    $c = c();
     c($controller);
     $component = $this;
     
     //Include the controller files.
     foreach($files as $file){
-      require_once($file);
+      require($file);
     }
     
-    c(null);
+    c($c);
     
     //Enable chaining.
     return $this;

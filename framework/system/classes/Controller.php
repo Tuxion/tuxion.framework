@@ -25,14 +25,34 @@ class Controller
     foreach(self::$controllers as $controller)
     {
       
-      if(!is_null($path) && $path != $controller->base){
-        continue;
+      //Should we filter on path?
+      if(!is_null($path))
+      {
+        
+        //Get keys and values.
+        $keys = explode('/', $controller->base);
+        $values = explode('/', $path);
+        
+        //The routes must be of the same length.
+        if(count($keys) !== count($values)){
+          continue;
+        }
+        
+        //Iterate the keys and values, and check whether they match.
+        while( (list(,$key) = each($keys)) && (list(,$value) = each($values)) ){
+          if(!($key{0} == '$' || $key === $value)){
+            continue 2;
+          }
+        }
+        
       }
       
+      //Should we filter on type?
       if(!is_null($type) && !checkbit($type, $controller->type)){
         continue;
       }
       
+      //Filters passed. Add to results.
       $matches[] = $controller;
       
     }
@@ -59,12 +79,14 @@ class Controller
   
   //Private properties.
   private
+    $router,
+    $template,
     $pres=[],
-    $end,
     $posts=[];
     
   //Public properties.
   public
+    $end,
     $type=15,
     $root=false,
     $base=null;
@@ -134,7 +156,7 @@ class Controller
     }
     
     //Yep.
-    $this->end = new \classes\RouteEndPoint($description, $callback);
+    $this->end = new \classes\RouteEndPoint($description, $callback, $this->template);
     
     //Enable chaining.
     return $this;
@@ -166,15 +188,19 @@ class Controller
     foreach($this->pres as $pre){
       $pre->setProperties(['input' => $input]);
       $pre->setarguments($params);
+      $pre->controller = $this;
       $pre->execute();
     }
+    
+    return $this;
     
   }
   
   //Call he endpoint of this controller.
   public function callEnd(DataBranch $input, DataBranch $output, array $params)
   {
-  
+    
+    
     if(!$this->hasEnd()){
       throw new \exception\Programmer('No endpoint to call.');
     }
@@ -184,7 +210,10 @@ class Controller
       'output' => $output
     ]);
     $this->end->setarguments($params);
+    $this->end->controller = $this;
     $this->end->execute();
+    
+    return $this;
   
   }
   
@@ -200,9 +229,12 @@ class Controller
         'output' => $output
       ]);
       $post->setarguments($params);
+      $post->controller = $this;
       $post->execute();
       
     }
+    
+    return $this;
     
   }
   
@@ -237,7 +269,7 @@ class Controller
     
     //Make the controller.
     $class = get_class($this);
-    $r = new $class($type, false, $path);
+    $r = (new $class($type, false, $path))->setRouter($this->router);
     
     //Return the controller.
     return $r;
@@ -259,6 +291,35 @@ class Controller
     }
     
     return $this;
+    
+  }
+  
+  //Return true if the path set in this controller matches the path in the router calling this controller.
+  public function active()
+  {
+    
+    if(!($this->router instanceof Router)){
+      throw new \exception\Unexpected('No router set in this controller.');
+    }
+    
+    return $this->router->match($this->type, $this->base);
+    
+  }
+  
+  //Set the router.
+  public function setRouter(Router $router)
+  {
+    
+    $this->router = $router;
+    return $this;
+    
+  }
+  
+  //Set the path to the template that should be used for endpoints made by this controller.
+  public function setTemplate($path)
+  {
+    
+    $this->template = $path;
     
   }
   
@@ -285,9 +346,8 @@ class Controller
     }
     
     //Relative path.
-    return $this->base.'/'.Router::cleanPath($path);
+    return Router::cleanPath($this->base.'/'.$path);
     
   }
-  
   
 }

@@ -5,8 +5,15 @@ abstract class RouteProcessor
   
   //Private properties.
   private
+    $properties=[],
+    $arguments=[],
     $description,
-    $callback;
+    $callback,
+    $router;
+    
+  //Public properties.
+  public
+    $controller=null;
   
   //Store the given callback.
   public function __construct($description, \Closure $callback)
@@ -23,6 +30,20 @@ abstract class RouteProcessor
     //Set properties.
     $this->description = $description;
     $this->callback = $callback->bindTo($this);
+    
+  }
+  
+  //Return one of the variable properties.
+  public function __get($key)
+  {
+    
+    //Does the property exist?
+    if(!array_key_exists($key, $this->properties)){
+      throw new \exception\Programmer('Property "%s" does not exist in %s.', $key, get_object_name($this));
+    }
+    
+    //Return it.
+    return $this->properties[$key];
     
   }
   
@@ -52,20 +73,66 @@ abstract class RouteProcessor
     
   }
   
+  //Validate using the Validator class.
+  public function validate($data, $rules)
+  {
+    
+    return new Validator($data, $rules);
+    
+  }
+  
   //Call the associated callback with the arguments in given array.
   public function execute()
   {
     
-    //Make sure the callback is not executed twice.
-    if($this->called){
-      throw new \exception\Restriction('Can not call a RouteProcessor callback more than once.');
+    //Define execution tracker.
+    static $executing=false;
+    
+    //Detect nested execution. That would be bad!
+    if($executing){
+      throw new \exception\Programmer(
+        'Nested execution occurred; %stried %s while %s.',
+        ($this->description == $executing ? 'yo dawg, you ' : ''),
+        strtolower(trim($this->description, ' .!?')),
+        strtolower(trim($executing, ' .!?'))
+      );
     }
     
+    //We are now executing the following:
+    $executing = $this->description;
+    
     //Create the userFunction.
-    $func = new \classes\UserFunction($this->description, $this->callback);
+    $func = new \classes\UserFunction($this->description, $this->callback, $this->arguments);
+    
+    //No longer executing.
+    $executing = false;
     
     //Enable chaining.
     return $this;
+    
+  }
+  
+  //Set the properties that can be accessed during execution.
+  public function setProperties(array $properties)
+  {
+    
+    $this->properties = $properties;
+    
+  }
+  
+  //Set the arguments that will be passed to the callback during execution.
+  public function setArguments(array $arguments)
+  {
+    
+    $this->arguments = $arguments;
+    
+  }
+  
+  //Set the router that will be used for function using the router.
+  public function setRouter(Router $router)
+  {
+    
+    $this->router = $router;
     
   }
   

@@ -34,7 +34,7 @@ class Router
       $path = str_replace(' ', '+', $path);
       
       //Replace illegal characters.
-      $path = preg_replace('~[#@?!]~', '-', $path);
+      $path = preg_replace('~[#@?!]+~', '-', $path);
       
       //Explode into segments.
       $segments = explode('/', $path);
@@ -134,7 +134,7 @@ class Router
     
   }
   
-  //Accepts 2 paths, one containing keys like: "path/$name/", and one containing values like: "path/Avaq".
+  //Accepts 2 paths, one containing keys like: "path/$name", and one containing values like: "path/Avaq".
   public static function matchPath($keys, $values)
   {
     
@@ -179,21 +179,24 @@ class Router
     $type,
     $input,
     $output,
-    $template,
-    $path;
+    $inner_template,
+    $outer_template,
+    $path,
+    $view_name;
   
   //The constructor will start routing straight away.
-  public function __construct($type, $path, \classes\DataBranch $input)
+  public function __construct($type, $path, DataBranch $input)
   {
     
-    //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'started routing', $this->path);
     
     //Set the request method.
     $this->type = $type;
     
     //Clean the path.
     $this->path = self::cleanPath($path);
+    
+    //Enter a log entry.
+    tx('Log')->message($this, 'started routing', $this->path);
     
     //Split the path into segments, and put them in the future.
     $this->future = explode('/', $this->path);
@@ -208,11 +211,11 @@ class Router
     while($this->state < 30)
     {
       
-      if($state < 10){
+      if($this->state < 10){
         $this->preProcess();
       }
       
-      elseif($state < 20){
+      elseif($this->state < 20){
         $this->endPoint();
       }
       
@@ -221,9 +224,24 @@ class Router
       }
       
     }
-    
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'finished routing', $this->path);
+    tx('Log')->message($this, 'finished routing', $this->path);
+    
+  }
+  
+  //Return the file extension in the path. False if there was none.
+  public function getExt()
+  {
+    
+    return strstr(str_replace('.part', '', $this->path), '.');
+    
+  }
+  
+  //Return true if a .part file was requested.
+  public function isPart()
+  {
+    
+    return substr_count($this->path, '.part') > 1;
     
   }
   
@@ -231,14 +249,14 @@ class Router
   public function match()
   {
     
-    $this->_handleArguments(func_get_args(), $type, $path);
+    self::handleArguments(func_get_args(), $type, $path);
     
     //Test for type?
     if(!is_null($type))
     {
       
       //See if the type matches the current request type.
-      if(!checkbit($type, $this->type)){
+      if(!checkbit($this->type, $type)){
         return false;
       }
       
@@ -257,6 +275,8 @@ class Router
   public function params($keys)
   {
     
+    tx('Log')->message($this, 'extracting parameters', "'$keys' from '{$this->path}'");
+    
     //Get the parameters.
     $params = self::matchPath($keys, $this->path);
     
@@ -271,11 +291,9 @@ class Router
   }
   
   //Reroutes to a new path starting from the current segment.
+  private $reroute_cache=[];
   public function reroute($path, $prepend=false)
   {
-    
-    //Our own little history, like a diary! :)
-    static $history = [];
     
     //Rerouting can only be done in the preProcessing stages.
     if($this->state >= 10){
@@ -283,10 +301,10 @@ class Router
     }
     
     //Detect cyclic reference.
-    if(in_array($path, $history)){
+    if(in_array($path, $this->reroute_cache)){
       throw new \exception\Configuration(
         'Cyclic reference occurred: The "%s" path came back to itself after %s reroutings.',
-        $path, count(array_slice($history, array_search($path, $history)))-1
+        $path, count(array_slice($this->reroute_cache, array_search($path, $this->reroute_cache)))-1
       );
     }
     
@@ -315,13 +333,13 @@ class Router
     array_pop($this->history);
     
     //Add this path to our diary.
-    $history[] = implode('/', $this->history)."/$path";
+    $this->reroute_cache[] = implode('/', $this->history)."/$path";
     
     //Build the new path.
     $path = implode('/', $this->history).'/'.implode('/', $this->future);
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'rerouting', "'{$this->path}' -> '$path'");
+    tx('Log')->message($this, 'rerouting', "'{$this->path}' -> '$path'");
     
     //Set the path.
     $this->path = $path;
@@ -332,17 +350,28 @@ class Router
   }
   
   //Walk through the given route and call the preProcessors.
+  private $pre_process_cache=[];
   private function preProcess()
   {
     
     //Get the path up until now.
     $path = implode('/', $this->history);
     
-    //call the processors.
-    foreach(\classes\Controller::controllers($this->type, $path) as $con){
-      $con->callPres($this->input, $this->params($con->base));
-    }
+    if(!in_array($path, $this->pre_process_cache))
+    {
     
+      //Enter a log entry.
+      tx('Log')->message($this, 'preprocessing route', $path);
+      
+      //call the processors.
+      foreach(Controller::controllers($this->type, $path) as $con){
+        $con->callPres($this->input, $this->params($con->base));
+      }
+      
+      //Remember
+      $this->pre_process_cache[] = $path;
+    
+    }
     //Progress on to the next state.
     switch($this->state)
     {
@@ -367,6 +396,12 @@ class Router
           $this->state = 2;
         }
         
+        //If the segment is the reserved "i", and it was somehow not caught by .htaccess.
+        elseif($this->future[0] == 'i'){
+          $this->history[] = array_shift($this->future);
+          $this->state = 5;
+        }
+        
         //The first segment is unreserved. We will use it as alias.
         else{
           $this->state = 3;
@@ -384,7 +419,7 @@ class Router
         
         //Get the component name and route there.
         $this->history[] = $component_name = array_shift($this->future);
-        $this->_routeComponent($component_name);
+        $this->processComponent($component_name);
         
         break;
         
@@ -400,11 +435,17 @@ class Router
       //Route to a system utility.
       case 2:
         throw new \exception\Programmer('Not implemented yet.');
+        break;
       
       //Reroute based on an alias.
       case 3:
         $this->history[] = $alias = array_shift($this->future);
-        $this->_routeAlias($alias);
+        $this->processAlias($alias);
+        break;
+      
+      //Load a resource.
+      case 5:
+        throw new \exception\Programmer('Not implemented yet.');
         break;
       
     }
@@ -414,21 +455,33 @@ class Router
   //Handle the end of a route.
   private function endPoint()
   {
+    //Enter a log entry.
+    tx('Log')->message($this, 'processing endpoint', $this->path);
     
-    //Get the routes that match the endpoint.
-    $routes = \classes\Controller::controllers($this->type, $this->path);
+    //Get the controllers that match the endpoint.
+    $controllers = Controller::controllers($this->type, $this->path);
     
-    //Test if we have an endpoint.
-    if(empty($routes)){
+    //Test if we have a route matching the full path.
+    if(empty($controllers)){
       throw new \exception\NotFound('This page does not exist.');
     }
     
-    //Get the route with an endpoint.
-    foreach($routes as $route){
-      if($route->hasEnd()){
-        $route->callEnd($this->input, $this->output, $this->params($con->base));
+    $end = false;
+    
+    //Get the con with an endpoint.
+    foreach($controllers as $con){
+      if($con->hasEnd()){
+        tx('Log')->message($this, 'calling endpoint', $con->base);
+        $this->inner_template = $con->end->template;
+        $con->callEnd($this->input, $this->output, $this->params($con->base));
+        $end = true;
         break;
       }
+    }
+    
+    //No endpoint found?
+    if(!$end){
+      throw new \exception\NotFound('This page does not exist.');
     }
     
     //Set the state to postProcessing.
@@ -446,10 +499,11 @@ class Router
       $routes[$i] = (array_key_exists($i-1, $routes) ? $routes[$i-1].'/' : '').$segment;
     }
     
-    //Walk through the history of routes in reversed order and execute their posts.
+    //Walk through the history of routes in reversed order and execute their postProcessors.
     foreach(array_reverse($routes) as $path){
-      foreach(\classes\Controller::controllers(tx('Request')->method(), $path) as $route){
-        $route->callPosts($this->input, $this->output, $this->params($con->base));
+      tx('Log')->message($this, 'postprocessing route', $path);
+      foreach(Controller::controllers($this->type, $path) as $con){
+        $con->callPosts($this->input, $this->output, $this->params($con->base));
       }
     }
     
@@ -459,7 +513,8 @@ class Router
   }
   
   //Route to components.
-  private function _routeComponent($component_name)
+  private $process_component_cache=[];
+  private function processComponent($component_name)
   {
     
     //Are we allowed to use numeric component identifiers?
@@ -468,7 +523,7 @@ class Router
     }
     
     //Get component info.    
-    $cinfo = tx('Component')[$component_name];
+    $cinfo = Component::get($component_name);
     
     //Are we using a numeric identifier? If so, we reroute.
     if(is_numeric($component_name)){
@@ -480,19 +535,16 @@ class Router
     //Load controllers recursively.
     $loadControllers = (function($com)use(&$loadControllers){
       
-      //Remember which components we have included.
-      static $history=[];
-      
       //Detect cyclic reference.
-      if(in_array($com->id, $history)){
+      if(in_array($com->id, $this->process_component_cache)){
         return;
       }
       
       //Add this component to the history.
-      $history[] = $com->id;
+      $this->process_component_cache[] = $com->id;
       
       //Load the controllers of this component.
-      $com->loadControllers();
+      $com->loadControllers($this);
       
       //Load the controllers of components extending this component.
       $com->getExtendingComponents()->each(function($com)use(&$loadControllers){
@@ -510,7 +562,7 @@ class Router
   }
   
   //Reroute based on an alias.
-  private function _routeAlias($alias)
+  private function processAlias($alias)
   {
     
     //Get the alias from the database.
@@ -526,6 +578,5 @@ class Router
     $this->state = 0;
     
   }
-  
   
 }
