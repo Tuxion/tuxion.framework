@@ -117,11 +117,11 @@ trait ArrayContainer
     
   }
   
-  //Return a new self by iterating over the data and using the return value from the callback and return it.
+  //Return a new $this by iterating over the data and using the return value from the callback and return it.
   public function map(\Closure $callback)
   {
   
-    $r = new self;
+    $r = new $this;
     $i = 0;
     
     foreach($this->arr as $key => $value){
@@ -158,7 +158,7 @@ trait ArrayContainer
   public function having()
   {
     
-    $return = new self;
+    $return = new $this;
     
     if(func_num_args() == 1 && is_array(func_get_arg(0))){
       $keys = func_get_arg(0);
@@ -189,7 +189,7 @@ trait ArrayContainer
   public function filter(\Closure $callback)
   {
     
-    $return = new self;
+    $return = new $this;
     
     foreach($this->arr as $k => $v){
       if($callback($v, $k) === true){
@@ -217,11 +217,11 @@ trait ArrayContainer
     
   }
   
-  //Returns a slice of the array in the form of a new self.
+  //Returns a slice of the array in the form of a new $this.
   public function slice($offset=0, $length=null)
   {
     
-    return new self(array_slice($this->arr, $offset, $length));
+    return new $this(array_slice($this->arr, $offset, $length));
     
   }
   

@@ -16,7 +16,7 @@ class ComponentController extends Controller
     
   }
   
-  //Set the component after creating a new self.
+  //Set the component after creating a new $this.
   public function getSubController()
   {
     

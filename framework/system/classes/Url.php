@@ -29,11 +29,11 @@ class Url
     $meta,
     $data;
   
-  //Creates a new self instance.
+  //Creates a new $this instance.
   public static function create($url, $discard_old_querystring=null, $build_on_redirect=null)
   {
     
-    return new self($url, array(
+    return new $this($url, array(
       'discard_old_querystring' => (is_null($discard_old_querystring)
         ? self::$defaults['discard_old_querystring']
         : $discard_old_querystring

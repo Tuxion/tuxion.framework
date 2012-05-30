@@ -165,7 +165,7 @@ class DataBranch extends ArrayObject
     
     //Array values will make new DataBranches.
     if(is_array($value) || uses($value, 'ArrayContainer')){
-      $value = new self($value, $this, $key);
+      $value = new $this($value, $this, $key);
     }
     
     //DataUndefined will be cloned and used.

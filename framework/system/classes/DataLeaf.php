@@ -78,7 +78,7 @@ class DataLeaf
   public function trim($charlist=' ')
   {
     
-    return new self(trim($this->get('str'), $charlist));
+    return new $this(trim($this->get('str'), $charlist));
     
   }
   
@@ -86,7 +86,7 @@ class DataLeaf
   public function slice($offset=0, $length=null)
   {
     
-    return new self(substr($this->get('str'), $offset, $length));
+    return new $this(substr($this->get('str'), $offset, $length));
     
   }
   
@@ -113,7 +113,7 @@ class DataLeaf
   public function lowercase()
   {
     
-    return new self(strtolower($this->get('str')));
+    return new $this(strtolower($this->get('str')));
     
   }
   
@@ -121,7 +121,7 @@ class DataLeaf
   public function uppercase()
   {
     
-    return new self(strtoupper($this->get('str')));
+    return new $this(strtoupper($this->get('str')));
     
   }
   
@@ -129,7 +129,7 @@ class DataLeaf
   public function htmlescape($flags=50)
   {
     
-    return new self(htmlentities($this->get('str'), $flags, 'UTF-8'));
+    return new $this(htmlentities($this->get('str'), $flags, 'UTF-8'));
     
   }
   
@@ -137,7 +137,7 @@ class DataLeaf
   public function split($s=null)
   {
     
-    $return = new self;
+    $return = new $this;
     
     if($this->is_empty()){
       return $return;
