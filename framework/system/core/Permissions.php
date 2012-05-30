@@ -31,7 +31,7 @@ class Permissions
     $cache =& $this->user_cache[$user_id];
     
     //Get component info.
-    $cinfo = tx('Component')[$component];
+    $cinfo = \classes\Component::get($component);
     
     //Check our cache.
     if(array_key_exists($cinfo->id, $cache))
@@ -94,7 +94,7 @@ class Permissions
     $cache =& $this->guest_cache;
     
     //Get component info.
-    $cinfo = tx('Component')[$component];
+    $cinfo = \classes\Component::get($component);
     
     //Check our cache.
     if(array_key_exists($cinfo->id, $cache))
@@ -165,7 +165,7 @@ class Permissions
   {
     
     //Get a reference to component info for pretty errors.
-    $cinfo = tx('Component')[$component_id];
+    $cinfo = \classes\Component::get($component_id);
     
     //Define queries.
     $queries = [

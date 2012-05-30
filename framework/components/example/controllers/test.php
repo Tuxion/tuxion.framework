@@ -1,21 +1,25 @@
 <?php namespace components\controllers\example;
 
-c('test')->run(function(){
-  
-  c('nyerk')->run(function(){
-    
-    c('snarl')->run(function(){
-      
-      trace(c()->base);
-      
-    });
-    
-  });
-  
+c(GET, 'test')->end('Testing something.', function(){
 });
 
-trace(c()->base);
 
-trace(c('/asd')->base);
+// c(GET, 'test/$something')->end('Testing something.', function($something){
+//   $this->output['test'] = $something;
+// });
 
-exit;
+// c(GET, 'page/$id')->end('Loading page.', function(){
+  
+//   // $this->output = $this->fetchAll('Book')->go();
+  
+//   // $this->template('page', [
+//   //   'menu_id' => 2,
+//   //   'menu_max_depth' => 4
+//   // ]);
+  
+// });
+
+// c(GET, 'items') // all items -> itemList hasMany(itemSmall)
+// c(GET, 'items/$id') // item $id -> itemFull
+// c(GET, 'items/$id/closest') // items closest to $id -> itemList hasMany(itemSmall)
+// c(GET, 'items/newest/$amount') // newest $amount items -> itemList hasMany(itemSmall)

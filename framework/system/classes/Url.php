@@ -53,7 +53,6 @@ class Url
     //We require a string.
     if(!is_string($url)){
       throw new \exception\InvalidArgument('Expecting $url to be string. %s given.', ucfirst(typeof($url)));
-      return false;
     }
     
     //This is the regular expression that parses the URL. It allows every segment to be optional.

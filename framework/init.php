@@ -9,7 +9,7 @@ foreach(glob('helpers/*.php') as $helper) require_once($helper); unset($helper);
 //Preload the Loader class. We need it for loading.
 require_once('system/core/Loader.php');
 
-//Load the config class.
+//Load the configuration class.
 tx('Config');
 
 //Load the debug class.
@@ -19,4 +19,4 @@ tx('Debug');
 tx('Output');
 
 //Log the end of the page-load.
-tx('Log')->message('[page-load completed]');
+tx('Log')->message('root', '--page-load completed--');
