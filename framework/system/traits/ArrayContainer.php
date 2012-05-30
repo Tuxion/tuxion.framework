@@ -133,6 +133,27 @@ trait ArrayContainer
   
   }
   
+  //Return a new ArrayObject filled with the nodes that were at the given key.
+  public function pluck()
+  {
+    
+    $return = new \classes\ArrayObject;
+    
+    foreach($this->arr as $node)
+    {
+      
+      foreach(func_get_args() as $key){
+        $node = $node->arrayGet($key);
+      }
+      
+      $return->push($node);
+      
+    }
+    
+    return $return;
+    
+  }
+  
   //Return a new DataBranch, excluding the nodes that were not in the given keys.
   public function having()
   {

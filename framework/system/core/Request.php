@@ -5,13 +5,13 @@ class Request
   
   //Private properties.
   private
-    $method = -1,
-    $accept = [];
+    $method = -1;
   
   //Public properties.
   public
     $data = null,
-    $url = null;
+    $url = null,
+    $accept = [];
     
   //The init method fills the data based on the request method.
   public function init()
@@ -153,7 +153,7 @@ class Request
     $options = explode(',', tx('Server')->{$header_name});
     $return = [];
     
-    //Normalize the accept header. Because that's the only thing we are good for!
+    //Break up the accept header into an easy-to-read array.
     foreach($options as $i => $option)
     {
       
@@ -172,6 +172,41 @@ class Request
       
     }
     
+    //Use the relevance parameter to sort the array.
+    uasort($return, function($a, $b){
+      
+      //$a Has a relevance parameter, but $b doesn't. A is more relevant.
+      if(array_key_exists('q', $a['params']) && !array_key_exists('q', $b['params'])){
+        return -1;
+      }
+      
+      //$b Has a relevance parameter, but $a doesn't. B is more relevant.
+      elseif(!array_key_exists('q', $a['params']) && array_key_exists('q', $b['params'])){
+        return 1;
+      }
+      
+      //If they both have relevance parameters, we should compare.
+      elseif(array_key_exists('q', $a['params']) && array_key_exists('q', $b['params']))
+      {
+        
+        //Less relevant?
+        if($a['params']['q'] < $b['params']['q']){
+          return 1;
+        }
+        
+        //More relevant?
+        elseif($a['params']['q'] > $b['params']['q']){
+          return -1;
+        }
+           
+      }
+      
+      //Equally relevant.
+      return 0;
+      
+    });
+    
+    //Return the normalized accept header.
     return $return;
     
   }

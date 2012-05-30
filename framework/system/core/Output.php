@@ -10,6 +10,8 @@ class Output
   //When this class initiates, we instruct the router to route to the page request path.
   public function init()
   {
+    //Enter a log entry.
+    tx('Log')->message($this, 'Output class initializing.');
     
     //Get the path.
     $path = tx('Request')->url->segments->path;
@@ -21,12 +23,22 @@ class Output
     $path = \classes\Router::cleanPath($path);
     
     //Redirect if the router object changed the path.
-    if($path !== $start){
+    if($path != $start){
+      tx('Log')->message($this, 'clean path redirect', "'$start' -> '$path'");
       return $this->redirect(url("/$path"))->_handleRedirect();
     }
     
+    //Get the requested mime types.
+    $mime = tx('Request')->accept['mimes'];
+    
+    //Make the router.
+    $router = new \classes\Router(tx('Request')->method(), $path, tx('Request')->data->copy());
+
     //Output! :O
-    $this->output(new \classes\Output(tx('Request')->method(), $path, tx('Request')->data(), $output_type));
+    echo $this->route($router, $mime);
+    
+    //Enter a log entry.
+    tx('Log')->message($this, 'Output class initialized.');
     
   }
   
@@ -46,15 +58,42 @@ class Output
   public function redirected()
   {
     
-    return ($this->redirect_url instanceof \classes\Url);
+    return ($this->redirect_url !== false);
     
   }
   
-  //Uses the given Output object to forge a request for our client.
-  public function output(\classes\Output $output)
+  //Uses the given Router object to forge a response for our client.
+  public function route(\classes\Router $router, $output_mimes)
   {
     
-    # code...
+    //Get the output data.
+    $data = $router->output;
+    
+    //Normalize output mimes argument.
+    if(is_string($output_mimes)){
+      $output_mimes = [$output_mimes];
+    }
+    
+    //Get the requested file extension.
+    $ext = $router->getExt();
+    
+    //If there is one, that will be most important.
+    if($ext){
+      $mime = tx('Mime')->getMime($ext);
+    }
+    
+    //Otherwise we will carefully select the best mime to use from the options that were given.
+    else{
+      trace($output_mimes);
+      exit;
+      $mime = $output_mimes[0];
+    }
+    
+    //Render the inner template.
+    $inner = (new \classes\Render)
+      ->setData(Data(['tmpl' => $router->output]))
+      ->setMime($mime)
+      ->setTemplate($router->inner_template);
     
   }
   

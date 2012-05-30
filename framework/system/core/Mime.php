@@ -3,7 +3,7 @@
 class Mime
 {
   
-  private $mimes = [
+  public $mimes = [
     'application/envoy' => ['evy'],
     'application/fractals' => ['fif'],
     'application/futuresplash' => ['spl'],
@@ -57,6 +57,7 @@ class Mime
     'application/x-msterminal' => ['trm'],
     'application/x-mswrite' => ['wri'],
     'application/x-perfmon' => ['pma', 'pmc', 'pml', 'pmr', 'pmw'],
+    'application/x-php' => ['php', 'phtml'],
     'application/x-pkcs12' => ['p12'],
     'application/x-pkcs12' => ['pfx'],
     'application/x-pkcs7-certificates' => ['spc', 'p7b'],
@@ -110,7 +111,7 @@ class Mime
     'message/rfc822' => ['mhtml', 'nws', 'mht'],
     'text/css' => ['css'],
     'text/h323' => ['323'],
-    'text/html' => ['html', 'htm', 'stm'],
+    'text/html' => ['html', 'htm', 'dhtml', 'stm'],
     'text/iuls' => ['uls'],
     'text/plain' => ['txt', 'h', 'c', 'bas'],
     'text/richtext' => ['rtx'],
@@ -133,10 +134,10 @@ class Mime
   {
       
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'Mime class initializing.');
+    tx('Log')->message($this, 'Mime class initializing.');
     
     //Enter a log entry.
-    tx('Log')->message(__CLASS__, 'Mime class initialized.');
+    tx('Log')->message($this, 'Mime class initialized.');
     
   }
   
@@ -161,6 +162,18 @@ class Mime
     }
     
     return $this->mimes[$mime][0];
+    
+  }
+  
+  //Return all types associated with the given mime.
+  public function getTypes($mime)
+  {
+      
+    if(!array_key_exists($mime, $this->mimes)){
+      throw new \exception\NotFound('Could not find the types for mime "%s".', $mime);
+    }
+    
+    return $this->mimes[$mime];
     
   }
   
