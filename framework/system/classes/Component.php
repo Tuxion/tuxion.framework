@@ -35,7 +35,7 @@ class Component
     
     }
     
-    self::$instances[$cinfo->id] = self::$instances[$cinfo->name] = $c = new $this($cinfo);
+    self::$instances[$cinfo->id] = self::$instances[$cinfo->name] = $c = new self($cinfo);
     
     return $c;
     
