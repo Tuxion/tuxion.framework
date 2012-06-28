@@ -3,6 +3,11 @@
 //Set the timezone.
 date_default_timezone_set('Europe/Amsterdam');
 
+//Set constants
+foreach(require("config/constants.php") as $key => $value){
+  define(strtoupper($key), $value);
+}
+
 //Load the helpers.
 foreach(glob('helpers/*.php') as $helper) require_once($helper); unset($helper);
 
