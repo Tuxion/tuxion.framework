@@ -69,7 +69,7 @@ class DataBranch extends ArrayObject
   }
   
   //Return true if the sub-node under the given key has a value of true, or true-ish when
-  //$strict is setto false.
+  //$strict is set to false.
   public function check($key, $strict=true)
   {
     
@@ -77,7 +77,7 @@ class DataBranch extends ArrayObject
       return ($this->offsetExists($key)
         && ($this->arrayGet($key) instanceof DataBranch)
         || ($this->arrayGet($key) instanceof DataLeaf
-          && $this->arrayGet($key)->get() === true
+          && $this->arrayGet($key)->get() == true
         )
       );
     }

@@ -94,6 +94,9 @@ class Output
       ->setData(Data(['tmpl' => $router->output]))
       ->setMime($mime)
       ->setTemplate($router->inner_template);
+      
+    //Set the headers.
+    header('Content-type: text/html; charset=utf-8');
     
   }
   

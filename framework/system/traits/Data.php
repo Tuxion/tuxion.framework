@@ -52,7 +52,7 @@ trait Data
     return ($this->parent !== false);
   }
   
-  //Returns true if this node has childnodes (is not a leafnode).
+  //Returns true if this node has child nodes (is not a leaf-node).
   public function isParent()
   {
     return ($this instanceof \classes\DataBranch);
@@ -122,7 +122,7 @@ trait Data
   }
   
   //Return the direct parent, or if an integer is provided as first argument, the ancestor that many levels
-  //back, where 1 is the direct parent.
+  //back, where 1 is the direct parent (yes, $this->parent(0) == $this).
   public function parent($ancestor=1)
   {
     

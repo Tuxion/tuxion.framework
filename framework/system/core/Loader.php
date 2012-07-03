@@ -51,18 +51,6 @@ class Loader
     
   }
   
-  //Initialize.
-  public function init()
-  {
-    
-    //Enter a log entry.
-    tx('Log')->message($this, 'Loader class initializing.');
-
-    //Enter a log entry.
-    tx('Log')->message($this, 'Loader class initialized.');
-    
-  }
-	
   //A somewhat higher-level non-static version of static::load().
 	public function load()
 	{

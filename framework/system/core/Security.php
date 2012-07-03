@@ -85,7 +85,7 @@ class Security
       ->validate('Password', array('string')); //Must be a string.
     
     $strength = 0; 
-    $patterns = array('#[a-z]#','#[A-Z]#','#[0-9]#','/[¬!"£$%^&*()`{}\[\]:@~;\'#<>?,.\/\\-=_+\|]/'); 
+    $patterns = array('#[a-z]#','#[A-Z]#','#[0-9]#','/[Â¬!"Â£$%^&*()`{}\[\]:@~;\'#<>?,.\/\\-=_+\|]/'); 
     foreach($patterns as $pattern) 
     {
       if(preg_match($pattern,$password,$matches))

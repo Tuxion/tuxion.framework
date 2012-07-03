@@ -176,14 +176,14 @@ class DataLeaf
   }
   
   //Returns true of this node can be considered empty.
-  public function isempty()
+  public function isEmpty()
   {
     
     return empty($this->value);
     
   }
   
-  //Uses Successable to implement greater then with short notation.
+  //Uses Successable to implement greater than with short notation.
   public function gt($value, $callback=null)
   {
     
@@ -195,7 +195,7 @@ class DataLeaf
     
   }
   
-  //Uses Successable to implement lesser then with short notation.
+  //Uses Successable to implement less than with short notation.
   public function lt($value, $callback=null)
   {
     
