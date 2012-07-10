@@ -3,13 +3,10 @@
 class SqlResult extends ArrayObject
 {
   
-  public function __construct(\PDOStatement $statement, $row_model = '')
+  public function __construct($rows=[])
   {
     
-    foreach($statement->fetchAll(\PDO::FETCH_ASSOC) as $row){
-      $this->push(new SqlRow($row));
-    }
-    
+    $this->set($rows);
     $this->setArrayPermissions(1,0,0);
     
   }

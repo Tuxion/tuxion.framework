@@ -84,19 +84,27 @@ class Output
     
     //Otherwise we will carefully select the best mime to use from the options that were given.
     else{
-      trace($output_mimes);
-      exit;
-      $mime = $output_mimes[0];
+      $mime = $output_mimes[0]['value'];
     }
     
     //Render the inner template.
     $inner = (new \classes\Render)
       ->setData(Data(['tmpl' => $router->output]))
       ->setMime($mime)
-      ->setTemplate($router->inner_template);
-      
+      ->setTemplate($router->inner_template)
+      ->generate();
+    
+    //Render the outer template.
+    $outer = (new \classes\Render)
+      ->setData(Data(['content' => $inner->getOutput()]))
+      ->setMime($mime)
+      ->setTemplate($router->outer_template)
+      ->generate();
+    
     //Set the headers.
-    header('Content-type: text/html; charset=utf-8');
+    header('Content-type: '.$mime.'; charset=utf-8');
+    
+    echo $outer->getOutput();
     
   }
   

@@ -34,13 +34,85 @@ class Debug
     }
     
     echo '<h1>'.get_class($e).'</h1><h3>'.$e->getMessage().'</h3>';
+    echo $this->printTrace($e->getTrace());
     
-    foreach($e->getTrace() as $trace){
-      echo '<b title="'.@$trace['file'].'">'.basename(@$trace['file']).'</b>';
-      echo '@<i>'.@$trace['line'].'</i>';
-      echo "\t:\t<code>".@$trace['class'].@$trace['type'].@$trace['function'].'()</code>';
-      echo BR;
+  }
+  
+  public function printTrace(array $trace)
+  {
+    
+    $func = function($entry)
+    {
+      
+      $ret = '';
+      
+      if(substr_count($entry['function'], '{closure}') > 0)
+      {
+        
+        $ret .= substr($entry['function'], 0, -1);
+        
+        if(array_key_exists('class', $entry)){
+          $ret .= ' with context "'.($entry['type'] == '->' ? "object({$entry['class']})" : $entry['class']).'"';
+        }
+
+        $ret .= '}';
+        
+      }
+      
+      else
+      {
+        
+        if(array_key_exists('class', $entry)){
+          $ret .= ($entry['type'] == '->' ? "object({$entry['class']})" : $entry['class']).$entry['type'];
+        }
+        
+        $ret .= $entry['function'];
+        
+      }
+      
+      return $ret;
+      
+    };
+    
+    $trace = array_reverse($trace);
+    $i=0;
+    $out = '';
+    
+    while(array_key_exists($i, $trace))
+    {
+      
+      $entry = $trace[$i];
+      
+      if(array_key_exists('class', $entry) && $entry['function'] == '__call'){
+        $i++;
+        continue;
+      }
+      
+      $out .= '<b title="'.@$entry['file'].'">'.basename(@$entry['file']).'</b>';
+      $out .= '@<i>'.@$entry['line'].'</i>';
+      $out .= "\t:\t<code>";
+      
+      //Combine call_user_funcs with the next entry.
+      if($entry['function'] == 'call_user_func' || $entry['function'] == 'call_user_func_array'){
+        
+        $out .= $func($entry).'( '.$func($trace[$i+1]).'() )';
+        $i++;
+        
+      }
+      
+      //Normal function output.
+      else{
+        $out .= $func($entry).'()';
+      }
+      
+      $out .= '</code>';
+      $out .= "<br />\n";
+      
+      $i++;
+      
     }
+    
+    return $out;
     
   }
   

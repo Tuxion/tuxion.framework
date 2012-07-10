@@ -177,7 +177,7 @@ class SqlQuery
   }
   
   //Executes the query and returns an SqlResult object.
-  public function execute(SqlConnection $conn = null)
+  public function execute(SqlConnection $conn = null, $model='\\classes\\SqlRow')
   {
     
     //Get connection.
@@ -197,7 +197,12 @@ class SqlQuery
       throw new \exception\Sql('Something went wrong while executing a query.');
     }
     
-    return new SqlResult($result);
+    $data = [];
+    foreach($result->fetchAll(\PDO::FETCH_ASSOC) as $row){
+      $data[] = new $model($row);
+    }
+    
+    return new SqlResult($data);
     
   }
   

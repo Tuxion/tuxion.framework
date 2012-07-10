@@ -26,25 +26,8 @@ class Controller
     {
       
       //Should we filter on path?
-      if(!is_null($path))
-      {
-        
-        //Get keys and values.
-        $keys = explode('/', $controller->base);
-        $values = explode('/', $path);
-        
-        //The routes must be of the same length.
-        if(count($keys) !== count($values)){
-          continue;
-        }
-        
-        //Iterate the keys and values, and check whether they match.
-        while( (list(,$key) = each($keys)) && (list(,$value) = each($values)) ){
-          if(!($key{0} == '$' || $key === $value)){
-            continue 2;
-          }
-        }
-        
+      if(!(is_null($path) || Router::matchPath($controller->base, $path)!==false)){
+        continue;
       }
       
       //Should we filter on type?

@@ -143,6 +143,18 @@ class Router
     $values = explode('/', self::cleanPath($values));
     $parameters = [];
     
+    //If the output type is neutral, don't compare it.
+    if(substr_count(end($keys), '.') === 0 && substr_count(end($values), '.') > 0){
+      $trimmed = strstr(array_pop($values), '.', true);
+      array_push($values, $trimmed);
+    }
+    
+    //Don't mind the .parts.
+    $values[count($values)-1] = str_replace('.part', '', end($values));
+    
+    reset($keys);
+    reset($values);
+    
     //If there are not enough values for the keys, it is not a match.
     if(count($values) < count($keys)){
       return false;
@@ -233,7 +245,7 @@ class Router
   public function getExt()
   {
     
-    return strstr(str_replace('.part', '', $this->path), '.');
+    return trim(strstr(str_replace('.part', '', $this->path), '.'), '.');
     
   }
   
@@ -372,6 +384,7 @@ class Router
       $this->pre_process_cache[] = $path;
     
     }
+    
     //Progress on to the next state.
     switch($this->state)
     {
@@ -455,34 +468,69 @@ class Router
   //Handle the end of a route.
   private function endPoint()
   {
+    
     //Enter a log entry.
     tx('Log')->message($this, 'processing endpoint', $this->path);
     
     //Get the controllers that match the endpoint.
     $controllers = Controller::controllers($this->type, $this->path);
     
+    //Get the controllers with an endpoint.
+    foreach($controllers as $key => $con){
+      if(!$con->hasEnd()){
+        unset($controllers[$key]);
+      }
+    }
+    
+    
     //Test if we have a route matching the full path.
     if(empty($controllers)){
       throw new \exception\NotFound('This page does not exist.');
     }
     
-    $end = false;
-    
-    //Get the con with an endpoint.
-    foreach($controllers as $con){
-      if($con->hasEnd()){
-        tx('Log')->message($this, 'calling endpoint', $con->base);
-        $this->inner_template = $con->end->template;
-        $con->callEnd($this->input, $this->output, $this->params($con->base));
-        $end = true;
-        break;
+    //Sort controllers based on the "solidness" of the paths. Parameters are weaker than statics.
+    $sorted = [];
+    foreach($controllers as $key => $con)
+    {
+      
+      //Explode into segments.
+      $segments = explode('/', $con->base);
+      $i = 0;
+      
+      //Higher numbers mean that it's less solid.
+      $solidness = 0;
+      
+      //Detect parameters. The further the parameter is away from the endpoint, the less solid the path.
+      foreach($segments as $segment)
+      {
+        
+        if($segment{0} == '$'){
+          $solidness = count($segments) - $i;
+        }
+        
+        $i++;
+        
       }
+      
+      //Sorted.
+      $sorted[$solidness][] = $con;
+      
     }
     
-    //No endpoint found?
-    if(!$end){
-      throw new \exception\NotFound('This page does not exist.');
+    //The best matches.
+    ksort($sorted);
+    reset($sorted);
+    $endpoints = current($sorted);
+    
+    //There can be only one.
+    if(count($endpoints) > 1){
+      throw new \exception\Programmer('There are conflicting endpoints for "%s".', $this->path);
     }
+    
+    $endpoint = $endpoints[0];
+    tx('Log')->message($this, 'calling endpoint', $endpoint->base);
+    $this->inner_template = $endpoint->end->template;
+    $endpoint->callEnd($this->input, $this->output, $this->params($endpoint->base));
     
     //Set the state to postProcessing.
     $this->state = 20;

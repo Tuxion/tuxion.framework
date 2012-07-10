@@ -77,7 +77,33 @@ class SqlMultiQuery
       throw new \exception\Sql('Something went wrong while executing a multi-query.');
     }
     
-    return new SqlResultset($result);
+    $i = 1;
+    $rows=[];
+    
+    try{
+    
+      do{
+        $data = [];
+        foreach($statement->fetchAll(\PDO::FETCH_ASSOC) as $row){
+          $data[] = $row;
+        }
+        $rows[] = (new SqlResult($data));
+      }
+      
+      while($result->nextRowset());
+      
+    }
+    
+    catch(\PDOException $e){
+      throw new \exception\Sql($e->getMessage().' in query %s.', $i);
+    }
+    
+    catch(\exception\Sql $e){
+      throw new \exception\Sql($e->getMessage().' in query %s.', $i);
+    }
+
+    
+    return new SqlResultset($rows);
     
   }
   

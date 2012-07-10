@@ -144,7 +144,7 @@ class Mime
   public function getMime($type)
   {
     
-    $matches = array_search_recusrive($type, $this->mimes);
+    $matches = array_search_recursive($type, $this->mimes);
     
     if($matches === false){
       throw new \exception\NotFound('Could not find a mime for file-type "%s".', $type);
