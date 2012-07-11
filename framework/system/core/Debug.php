@@ -74,6 +74,45 @@ class Debug
       
     };
     
+    $args = function($entry)
+    {
+      
+      $args = [];
+      
+      foreach($entry['args'] as $arg)
+      {
+        
+        switch(gettype($arg))
+        {
+          
+          case 'array':
+            $args[] = 'array('.count($arg).')';
+            break;
+            
+          case 'string':
+            $args[] = "'$arg'";
+            break;
+          
+          case 'object':
+            if($arg instanceof \Closure){
+              $args[] = ('{closure}');
+            }else{
+              $args[] = ('object('.get_object_name($arg).')');
+            }
+            break;
+            
+          default:
+            $args[] = $arg;
+          
+        }
+        
+      }
+      
+      
+      return '('.implode(', ', $args).')';
+      
+    };
+    
     $trace = array_reverse($trace);
     $i=0;
     $out = '';
@@ -88,21 +127,26 @@ class Debug
         continue;
       }
       
-      $out .= '<b title="'.@$entry['file'].'">'.basename(@$entry['file']).'</b>';
-      $out .= '@<i>'.@$entry['line'].'</i>';
+      if(!array_key_exists('file', $entry)){
+        $out .= '<b>[internal code]</b>';
+      }else{
+        $out .= '<b title="'.@$entry['file'].'">'.basename(@$entry['file']).'</b>';
+        $out .= '@<i>'.@$entry['line'].'</i>';
+      }
+      
       $out .= "\t:\t<code>";
       
       //Combine call_user_funcs with the next entry.
       if($entry['function'] == 'call_user_func' || $entry['function'] == 'call_user_func_array'){
         
-        $out .= $func($entry).'( '.$func($trace[$i+1]).'() )';
+        $out .= $func($entry).'( '.$func($trace[$i+1]).''.$args($trace[$i+1]).' )';
         $i++;
         
       }
       
       //Normal function output.
       else{
-        $out .= $func($entry).'()';
+        $out .= $func($entry).$args($entry);
       }
       
       $out .= '</code>';
