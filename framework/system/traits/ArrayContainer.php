@@ -269,7 +269,7 @@ trait ArrayContainer
     
     foreach($this->arr as $key => $value)
     {
-    
+      
       if($recursive && uses($value, 'ArrayContainer')){
         $value = $value->toArray();
       }

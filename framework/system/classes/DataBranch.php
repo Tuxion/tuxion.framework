@@ -90,6 +90,14 @@ class DataBranch extends ArrayObject
     
   }
   
+  //Returns "array".
+  public function type()
+  {
+    
+    return 'array';
+    
+  }
+  
   //Alias for toArray(false).
   public function get()
   {
@@ -123,7 +131,7 @@ class DataBranch extends ArrayObject
         }
         
         elseif(is_array($value)){
-          $array[$key] = $normalizer($array);
+          $array[$key] = $normalizer($value);
         }
         
       }

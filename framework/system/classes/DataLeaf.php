@@ -66,7 +66,7 @@ class DataLeaf
   public function set($value)
   {
     
-    if(is_array($value)){
+    if(is_array($value) || $value instanceof DataBranch){
       throw new \exception\InvalidArgument('Expecting $value to be scalar. %s given.', ucfirst(typeof($value)));
     }
     
