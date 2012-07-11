@@ -59,9 +59,9 @@ function load_html($___path, array $___data=[], $___once=false)
 
 }
 
-function files($pattern)
+function files($pattern, $flags=0)
 {
-  $glob = glob($pattern);
+  $glob = glob($pattern, $flags);
   return (is_array($glob) ? $glob : []);
 }
 
