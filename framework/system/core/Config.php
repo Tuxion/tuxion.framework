@@ -20,6 +20,11 @@ class Config
     //The path to the configuration folder.
     $path_config = @realpath(@dirname(__FILE__).'/../../config');
     
+    //Set constants
+    foreach(require("$path_config/constants.php") as $key => $value){
+      define(strtoupper($key), $value);
+    }
+    
     //Set paths.
     $this->paths = new \classes\Configuration('*', require("$path_config/paths.php"));
     
