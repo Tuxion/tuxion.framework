@@ -32,7 +32,10 @@ class RoutePreProcessor extends RouteProcessor
     
     //Validate the boolean.
     if(!is_bool($discard)){
-      throw new \exception\InvalidArgument('Expecting $discard to be boolean. %s given.', ucfirst(typeof($discard)));
+      throw new \exception\InvalidArgument(
+        'Expecting $discard to be boolean. %s given.',
+        ucfirst(typeof($discard))
+      );
     }
     
     //Reroute.

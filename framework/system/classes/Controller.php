@@ -3,8 +3,8 @@
 class Controller
 {
   
-  //Private static properties.
-  private static
+  //protected static properties.
+  protected static
     $controllers=[],
     $callbacks=[];
   
@@ -69,10 +69,9 @@ class Controller
     
   }
   
-  //Private properties.
-  private
+  //protected properties.
+  protected
     $router,
-    $template,
     $pres=[],
     $posts=[];
     
@@ -103,7 +102,7 @@ class Controller
   public function pre($description, \Closure $callback)
   {
     
-    $this->pres[] = new \classes\RoutePreProcessor($description, $callback);
+    $this->pres[] = new \classes\RoutePreProcessor($description, $callback, $this->router);
     
     return $this;
     
@@ -148,7 +147,7 @@ class Controller
     }
     
     //Yep.
-    $this->end = new \classes\RouteEndPoint($description, $callback, $this->template);
+    $this->end = new \classes\RouteEndPoint($description, $callback, $this->router);
     
     //Enable chaining.
     return $this;
@@ -159,7 +158,7 @@ class Controller
   public function post($description, \Closure $callback)
   {
     
-    $this->posts[] = new \classes\RoutePostProcessor($description, $callback);
+    $this->posts[] = new \classes\RoutePostProcessor($description, $callback, $this->router);
     
     return $this;
     
@@ -260,8 +259,7 @@ class Controller
     }
     
     //Make the controller.
-    $class = get_class($this);
-    $r = (new $class($type, false, $path))->setRouter($this->router);
+    $r = (new $this($type, false, $path))->setRouter($this->router);
     
     //Return the controller.
     return $r;
@@ -281,18 +279,6 @@ class Controller
     }else{
       self::$callbacks[] = [$cb, $this];
     }
-    
-    return $this;
-    
-  }
-  
-  //Bind a template to this route that will be used for rendering the output data in.
-  public function template($template)
-  {
-    
-    #TODO: this function
-    $this->router->outer_template = tx('Config')->paths->templates.'/'.$template;
-    
     
     return $this;
     
@@ -319,15 +305,7 @@ class Controller
     
   }
   
-  //Set the path to the template that should be used for endpoints made by this controller.
-  public function setTemplate($path)
-  {
-    
-    $this->template = $path;
-    
-  }
-  
-  private function fullPath($path='')
+  protected function fullPath($path='')
   {
     
     //Empty path.

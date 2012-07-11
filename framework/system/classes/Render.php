@@ -19,10 +19,10 @@ class Render
   }
   
   //Do a request to a different route from within the template.
-  public function request($path, DataBranch $data)
+  public function request($path, DataBranch $data = null)
   {
     
-    $router = new Router(tx('Request')->method(), $path, $data->copy());
+    $router = new Router(tx('Request')->method(), $path, Data($data)->copy());
     $ext = $router->getExt();
     
     //If we have an explicit extension, we will try to return the data in that format.
@@ -36,9 +36,9 @@ class Render
     }
 
     return ((new self)
+      ->setMime($mime)
       ->setTemplate($router->inner_template)
       ->setData($router->output)
-      ->setMime($mime)
       ->generate()
       ->getOutput()
     );
@@ -72,7 +72,6 @@ class Render
     //Get all possible templates.
     $templates = files("$template/{".implode(',', tx('Mime')->getTypes($this->mime)).'}.php', GLOB_BRACE);
     
-    
     //This template does not exist.
     if(count($templates) == 0){
       $this->template = false;
@@ -95,7 +94,7 @@ class Render
   //Generate the output.
   public function generate()
   {
-    
+
     //Try to generate the output.
     try{
       

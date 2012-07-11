@@ -1,21 +1,22 @@
 <?php namespace components\controllers\example;
 
+c()->pre('Setting the template.', function(){
+  
+  $this->template('minimal', [
+    'menu_id' => $this->input->menu_id
+  ]);
+  
+});
 
-c()->template('minimal');
-
-c(GET, 'test')->end('Testing something.', function(){
-  $this->output = [
+c(GET, 'test/$input')->end('Testing something.', function($input){
+  
+  $this->output->set([
     'foo' => 'bar',
-    'nyerk' => 'snarl'
-  ];
+    'nyerk' => $input
+  ]);
+  
 });
 
 c(GET, 'test/foobar')->end('Asd.', function(){
   echo 'asd';
 });
-
-
-// c(GET, 'items') // all items -> itemList hasMany(itemSmall)
-// c(GET, 'items/$id') // item $id -> itemFull
-// c(GET, 'items/$id/closest') // items closest to $id -> itemList hasMany(itemSmall)
-// c(GET, 'items/newest/$amount') // newest $amount items -> itemList hasMany(itemSmall)

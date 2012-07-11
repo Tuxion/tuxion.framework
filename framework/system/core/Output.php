@@ -89,7 +89,7 @@ class Output
     
     //Render the inner template.
     $inner = (new \classes\Render)
-      ->setData(Data(['tmpl' => $router->output]))
+      ->setData($router->output)
       ->setMime($mime)
       ->setTemplate($router->inner_template)
       ->generate();

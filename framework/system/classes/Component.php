@@ -131,20 +131,34 @@ class Component
       return $this;
     }
     
-    //Prepare variables that can be used inside the controller.
-    $controller = (new ComponentController(null, 'com', "com/{$this->name}"))
-      ->setRouter($router)
-      ->setComponent($this);
-    
+    //Make a restore point.
     $c = c();
-    c($controller);
-    $component = $this;
     
-    //Include the controller files.
-    foreach($files as $file){
+    //Iterate over the files.
+    foreach($files as $file)
+    {
+    
+      //Create the controller object for the next include.
+      $controller = (new ComponentController(
+        null,
+        'com',
+        "com/{$this->name}",
+        $this,
+        basename($file, '.php')
+      ))
+      
+      //Set the router in the controller object.
+      ->setRouter($router);
+      
+      //Set the magic c().
+      c($controller);
+      
+      //Include the controller files.
       require($file);
+    
     }
     
+    //Restore the magic c.
     c($c);
     
     //Enable chaining.

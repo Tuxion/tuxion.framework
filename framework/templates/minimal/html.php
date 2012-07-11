@@ -12,6 +12,10 @@
     
     <?=$content?>
     
+    <div>
+    <?=$this->request('com/example/test/whoo', Data([]))?>
+    </div>
+    
   </body>
   
 </html>

@@ -16,7 +16,7 @@ abstract class RouteProcessor
     $controller=null;
   
   //Store the given callback.
-  public function __construct($description, \Closure $callback)
+  public function __construct($description, \Closure $callback, Router $router = null)
   {
     
     //Validate argument.
@@ -30,6 +30,7 @@ abstract class RouteProcessor
     //Set properties.
     $this->description = $description;
     $this->callback = $callback->bindTo($this);
+    $this->router = $router;
     
   }
   
@@ -70,6 +71,18 @@ abstract class RouteProcessor
       'The %s method can only be used in %s.',
       $key, implode(' and ', $allowed)
     );
+    
+  }
+  
+  //Set an outer template inside the router.
+  public function template($name, $data)
+  {
+    
+    if(!($this->router instanceof Router)){
+      throw new \exception\Programmer('This function requires a router to be set.');
+    }
+    
+    $this->router->outer_template = tx('Config')->paths->templates .'/'. $name;
     
   }
   
@@ -128,14 +141,6 @@ abstract class RouteProcessor
   {
     
     $this->arguments = $arguments;
-    
-  }
-  
-  //Set the router that will be used for function using the router.
-  public function setRouter(Router $router)
-  {
-    
-    $this->router = $router;
     
   }
   

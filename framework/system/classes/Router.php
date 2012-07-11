@@ -484,7 +484,6 @@ class Router
       }
     }
     
-    
     //Test if we have a route matching the full path.
     if(empty($controllers)){
       throw new \exception\NotFound('This page does not exist.');
@@ -530,8 +529,25 @@ class Router
     }
     
     $endpoint = $endpoints[0];
+    
+    //If the endpoint we're using is a component, we will know the template to use.
+    if($endpoint instanceof \classes\ComponentController)
+    {
+      
+      $this->inner_template =
+        tx('Config')->paths->components.
+        '/'.$endpoint->component->name.
+        '/templates'.
+        '/'.$endpoint->filename;
+        
+    }
+    
+    else{
+      #TODO: Figure out which template to use when the controller is not a component controller.
+      throw new \exception\Programmer('Not implemented yet.');
+    }
+    
     tx('Log')->message($this, 'calling endpoint', $endpoint->base);
-    $this->inner_template = $endpoint->end->template;
     $endpoint->callEnd($this->input, $this->output, $this->params($endpoint->base));
     
     //Set the state to postProcessing.

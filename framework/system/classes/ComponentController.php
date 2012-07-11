@@ -3,9 +3,20 @@
 class ComponentController extends Controller
 {
   
-  //Private properties.
-  private
-    $component;
+  //Public properties.
+  public
+    $component,
+    $filename;
+    
+  //Set all the properties.
+  public function __construct($type, $root, $base, Component $com, $filename)
+  {
+    
+    parent::__construct($type, $root, $base);
+    $this->component = $com;
+    $this->filename = $filename;
+    
+  }
   
   //Set the component.
   public function setComponent(Component $com)
@@ -16,29 +27,32 @@ class ComponentController extends Controller
     
   }
   
-  //Set the component after creating a new $this.
+  //Return a new controller, having it's base set at the given path relative to the base of this controller.
   public function getSubController()
   {
     
-    //Get the original return value.
-    $new = call_user_func_array('parent::getSubController', func_get_args());
+    //Handle Arguments.
+    Router::handleArguments(func_get_args(), $type, $path);
     
-    //Break up it's path.
-    $segments = explode('/', $new->base);
+    //Set type to default.
+    $type = (is_null($type) ? $this->type : $type);
     
-    //Validate it's path.
-    if(count($segments) < 2 || $segments[0] !== 'com' || $segments[1][0] == '$'){
-      throw new \exception\Restriction(
-        'Invalid component-route "%s". Component routes must start with "com/<component_name>".',
-        $new->base
-      );
+    //Make the path full.
+    $path = $this->fullPath($path);
+    
+    //Make the key.
+    $key = "$type:$path";
+    
+    //See if this controller has been defined before.
+    if(array_key_exists($key, self::$controllers)){
+      return self::$controllers[$key];
     }
     
-    //Set the component.
-    $new->setComponent($this->component);
+    //Make the controller.
+    $r = (new $this($type, false, $path, $this->component, $this->filename))->setRouter($this->router);
     
-    //Return it.
-    return $new;
+    //Return the controller.
+    return $r;
     
   }
   
