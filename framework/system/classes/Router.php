@@ -152,6 +152,7 @@ class Router
     //Don't mind the .parts.
     $values[count($values)-1] = str_replace('.part', '', end($values));
     
+    //Make sure nothing goes weird.
     reset($keys);
     reset($values);
     
@@ -176,6 +177,7 @@ class Router
       
     }
     
+    //Return the array of parameters if everything was matched.
     return $parameters;
     
   }

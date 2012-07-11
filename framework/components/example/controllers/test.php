@@ -1,30 +1,19 @@
 <?php namespace components\controllers\example;
 
+
+c()->template('minimal');
+
 c(GET, 'test')->end('Testing something.', function(){
-  $this->template('derp');
+  $this->output = [
+    'foo' => 'bar',
+    'nyerk' => 'snarl'
+  ];
 });
 
-c(GET, '$test')->end('Testing something.', function(){
-  //$this->template('derp');
+c(GET, 'test/foobar')->end('Asd.', function(){
+  echo 'asd';
 });
 
-c(GET, 'test/$something')->end('Testing something.', function($something){
-  $this->output['test'] = $something;
-});
-
-
-
-
-c(GET, 'page/$id')->end('Loading page.', function(){
-  
-  // $this->output = $this->fetchAll('Book')->go();
-  
-  // $this->template('page', [
-  //   'menu_id' => 2,
-  //   'menu_max_depth' => 4
-  // ]);
-  
-});
 
 // c(GET, 'items') // all items -> itemList hasMany(itemSmall)
 // c(GET, 'items/$id') // item $id -> itemFull

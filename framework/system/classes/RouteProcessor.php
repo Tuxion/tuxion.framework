@@ -107,6 +107,9 @@ abstract class RouteProcessor
     //No longer executing.
     $executing = false;
     
+    #TEMP:
+    echo $func->output;
+    
     //Enable chaining.
     return $this;
     

@@ -24,10 +24,19 @@ class Controller
     //Iterate our controllers to filter them down.
     foreach(self::$controllers as $controller)
     {
-      
       //Should we filter on path?
-      if(!(is_null($path) || Router::matchPath($controller->base, $path)!==false)){
-        continue;
+      if(!is_null($path)){
+        
+        //Needs to be an exact match.
+        if(substr_count($path, '/') !== substr_count($controller->base, '/')){
+          continue;
+        }
+        
+        //If the path doesn't match.
+        if(Router::matchPath($controller->base, $path)===false){
+          continue;
+        }
+        
       }
       
       //Should we filter on type?
@@ -221,7 +230,7 @@ class Controller
     
   }
   
-  //Alias of get()
+  //Alias of getSubController()
   public function __invoke()
   {
     
@@ -272,6 +281,18 @@ class Controller
     }else{
       self::$callbacks[] = [$cb, $this];
     }
+    
+    return $this;
+    
+  }
+  
+  //Bind a template to this route that will be used for rendering the output data in.
+  public function template($template)
+  {
+    
+    #TODO: this function
+    $this->router->outer_template = tx('Config')->paths->templates.'/'.$template;
+    
     
     return $this;
     

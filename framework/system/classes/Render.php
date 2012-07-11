@@ -64,9 +64,30 @@ class Render
       return $this;
     }
     
-    //Get all possible templates.
-    $templates = files("$template.(".implode('|', tx('Mime')->getTypes()).')');
+    //We need to know the mime-type before.
+    if(is_null($this->mime)){
+      $this->mime = 'text/html';
+    }
     
+    //Get all possible templates.
+    $templates = files("$template/{".implode(',', tx('Mime')->getTypes($this->mime)).'}.php', GLOB_BRACE);
+    
+    
+    //This template does not exist.
+    if(count($templates) == 0){
+      $this->template = false;
+      return $this;
+    }
+    
+    //Huh?
+    if(count($templates) > 1){
+      throw new \exception\Programmer('There are multiple "%s"-templates in "%s".', $this->mime, $template);
+    }
+    
+    //Set the template.
+    $this->template = $templates[0];
+    
+    //Enable chaining.
     return $this;
     
   }
@@ -78,11 +99,6 @@ class Render
     //Try to generate the output.
     try{
       
-      //We need a template.
-      if(!$this->template){
-        throw new \exception\InputMissing('A template is required before Render can generate.');
-      }
-      
       //Use a default mime-type?
       if(is_null($this->mime)){
         $this->mime = 'text/html';
@@ -93,11 +109,22 @@ class Render
         $this->data = new DataBranch([]);
       }
       
-      ob_start();
-      extract($this->data->get());
-      require($this->template);
-      $contents = ob_get_contents();
-      ob_end_clean();
+      //We need a template.
+      if($this->template===false){
+        #TODO: proper fallback templating
+        ob_start();
+        trace($this->data->toArray());
+        $this->output = ob_get_contents();
+        ob_end_clean();
+      }
+      
+      else{
+        ob_start();
+        extract($this->data->get());
+        require($this->template);
+        $this->output = ob_get_contents();
+        ob_end_clean();
+      }
       
     }
     
@@ -123,6 +150,8 @@ class Render
   {
     
     $this->output = $e->getMessage();
+    $this->output .= "<br />";
+    $this->output .= tx('Debug')->printTrace($e->getTrace());
     
     return $this;
     

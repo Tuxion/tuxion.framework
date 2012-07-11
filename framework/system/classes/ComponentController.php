@@ -46,6 +46,7 @@ class ComponentController extends Controller
   public function end()
   {
     
+    #TODO: Check the database to see if this end may overwrite the previous.
     return call_user_func_array('parent::end', func_get_args());
     
   }
