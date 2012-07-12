@@ -138,6 +138,7 @@ class Router
   public static function matchPath($keys, $values)
   {
     
+    
     //Prepare variables.
     $keys = explode('/', self::cleanPath($keys));
     $values = explode('/', self::cleanPath($values));
@@ -164,6 +165,14 @@ class Router
     //Validate segments and find parameters.
     while( (list(,$key) = each($keys)) && (list(,$value) = each($values)) )
     {
+      
+      //Split on file extension.
+      @list($key,$kext) = explode('.', $key);
+      @list($value,$vext) = explode('.', $value);
+      
+      if($kext && $vext && tx('Mime')->getMime($kext) !== tx('Mime')->getMime($vext)){
+        return false;
+      }
       
       //Are we dealing with a parameter?
       if($key{0} == '$'){
@@ -196,12 +205,11 @@ class Router
     $inner_template,
     $outer_template,
     $path,
-    $view_name;
+    $endpoint;
   
   //The constructor will start routing straight away.
   public function __construct($type, $path, DataBranch $input)
   {
-    
     
     //Set the request method.
     $this->type = $type;
@@ -247,7 +255,11 @@ class Router
   public function getExt()
   {
     
-    return trim(strstr(str_replace('.part', '', $this->path), '.'), '.');
+    $path = ($this->endpoint && substr_count($this->endpoint->base, '.') > 0)
+      ? $this->endpoint->base
+      : $this->path;
+    
+    return trim(strstr(str_replace('.part', '', $path), '.'), '.');
     
   }
   
@@ -547,8 +559,10 @@ class Router
       throw new \exception\Programmer('Not implemented yet.');
     }
     
+    //Call and store the used endpoint.
     tx('Log')->message($this, 'calling endpoint', $endpoint->base);
     $endpoint->callEnd($this->input, $this->output, $this->params($endpoint->base));
+    $this->endpoint = $endpoint;
     
     //Set the state to postProcessing.
     $this->state = 20;
