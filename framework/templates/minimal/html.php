@@ -13,7 +13,7 @@
     <?=$content?>
     
     <div>
-    <?=$this->request('com/example/test/whoo', Data([]))?>
+    <?=$this->request('com/example/test/whoo')?>
     </div>
     
   </body>

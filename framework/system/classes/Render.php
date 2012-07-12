@@ -22,7 +22,7 @@ class Render
   public function request($path, DataBranch $data = null)
   {
     
-    $router = new Router(tx('Request')->method(), $path, Data($data)->copy());
+    $router = new Router(tx('Request')->method(), $path, is_null($data) ? Data([]) : $data);
     $ext = $router->getExt();
     
     //If we have an explicit extension, we will try to return the data in that format.

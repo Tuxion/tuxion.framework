@@ -63,12 +63,18 @@ class SqlQuery
     
     //Validate stringlyness of argument.
     if(!is_string($query)){
-      throw new \exception\InvalidArgument('Expecting $query to be string. %s given.', ucfirst(typeof($query)));
+      throw new \exception\InvalidArgument(
+        'Expecting $query to be string. %s given.',
+        ucfirst(typeof($query))
+      );
     }
     
     //Warn the programmer about multiqueries.
     if(substr_count($query, ';') > 0){
-      throw new \exception\InvalidArgument('Your query contains the ";"-character. Note that SqlQuery does not execute multi-queries. Use SqlMultiQuery for that.');
+      throw new \exception\InvalidArgument(
+        'Your query contains the ";"-character.'.
+        ' Note that SqlQuery does not execute multi-queries. Use SqlMultiQuery for that.'
+      );
     }
     
     //Types.
@@ -251,7 +257,8 @@ class SqlQuery
     //Warn the programmer when the amount of data given does not equal the amount of ?'s.
     if(substr_count($this->query, '?') !== count($data)){
       throw new \exception\InputMissing(
-        'The amount of data given (%s nodes) does not equal the amount of places for the data (%s questionmarks).',
+        'The amount of data given (%s nodes) does not equal the'.
+        ' amount of places for the data (%s questionmarks).',
         count($data),
         substr_count($this->query, '?')
       );
