@@ -9,12 +9,17 @@ class SqlQuery
   private
     $prepared=false,
     $query,
+    $is_non_query=false,
     $datatypes=[],
     $data=[];
   
   //Initialize the SqlQuery instance, optionally passing a default connection and query information.
-  public function __construct(SqlConnection $connection = null, $query_string = null, array $data = [])
-  {
+  public function __construct(
+    SqlConnection $connection = null,
+    $query_string = null,
+    array $data = [],
+    $non_query = false
+  ){
     
     //A default connection passed?
     if(!is_null($connection)){
@@ -26,8 +31,8 @@ class SqlQuery
       $this->setQuery($query_string);
     }
     
-    //Query-data?
-    $this->data = $data;
+    $this->setData($data);
+    $this->is_non_query = (bool) $non_query;
       
   }
   
@@ -92,7 +97,7 @@ class SqlQuery
   public function setData(array $data)
   {
     
-    $this->data = $data;
+    $this->data = array_values($data);
     $this->prepared = false;
     
     return $this;
@@ -184,18 +189,29 @@ class SqlQuery
       throw new \exception\InputMissing('No default connection set.');
     }
     
+    //Create the query.
     $query = $this->getQuery($conn);
+    
+    //Check if we can execute without a resultSet.
+    if($this->is_non_query){
+      return $conn->exec($query);
+    }
+    
+    //Execute.
     $result = $conn->query($query);
     
+    //Errors?
     if(!$result){
       throw new \exception\Sql('Something went wrong while executing a query.');
     }
     
+    //Create the data for the result.
     $data = [];
     foreach($result->fetchAll(\PDO::FETCH_ASSOC) as $row){
       $data[] = new $model($row);
     }
     
+    //Return a new SqlResult.
     return new SqlResult($data);
     
   }
@@ -227,18 +243,6 @@ class SqlQuery
     //Data types.
     $dt =& $this->datatypes;
     
-    //Find the keys of undeclared datatypes.
-    $keys = array_keys($dt, '?', true);
-    
-    //Auto-detect datatypes which aren't declared, and use them.
-    foreach($keys as $key){
-      switch(gettype($this->data[$key])){
-        case 'integer': $dt[$key] = 'i'; break;
-        case 'double': $dt[$key] = 'd'; break;
-        default: $dt[$key] = 's'; break;
-      }
-    }
-    
     //Data.
     $data =& $this->data;
     
@@ -246,10 +250,22 @@ class SqlQuery
     if(substr_count($this->query, '?') !== count($data)){
       throw new \exception\InputMissing(
         'The amount of data given (%s nodes) does not equal the'.
-        ' amount of places for the data (%s questionmarks).',
+        ' amount of places for the data (%s question-marks).',
         count($data),
         substr_count($this->query, '?')
       );
+    }
+    
+    //Find the keys of undeclared datatypes.
+    $keys = array_keys($dt, '?', true);
+    
+    //Auto-detect datatypes which aren't declared, and use them.
+    foreach($keys as $key){
+      switch(gettype($data[$key])){
+        case 'integer': $dt[$key] = 'i'; break;
+        case 'double': $dt[$key] = 'd'; break;
+        default: $dt[$key] = 's'; break;
+      }
     }
     
     //Sanitize the data.

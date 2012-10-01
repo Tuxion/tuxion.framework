@@ -35,50 +35,18 @@ class Sql
   public function query()
   {
     
-    //Handle arguments.
-    $args = func_get_args();
-    
-    //We're doing stuff based on the number of arguments.
-    switch(count($args))
-    {
-      
-      //No arguments given.
-      case 0:
-        $domain = null;
-        $query = null;
-        $data = [];
-      break;
-      
-      //Only a query given.
-      case 1:
-        $domain = null;
-        $query = $args[0];
-        $data = [];
-      break;
-      
-      //A domain and query, or a query and data.
-      case 2:
-        if(is_array($args[1])){
-          $domain = null;
-          $query = $args[0];
-          $data = $args[1];
-        }else{
-          $domain = $args[0];
-          $query = $args[1];
-          $data = [];
-        }
-      break;
-      
-      //Everything given.
-      case 3:
-        $domain = $args[0];
-        $query = $args[1];
-        $data = $args[2];
-      break;
-      
-    }
-    
+    $this->handleArguments(func_get_args(), $domain, $query, $data);
     return (new \classes\SqlQuery($this->connection($domain), $query, $data));
+    
+  }
+  
+  //Return a query object set as non-query.
+  //Uses the same syntax as query().
+  public function nonQuery()
+  {
+    
+    $this->handleArguments(func_get_args(), $domain, $query, $data);
+    return (new \classes\SqlQuery($this->connection($domain), $query, $data, true));
     
   }
   
@@ -179,6 +147,54 @@ class Sql
     $this->connections[$domain] = $r = new \classes\SqlConnection($domain);
     
     return $r;
+    
+  }
+  
+  //Extract arguments.
+  private function handleArguments(array $args, &$domain, &$query, &$data)
+  {
+    
+    //We're doing stuff based on the number of arguments.
+    switch(count($args))
+    {
+      
+      //No arguments given.
+      case 0:
+        $domain = null;
+        $query = null;
+        $data = [];
+      break;
+      
+      //Only a query given.
+      case 1:
+        $domain = null;
+        $query = $args[0];
+        $data = [];
+      break;
+      
+      //A domain and query, or a query and data.
+      case 2:
+        if(is_array($args[1])){
+          $domain = null;
+          $query = $args[0];
+          $data = $args[1];
+        }else{
+          $domain = $args[0];
+          $query = $args[1];
+          $data = [];
+        }
+      break;
+      
+      //Everything given.
+      case 3:
+        $domain = $args[0];
+        $query = $args[1];
+        $data = $args[2];
+      break;
+      
+    }
+    
+    return [$domain, $query, $data];
     
   }
   
