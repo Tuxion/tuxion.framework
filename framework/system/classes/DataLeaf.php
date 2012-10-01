@@ -66,11 +66,24 @@ class DataLeaf
   public function set($value)
   {
     
+    //We must be scalar!
     if(is_array($value) || $value instanceof DataBranch){
-      throw new \exception\InvalidArgument('Expecting $value to be scalar. %s given.', ucfirst(typeof($value)));
+      throw new \exception\InvalidArgument(
+        'Expecting $value to be scalar. %s given.',
+        ucfirst(typeof($value))
+      );
     }
     
+    //Extract data into this new leaf.
+    if($value instanceof self){
+      $value = $value->get();
+    }
+    
+    //Set the value.
     $this->value = $value;
+    
+    //Enable chaining.
+    return $this;
     
   }
   
@@ -95,7 +108,10 @@ class DataLeaf
   {
     
     if(!is_string($regex)){
-      throw new \exception\InvalidArgument('Expecting $regex to be string. %s given.', ucfirst(gettype($regex)));
+      throw new \exception\InvalidArgument(
+        'Expecting $regex to be string. %s given.',
+        ucfirst(gettype($regex))
+      );
     }
     
     try{
@@ -104,7 +120,10 @@ class DataLeaf
     }
     
     catch(\exception\Error $e){
-      throw new \exception\Programmer('An error occured while parsing "%s" using "%s": %s', $this->get('str'), $regex, $e->getMessage());
+      throw new \exception\Programmer(
+        'An error occured while parsing "%s" using "%s": %s',
+        $this->get('str'), $regex, $e->getMessage()
+      );
     }
     
   }
@@ -133,14 +152,13 @@ class DataLeaf
     
   }
   
-  //Split the string value of this node into pieces, give string to use it as delimiter or int to split into chunks of given size.
+  //Split the string value of this node into pieces, give string to use it as delimiter
+  //or int to split into chunks of given size.
   public function split($s=null)
   {
     
-    $return = new $this;
-    
-    if($this->is_empty()){
-      return $return;
+    if($this->isEmpty()){
+      return new DataBranch;
     }
     
     if(empty($s) || (is_int($s) && $s < 1)){
@@ -155,7 +173,7 @@ class DataLeaf
       $split = explode($s, $this->get('str'));
     }
     
-    return $return->set($split);
+    return (new DataBranch)->set($split);
     
   }
   
@@ -188,7 +206,9 @@ class DataLeaf
   {
     
     if(!is_numeric($value)){
-      throw new \exception\InvalidArgument('Expecting $value to be numeric. %s given.', ucfirst(typeof($value)));
+      throw new \exception\InvalidArgument(
+        'Expecting $value to be numeric. %s given.', ucfirst(typeof($value))
+      );
     }
     
     return $this->is($this->value > $value, $callback);
@@ -200,7 +220,9 @@ class DataLeaf
   {
     
     if(!is_numeric($value)){
-      throw new \exception\InvalidArgument('Expecting $value to be numeric. %s given.', ucfirst(typeof($value)));
+      throw new \exception\InvalidArgument(
+        'Expecting $value to be numeric. %s given.', ucfirst(typeof($value))
+      );
     }
     
     return $this->is($this->value < $value, $callback);

@@ -3,10 +3,14 @@
 class ArrayObject implements \IteratorAggregate, \ArrayAccess
 {
   
-  use \traits\ArrayContainer;
+  use \traits\ArrayContainer
+  ;#TEMP: causes memory corruption
+  //{
+  //   set as private _set;
+  // }
   
   //The constructor accepts the initial array.
-  public function __construct(array $arr=[])
+  public function __construct($arr=[])
   {
     $this->set($arr);
   }
@@ -35,6 +39,23 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
     return $this->offsetExists($key);
   }
   
+  #TEMP: causes memory corruption.
+  // //Extend the ArrayContainer
+  // public function set($arr)
+  // {
+    
+  //   if($arr instanceof self){
+  //     $arr = $arr->arr;
+  //   }
+    
+  //   if(!is_array($arr)){
+  //     throw new \exception\InvalidArgument('Expecting an array or ArrayObject. %s given.', typeof());
+  //   }
+    
+  //   $this->_set($arr);
+    
+  // }
+  
   //Semi-magic method implemented by \ArrayAccess.
   public function offsetGet($key)
   {
@@ -50,7 +71,7 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
   //Semi-magic method implemented by \ArrayAccess.
   public function offsetExists($key)
   {
-    return array_key_exists($key, $this->arr);
+    return $this->arrayExists($key);
   }
   
   //Semi-magic method implemented by \ArrayAccess.

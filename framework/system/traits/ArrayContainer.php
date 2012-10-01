@@ -118,10 +118,10 @@ trait ArrayContainer
   }
   
   //Return a new $this by iterating over the data and using the return value from the callback and return it.
-  public function map(\Closure $callback)
+  public function map(\Closure $callback, $blank=false)
   {
   
-    $r = new $this;
+    $r = ($blank ? new \classes\ArrayObject : new $this);
     $i = 0;
     
     foreach($this->arr as $key => $value){
@@ -155,18 +155,10 @@ trait ArrayContainer
   }
   
   //Return a new DataBranch, excluding the nodes that were not in the given keys.
-  public function having()
+  public function having(array $keys, $blank=false)
   {
     
-    $return = new $this;
-    
-    if(func_num_args() == 1 && is_array(func_get_arg(0))){
-      $keys = func_get_arg(0);
-    }
-    
-    else{
-      $keys = array_flatten(func_get_args());
-    }
+    $return = ($blank ? new \classes\ArrayObject : new $this);
     
     foreach($keys as $key1 => $key2)
     {
@@ -186,10 +178,10 @@ trait ArrayContainer
   }
   
   //Return a new DataBranch containing only the nodes that made the given callback return true.
-  public function filter(\Closure $callback)
+  public function filter(\Closure $callback, $blank=false)
   {
     
-    $return = new $this;
+    $return = ($blank ? new \classes\ArrayObject : new $this);
     
     foreach($this->arr as $k => $v){
       if($callback($v, $k) === true){
@@ -218,10 +210,12 @@ trait ArrayContainer
   }
   
   //Returns a slice of the array in the form of a new $this.
-  public function slice($offset=0, $length=null)
+  public function slice($offset=0, $length=null, $blank=false)
   {
     
-    return new $this(array_slice($this->arr, $offset, $length));
+    $r = ($blank ? new \classes\ArrayObject : new $this);
+    $r->set(array_slice($this->arr, $offset, $length));
+    return $r;
     
   }
   
@@ -361,6 +355,36 @@ trait ArrayContainer
     return $this->length();
   }
   
+  //Returns true if one of the nodes in the array has the given value.
+  public function has($value, $strict=false)
+  {
+    
+    return $this->keyOf($value, $strict) !== false;
+    
+  }
+  
+  //Return a new ArrayObject with the keys of this array as values.
+  public function keys()
+  {
+    
+    return new \classes\ArrayObject(array_keys($this->arr));
+    
+  }
+  
+  //Returns the key of the first element in this array with the given value.
+  public function keyOf($value, $strict=false)
+  {
+    
+    foreach($this->arr as $key => $val){
+      if($strict ? $val === $value : $val == $value){
+        return true;
+      }
+    }
+    
+    return false;
+    
+  }
+  
   //Permission setter.
   public function setArrayPermissions($read = true, $write = true, $delete = true)
   {
@@ -407,6 +431,14 @@ trait ArrayContainer
     unset($this->arr[$key]);
     
     return $this;
+    
+  }
+  
+  //Returns true if the given offset exists in this array.
+  public function arrayExists($key)
+  {
+    
+    return array_key_exists($key, $this->arr);
     
   }
   
