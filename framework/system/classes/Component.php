@@ -23,7 +23,7 @@ class Component
     {
     
       try{
-        $cinfo = tx('Sql')->query('
+        $cinfo = tx('Sql')->exe('
           SELECT * FROM `#system_components` WHERE `'.(is_numeric($id) ? 'id' : 'name').'` = ?',
           $id
         )[0];
@@ -49,7 +49,6 @@ class Component
     
   //Private properties.
   private
-    $controllers=[],
     $extended,
     $extending;
   
@@ -75,7 +74,7 @@ class Component
     }
     
     //Fetch from the database.
-    $result = tx('Sql')->query('
+    $result = tx('Sql')->exe('
       SELECT * FROM `#system_components` AS `c`
       INNER JOIN `#system_component_extensions` AS `ce` ON `ce`.`extended_by_id` = `c`.`id`
       WHERE `ce`.`component_id` = ?i',
@@ -102,7 +101,7 @@ class Component
     }
     
     //Fetch from the database.
-    $result = tx('Sql')->query('
+    $result = tx('Sql')->exe('
       SELECT * FROM `#system_components` AS `c`
       INNER JOIN `#system_component_extensions` AS `ce` ON `ce`.`component_id` = `c`.`id`
       WHERE `ce`.`extended_by_id` = ?i',
@@ -150,6 +149,14 @@ class Component
       //Set the router in the controller object.
       ->setRouter($router);
       
+      
+      //Log.
+      tx('Log')->message(
+        $this,
+        'created controller',
+        $controller->component->title.': '.$controller->filename
+      );
+      
       //Set the magic c().
       c($controller);
       
@@ -166,22 +173,85 @@ class Component
     
   }
   
-  
-  //Get model meta-data for the given model $name.
-  public function getModelInfo($name)
+  //Make sure the model with the given name is loaded and return the class string of the model.
+  public function loadModel($model_name)
   {
     
-    # code...
+    //String required.
+    if(!is_string($model_name)){
+      throw new \exception\InvalidArgument(
+        'Expecting $model_name to be string. %s given.',
+        typeof($model_name)
+      );
+    }
+    
+    //Make the class string.
+    $class = 'components\\models\\'.$this->name.'\\'.$model_name;
+    
+    //Has this class been already loaded?
+    if(class_exists($class, false)){
+      return $class;
+    }
+    
+    //Make the path.
+    $path = $this->getPath().'/models/'.$model_name.'.php';
+    
+    //Check if the file exists.
+    if(!file_exists($path)){
+      throw new \exception\FileMissing($path);
+    }
+    
+    //Require the file once.
+    require_once($path);
+    
+    //Does the file not contain the class?
+    if(!class_exists($class, false)){
+      throw new \exception\Programmer(
+        'The file "%s" does not contain a model named "%s" or is not in the right name-space.',
+        $path, $model_name
+      );
+    }
+    
+    //Succeeded.
+    return $class;
     
   }
   
-  //Create a new instance of the given model name and return it.
-  public function createModel($name)
+  //Get model meta-data for the given model $model_name.
+  public function getModelInfo($model_name)
   {
     
+    $class = $this->loadModel($model_name);
     
+    return $class::modelInfo();
     
   }
+  
+  //Get table meta-data for the given model $model_name.
+  public function getTableInfo($model_name)
+  {
+    
+    $class = $this->loadModel($model_name);
+    
+    return $class::tableInfo();
+    
+  }
+  
+  //Create a new instance of the given model model_name and return it.
+  public function createModel($model_name, array $data = [])
+  {
+    
+    $class = $this->loadModel($model_name);
+    
+    return new $class($data, $this);
+    
+  }
+  
+  //Create an SqlQueryBuilder object which will return an SqlResult when executed.
+  public function selectAll($component_name, $model_name){}
+
+  //Create an SqlQueryBuilder object which will return the given model when executed.
+  public function selectA($component_name, $model_name){}
   
   //Get the path that leads to this component.
   public function getPath()
