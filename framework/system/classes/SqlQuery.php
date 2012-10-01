@@ -13,42 +13,21 @@ class SqlQuery
     $data=[];
   
   //Initialize the SqlQuery instance, optionally passing a default connection and query information.
-  public function __construct()
+  public function __construct(SqlConnection $connection = null, $query_string = null, array $data = [])
   {
     
-    //Handle arguments.
-    $args = func_get_args();
-    
-    //A default connection as first argument?
-    if(!empty($args) && $args[0] instanceof \classes\SqlConnection){
-      $this->connection = array_shift($args);
-    }
-    
-    //An array with query and data?
-    if(!empty($args) && is_array($args[0]))
-    {
-      
-      $q = array_shift($args);
-      
-      if(!empty($q)){
-        $this->setQuery(array_shift($q));
-      }
-      
-      if(!empty($q)){
-        $this->setData($q);
-      }
-      
+    //A default connection passed?
+    if(!is_null($connection)){
+      $this->connection = $connection;
     }
     
     //A query?
-    if(!empty($args) && is_string($args[0])){
-      $this->setQuery(array_shift($args));
+    if(is_string($query_string)){
+      $this->setQuery($query_string);
     }
     
     //Query-data?
-    if(!empty($args)){
-      $this->setData($args);
-    }
+    $this->data = $data;
       
   }
   
@@ -160,7 +139,7 @@ class SqlQuery
     
   }
   
-  //Get the query, still having questionmarks were the data is supposed to go.
+  //Get the query, still having question-marks where the data is supposed to go.
   public function getRawQuery(SqlConnection $conn = null)
   {
     
@@ -179,6 +158,15 @@ class SqlQuery
     
     //Return the query.
     return $this->query;
+    
+  }
+  
+  //Short for $this->execute()->idx(0)->idx(0);
+  public function scalar()
+  {
+    
+    $result = call_user_func_array([$this, 'execute'], func_get_args());
+    return $result->idx(0)->idx(0);
     
   }
   

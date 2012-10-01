@@ -6,10 +6,80 @@ class Sql
   private
     $connections = [];
   
-  //Execute a query.
+  //Execute a query under the default domain.
+  //exe(string $query[, $parameter[, ...]]);
+  public function exe()
+  {
+    
+    //Handle arguments.
+    $args = func_get_args();
+    
+    //At least a query must have been given.
+    if(count($args) < 1){
+      throw new \exception\InvalidArgument('Expecting at least one argument.');
+    }
+    
+    //Extract the query.
+    $query = array_shift($args);
+    
+    //The parameters.
+    $parameters = $args;
+    
+    //Create and execute a query.
+    return $this->query($query, $parameters)->execute();
+    
+  }
+  
+  //Returns a query object.
+  //query([string $domain=<current_domain>, ]string $query = null[, array $data])
   public function query()
   {
-    return (new \classes\SqlQuery($this->connection(), func_get_args()))->execute();
+    
+    //Handle arguments.
+    $args = func_get_args();
+    
+    //We're doing stuff based on the number of arguments.
+    switch(count($args))
+    {
+      
+      //No arguments given.
+      case 0:
+        $domain = null;
+        $query = null;
+        $data = [];
+      break;
+      
+      //Only a query given.
+      case 1:
+        $domain = null;
+        $query = $args[0];
+        $data = [];
+      break;
+      
+      //A domain and query, or a query and data.
+      case 2:
+        if(is_array($args[1])){
+          $domain = null;
+          $query = $args[0];
+          $data = $args[1];
+        }else{
+          $domain = $args[0];
+          $query = $args[1];
+          $data = [];
+        }
+      break;
+      
+      //Everything given.
+      case 3:
+        $domain = $args[0];
+        $query = $args[1];
+        $data = $args[2];
+      break;
+      
+    }
+    
+    return (new \classes\SqlQuery($this->connection($domain), $query, $data));
+    
   }
   
   //Perform a transaction with the given queries.
@@ -17,6 +87,7 @@ class Sql
   //queries([string $domain=<current_domain>, ]string $queries[, $param[, ...]])
   public function queries()
   {
+    
     //Handle arguments.
     $args = func_get_args();
     
@@ -54,7 +125,7 @@ class Sql
         {
           
           if(count($args) == 0){
-            throw new \exception\InputMissing('The amount of data given does not equal the amount of questionmarks.');
+            throw new \exception\InputMissing('The amount of data given does not equal the amount of question-marks.');
           }
           
           $queries[$k][] = array_shift($args);
@@ -65,7 +136,7 @@ class Sql
       
     }
     
-    //Otherwise normal sysntax must have been used.
+    //Otherwise normal syntax must have been used.
     else{
       $queries = array_shift($args);
     }
@@ -110,11 +181,5 @@ class Sql
     return $r;
     
   }
-  
-  //Create an SqlQueryBuilder object which will return an SqlResult when executed.
-  public function selectAll($component_name, $model_name){}
-
-  //Create an SqlQueryBuilder object which will return the given model when executed.
-  public function selectA($component_name, $model_name){}
   
 }
