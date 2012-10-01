@@ -3,6 +3,14 @@
 trait ArrayContainer
 {
   
+  //Returns true if the given argument is an array, or uses this arrayContainer trait.
+  public static function isArray($mixed)
+  {
+    
+    return (is_array($mixed) || uses($mixed, 'ArrayContainer'));
+    
+  }
+  
   private
     $arr_permissions=7,
     $arr=[];
@@ -17,18 +25,6 @@ trait ArrayContainer
     
   }
     
-  //Set the entire array.
-  public function set(array $arr)
-  {
-    
-    foreach($arr as $key => $value){
-      $this->arraySet($key, $value);
-    }
-    
-    return $this;
-    
-  }
-  
   //Return the node that is present at given $index.
   public function idx($index)
   {
@@ -219,15 +215,29 @@ trait ArrayContainer
     
   }
   
+  //Set the entire array.
+  public function set(array $arr)
+  {
+    
+    $this->arr = [];
+    
+    foreach($arr as $key => $value){
+      $this->arraySet($key, $value);
+    }
+    
+    return $this;
+    
+  }
+  
   //Merge one or more given arrays with arr.
   public function merge()
   {
     
-    //I start at 1.
-    $i = 1;
-    
+    //Get the given arrays.
+    $arrays = array_filter(func_get_args(), function($v){return self::isArray($v);});
+
     //Loop arguments.
-    foreach(func_get_args() as $array)
+    foreach($arrays as $array)
     {
       
       //Cast ArrayContainers to arrays.
@@ -235,18 +245,53 @@ trait ArrayContainer
         $array = $array->toArray(false);
       }
       
-      //Validate if an array was given.
-      if(!is_array($array)){
-        throw new \exception\InvalidArgument('Expecting every argument to be an array. %s given for argument %s.', ucfirst(typeof($array)), $i);        
-      }
-      
       //Loop the array.
       foreach($array as $key => $value){
         $this->arraySet($key, $value);
       }
       
-      //Increment.
-      $i++;
+    }
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Adds one or more given arrays tot this array.
+  public function concat()
+  {
+    
+    //Get the used keys.
+    $used = array_keys($this->arr);
+    
+    //Get the currently highest key.
+    $i = max(array_filter($used, function($v){return is_numeric($v);})) + 1;
+    
+    //Get the given arrays.
+    $arrays = array_filter(func_get_args(), function($v){return self::isArray($v);});
+    
+    //Loop arguments.
+    foreach($arrays as $array)
+    {
+      
+      //Cast ArrayContainers to arrays.
+      if(uses($array, 'ArrayContainer')){
+        $array = $array->toArray(false);
+      }
+      
+      //Loop the array.
+      foreach($array as $key => $value)
+      {
+        
+        //Check if the key is already used.
+        if(in_array($key, $used)){
+          $used[] = $key = $i++;
+        }
+        
+        //Set the value.
+        $this->arraySet($key, $value);
+        
+      }
       
     }
     
@@ -368,6 +413,14 @@ trait ArrayContainer
   {
     
     return new \classes\ArrayObject(array_keys($this->arr));
+    
+  }
+  
+  //Return a new ArrayObject with the values of this array as values.
+  public function values()
+  {
+    
+    return new \classes\ArrayObject(array_values($this->arr));
     
   }
   
