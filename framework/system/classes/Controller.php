@@ -24,6 +24,7 @@ class Controller
     //Iterate our controllers to filter them down.
     foreach(self::$controllers as $controller)
     {
+      
       //Should we filter on path?
       if(!is_null($path)){
         

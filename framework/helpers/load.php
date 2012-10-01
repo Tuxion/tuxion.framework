@@ -17,7 +17,7 @@ function __autoload($class)
     case 'traits': $file = "$path_system/traits/{$class_array[1]}.php"; break;
     case 'interfaces': $file = "$path_system/interfaces/{$class_array[1]}.php"; break;
     default: throw new \exception\Restriction(
-      'Failed to auto-load "%s"; auto-loading is restricted to only'.
+      'Failed to auto-load "%s"; auto-loading is restricted to only: '.
       'exceptions, interfaces, traits or core classes.', $class
     );
   }

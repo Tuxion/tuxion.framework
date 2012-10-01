@@ -8,6 +8,15 @@ c()->pre('Setting the template.', function(){
   
 });
 
+c(GET, 'test')->end('Loading the test page.', function(){
+  
+  $this->output->set([
+    'foo' => 'Test page!',
+    'nyerk' => 'Add another segment to the url.'
+  ]);
+  
+});
+
 c(GET, 'test/$input')->end('Testing something.', function($input){
   
   $this->output->set([

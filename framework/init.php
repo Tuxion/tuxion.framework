@@ -15,6 +15,15 @@ tx('Config');
 //Load the debug class.
 tx('Debug');
 
+$test_model = classes\Component::get('example')->createModel('Test', [
+  'id' => 2,
+  'description' => 'Hello world! Asd?'
+]);
+
+$test_model->save();
+
+exit;
+
 //Do everything you need to do to output the data.
 tx('Output');
 

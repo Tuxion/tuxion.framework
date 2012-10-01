@@ -53,7 +53,7 @@ class Permissions
     }
     
     //If the cache didn't exist yet, we will fetch it.
-    $permissions = tx('Sql')->query('SELECT `key` FROM `#system_component_permissions` WHERE `component_id` = ?i', $cinfo->id)->map(function($row){
+    $permissions = tx('Sql')->exe('SELECT `key` FROM `#system_component_permissions` WHERE `component_id` = ?i', $cinfo->id)->map(function($row){
       return $row->key;
     })->toArray();
     
@@ -116,7 +116,7 @@ class Permissions
     }
     
     //If the cache didn't exist yet, we will fetch it.
-    $permissions = tx('Sql')->query('SELECT `key` FROM `#system_component_permissions` WHERE `component_id` = ?i', $cinfo->id)->map(function($row){
+    $permissions = tx('Sql')->exe('SELECT `key` FROM `#system_component_permissions` WHERE `component_id` = ?i', $cinfo->id)->map(function($row){
       return $row->key;
     })->toArray();
     
@@ -127,7 +127,7 @@ class Permissions
     $guest_cache =& $cache[$cinfo->id];
     
     //Fetch role permissions.
-    $roles = tx('Sql')->query('SELECT * FROM `#system_roles` WHERE `is_guest_role` = 1 AND `component_id` = ?i', $cinfo->id);
+    $roles = tx('Sql')->exe('SELECT * FROM `#system_roles` WHERE `is_guest_role` = 1 AND `component_id` = ?i', $cinfo->id);
     
     //Check for errors.
     if($roles->num() > 1){
@@ -139,7 +139,7 @@ class Permissions
     {
       
       //Fetch the actual permissions.
-      $role_permissions = tx('Sql')->query('SELECT * FROM `#system_permissions_role` WHERE role_id = ?i', $roles[0]->id);
+      $role_permissions = tx('Sql')->exe('SELECT * FROM `#system_permissions_role` WHERE role_id = ?i', $roles[0]->id);
       
       //If there were, add them to the cache.
       $role_permissions->each(function($row)use(&$guest_cache){
@@ -149,7 +149,7 @@ class Permissions
     }
     
     //Now fetch guest permissions.
-    $guest_permissions = tx('Sql')->query('SELECT * FROM `#system_permissions_guest` WHERE `component_id` = ?i', $cinfo->id);
+    $guest_permissions = tx('Sql')->exe('SELECT * FROM `#system_permissions_guest` WHERE `component_id` = ?i', $cinfo->id);
     
     //And add those to the cache.
     $guest_permissions->each(function($row)use(&$guest_cache){
@@ -356,7 +356,7 @@ class Permissions
   private function readCache($user_id, $component_id)
   {
     
-    return tx('Sql')->query('SELECT * FROM `#system_permission_cache` WHERE `user_id` = ?i AND `component_id` = ?i', $user_id, $component_id);
+    return tx('Sql')->exe('SELECT * FROM `#system_permission_cache` WHERE `user_id` = ?i AND `component_id` = ?i', $user_id, $component_id);
     
   }
   

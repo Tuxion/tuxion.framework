@@ -362,7 +362,7 @@ class Router
     $this->reroute_cache[] = implode('/', $this->history)."/$path";
     
     //Build the new path.
-    $path = implode('/', $this->history).'/'.implode('/', $this->future);
+    $path = trim(implode('/', $this->history).'/'.implode('/', $this->future), '/');
     
     //Enter a log entry.
     tx('Log')->message($this, 'rerouting', "'{$this->path}' -> '$path'");
@@ -484,7 +484,7 @@ class Router
   {
     
     //Enter a log entry.
-    tx('Log')->message($this, 'processing endpoint', $this->path);
+    tx('Log')->message($this, 'processing endpoint', $this->type.':'.$this->path);
     
     //Get the controllers that match the endpoint.
     $controllers = Controller::controllers($this->type, $this->path);
@@ -597,6 +597,9 @@ class Router
   private function processComponent($component_name)
   {
     
+    //Log.
+    tx('Log')->message($this, 'processing component', $component_name);
+    
     //Are we allowed to use numeric component identifiers?
     if(is_numeric($component_name) && tx('Config')->config->route_allow_numeric_components !== true){
       throw new \exception\NotFound('"%s" Is not a valid component.', $component_name);
@@ -624,6 +627,7 @@ class Router
       $this->process_component_cache[] = $com->id;
       
       //Load the controllers of this component.
+      tx('Log')->message($this, 'loading controllers', $com->title);
       $com->loadControllers($this);
       
       //Load the controllers of components extending this component.
@@ -637,6 +641,7 @@ class Router
     $loadControllers($cinfo);
     
     //Everything OK! Progress the state to simple route progression.
+    tx('Log')->message($this, 'finished processing component', $component_name);
     $this->state = 4;
     
   }
@@ -646,7 +651,7 @@ class Router
   {
     
     //Get the alias from the database.
-    $result = tx('Sql')->query('SELECT `value` FROM `#system_route_aliases` WHERE `key` = ?s', $alias);
+    $result = tx('Sql')->exe('SELECT `value` FROM `#system_route_aliases` WHERE `key` = ?s', $alias);
     
     //Check if it wasn't found.
     if($result->count() == 0){
