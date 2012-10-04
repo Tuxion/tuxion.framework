@@ -3,24 +3,36 @@
 class Exception extends \Exception
 {
 
-  protected $prev; // thanks PHP...
+  protected $prev; //Thanks PHP...
   protected static $ex_code = EX_EXCEPTION;
   
   public function __construct()
   {
     
+    //Get arguments.
     $args = func_get_args();
     
+    //Place array arguments in an unordered list.
     foreach($args as $k => $arg){
       if(is_array($arg)){
         $args[$k] = ul($arg);
       }
     }
     
-    $message = call_user_func_array('sprintf', $args);
+    //Do we even have a message?
+    if(empty($args)){
+      $message = 'Error! Error! Abort operations! Abandon ship! Get to tha choppa!';
+    }
     
+    //Yep, we do.
+    else{
+      $message = call_user_func_array('sprintf', $args);
+    }
+    
+    //construct the parent Exception with the message we created.
     parent::__construct($message);
     
+    //Should we log this exception?
     if(tx('Config')->config->log_exception_caught){
       tx('Log')->error(__CLASS__, $this);
     }
