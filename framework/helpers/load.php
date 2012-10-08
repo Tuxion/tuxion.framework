@@ -9,21 +9,18 @@ function __autoload($class)
   }
   
   $class_array = explode('\\', $class);
-  $path_system = realpath(dirname(__FILE__).'/../system');
   
-  switch($class_array[0]){
-    case 'classes': $file = "$path_system/classes/{$class_array[1]}.php"; break;
-    case 'exception': $file = "$path_system/exceptions/{$class_array[1]}.php"; break;
-    case 'traits': $file = "$path_system/traits/{$class_array[1]}.php"; break;
-    case 'interfaces': $file = "$path_system/interfaces/{$class_array[1]}.php"; break;
-    default: throw new \exception\Restriction(
+  if(!in_array($class_array[0], ['classes', 'exception', 'traits', 'interfaces'])){
+    die(sprintf(
       'Failed to auto-load "%s"; auto-loading is restricted to only: '.
       'exceptions, interfaces, traits or core classes.', $class
-    );
+    ));
   }
   
+  $file = realpath(dirname(__FILE__).'/../system').'/'.implode('/', $class_array).'.php';
+  
   if(!is_file($file)){
-    throw new \exception\FileMissing($file);
+    die(sprintf('Failed to auto-load: "%s"', $file));
   }
   
   require_once($file);
