@@ -1,6 +1,6 @@
-<?php namespace classes;
+<?php namespace classes\sql;
 
-class SqlResult extends ArrayObject
+class Result extends \classes\ArrayObject
 {
   
   public function __construct($rows=[])

@@ -3,9 +3,9 @@
 return [
   
   //Request methods.
-  'get' => 1,
-  'post' => 2,
-  'put' => 4,
+  'get'    => 1,
+  'post'   => 2,
+  'put'    => 4,
   'delete' => 8,
   
   //Exception types.
@@ -30,13 +30,20 @@ return [
   'ex_inputmissing'       => 0b1000000000000000000,
   
   //Permission values.
-  'never' => -1,
-  'no' => 0,
-  'yes' => 1,
+  'never'  => -1,
+  'no'     => 0,
+  'yes'    => 1,
   'always' => 2,
   
+  //Query-builder stuff.
+  'all'   => 0,
+  'a'     => 1,
+  'below' => -1,
+  'equal' => 0,
+  'above' => 1,
+  
   //Common variables.
-  'n' => "\r\n",
+  'n'  => "\r\n",
   'br' => "<br>\n"
   
 ];

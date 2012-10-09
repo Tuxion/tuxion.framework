@@ -1,20 +1,29 @@
-<?php namespace classes;
+<?php namespace classes\sql;
 
-abstract class SqlBaseModel extends SqlRow
+abstract class BaseModel extends Row
 {
   
   //Return the meta info provided by the model.
   public static function modelInfo()
   {
     
-    $info = new ArrayObject([]);
+    //Create a new ArrayObject to put our information into.
+    $info = new \classes\ArrayObject([]);
     
+    //Add some of the meta-data provided by the model itself.
     foreach(['table_name', 'fields', 'relations'] as $var){
       if(isset(static::$$var)){
         $info[$var] = static::$$var;
       }
     }
     
+    //Add the name of the model.
+    $info['model_name'] = strstr(get_class(), '\\');
+    
+    //Changing it now is verboten!
+    $info->setArrayPermissions(true, false, false);
+    
+    //Return the info.
     return $info;
     
   }
@@ -35,9 +44,9 @@ abstract class SqlBaseModel extends SqlRow
     }
     
     //Create the new entry in our cache.
-    $table_info[$table_name] = $tinfo = new ArrayObject([
-      'primary_keys' => new ArrayObject([]),
-      'fields' => new ArrayObject([])
+    $table_info[$table_name] = $tinfo = new \classes\ArrayObject([
+      'primary_keys' => new \classes\ArrayObject([]),
+      'fields' => new \classes\ArrayObject([])
     ]);
     
     //Fetch info from the database.
@@ -125,7 +134,7 @@ abstract class SqlBaseModel extends SqlRow
     $cache=[];
   
   //Sets default values.
-  public function __construct(array $values = [], Component $component)
+  public function __construct(array $values = [], \classes\Component $component)
   {
     
     //Set the component.
@@ -134,7 +143,7 @@ abstract class SqlBaseModel extends SqlRow
     //We're going to do some stuff with the fields.
     self::tableInfo()->fields
     
-    #LOOK: //Workaround for byte strings from mysql_fetch_assoc.
+    #TODO: //Workaround for byte strings from mysql_fetch_assoc.
     // ->each(function($val, $key)use(&$values){
       
     //   if($val->type->get() === 'bit'
@@ -356,5 +365,4 @@ abstract class SqlBaseModel extends SqlRow
     
   }
   
-
 }

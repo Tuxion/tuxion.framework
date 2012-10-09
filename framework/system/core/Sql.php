@@ -36,7 +36,7 @@ class Sql
   {
     
     $this->handleArguments(func_get_args(), $domain, $query, $data);
-    return (new \classes\SqlQuery($this->connection($domain), $query, $data));
+    return (new \classes\sql\Query($this->connection($domain), $query, $data));
     
   }
   
@@ -46,7 +46,7 @@ class Sql
   {
     
     $this->handleArguments(func_get_args(), $domain, $query, $data);
-    return (new \classes\SqlQuery($this->connection($domain), $query, $data, true));
+    return (new \classes\sql\Query($this->connection($domain), $query, $data, true));
     
   }
   
@@ -82,13 +82,17 @@ class Sql
     if(is_string($args[0]))
     {
       
+      //Split the strong into an array of queries.
       $queries = explode(';', trim(array_shift($args), ';'));
       
+      //Iterate the query-strings.
       foreach($queries as $k => $query)
       {
         
+        //Convert the query string to an array having it as it's first node.
         $queries[$k] = [$query];
         
+        //Add the arguments to this array.
         for($i=0;$i<substr_count($query, '?');$i++)
         {
           
@@ -114,21 +118,21 @@ class Sql
     {
       
       if(is_string($query)){
-        $queries[$k] = (new \classes\SqlQuery($this->connection($domain)))->setQuery($query);
+        $queries[$k] = (new \classes\sql\Query($this->connection($domain)))->setQuery($query);
       }
       
       elseif(is_array($query)){
-        $queries[$k] = (new \classes\SqlQuery($this->connection($domain), $query));
+        $queries[$k] = (new \classes\sql\Query($this->connection($domain), $query));
       }
       
-      elseif(!($query instanceof \classes\SqlQuery)){
+      elseif(!($query instanceof \classes\sql\Query)){
         throw new \exception\InvalidArgument('Expecting string, array or an instance of SqlQuery. %s given.', ucfirst(typeof($query)));
       }
       
     }
     
-    //Create the SqlMultiQuery object and execute it.
-    return (new \classes\SqlMultiQuery($this->connection($domain), $queries))->execute();
+    //Create the MultiQuery object and execute it.
+    return (new \classes\sql\MultiQuery($this->connection($domain), $queries))->execute();
     
   }
   
@@ -144,7 +148,7 @@ class Sql
       return $this->connections[$domain];
     }
     
-    $this->connections[$domain] = $r = new \classes\SqlConnection($domain);
+    $this->connections[$domain] = $r = new \classes\sql\Connection($domain);
     
     return $r;
     

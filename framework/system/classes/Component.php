@@ -247,11 +247,21 @@ class Component
     
   }
   
-  //Create an SqlQueryBuilder object which will return an SqlResult when executed.
-  public function selectAll($component_name, $model_name){}
-
-  //Create an SqlQueryBuilder object which will return the given model when executed.
-  public function selectA($component_name, $model_name){}
+  //Create a QueryBuilder object which will return the given model when executed.
+  public function fetchA($model_name, &$model=null)
+  {
+    
+    return new sql\QueryBuilder(A, $this, $model_name, $model);
+    
+  }
+  
+  //Create a QueryBuilder object which will return a Result when executed.
+  public function fetchAll($model_name, &$model=null)
+  {
+    
+    return new sql\QueryBuilder(ALL, $this, $model_name, $model);
+    
+  }
   
   //Get the path that leads to this component.
   public function getPath()

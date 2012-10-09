@@ -15,12 +15,16 @@ tx('Config');
 //Load the debug class.
 tx('Debug');
 
-$test_model = classes\Component::get('example')->createModel('Test', [
-  'id' => 2,
-  'description' => 'Hello world! Asd?'
-]);
+$test = classes\Component::get('example')
+  ->fetchAll('Test', $T)
+  ->add('Derp', $D)
+  // ->join($D, 'left')
+  ->select($T)
+;
 
-$test_model->save();
+$query = $test->done();
+
+trace($query->getQuery(), $query->execute()->toArray());
 
 exit;
 

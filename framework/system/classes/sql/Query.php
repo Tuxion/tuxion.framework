@@ -1,6 +1,6 @@
-<?php namespace classes;
+<?php namespace classes\sql;
 
-class SqlQuery
+class Query
 {
   
   public
@@ -11,11 +11,12 @@ class SqlQuery
     $query,
     $is_non_query=false,
     $datatypes=[],
-    $data=[];
+    $data=[],
+    $creator=null;
   
-  //Initialize the SqlQuery instance, optionally passing a default connection and query information.
+  //Initialize the Query instance, optionally passing a default connection and query information.
   public function __construct(
-    SqlConnection $connection = null,
+    Connection $connection = null,
     $query_string = null,
     array $data = [],
     $non_query = false
@@ -56,8 +57,8 @@ class SqlQuery
     //Warn the programmer about multiqueries.
     if(substr_count($query, ';') > 0){
       throw new \exception\InvalidArgument(
-        'Your query contains the ";"-character.'.
-        ' Note that SqlQuery does not execute multi-queries. Use SqlMultiQuery for that.'
+        'Your query contains the ";"-character. '.
+        'Note that Query does not execute multi-queries. Use MultiQuery for that.'
       );
     }
     
@@ -104,6 +105,14 @@ class SqlQuery
     
   }
   
+  //Set the creator to use when this query executes.
+  public function setCreator(\Closure $creator)
+  {
+    
+    $this->creator = $creator;
+    
+  }
+  
   //What do you think?
   public function isPrepared()
   {
@@ -111,7 +120,7 @@ class SqlQuery
   }
   
   //Get the query with the data inserted into it.
-  public function getQuery(SqlConnection $conn = null)
+  public function getQuery(Connection $conn = null)
   {
     
     //Get connection.
@@ -145,7 +154,7 @@ class SqlQuery
   }
   
   //Get the query, still having question-marks where the data is supposed to go.
-  public function getRawQuery(SqlConnection $conn = null)
+  public function getRawQuery(Connection $conn = null)
   {
     
     //Get connection.
@@ -175,8 +184,8 @@ class SqlQuery
     
   }
   
-  //Executes the query and returns an SqlResult object.
-  public function execute(SqlConnection $conn = null, $model='\\classes\\SqlRow')
+  //Executes the query and returns an Result object.
+  public function execute(Connection $conn = null, \Closure $creator = null)
   {
     
     //Get connection.
@@ -205,19 +214,22 @@ class SqlQuery
       throw new \exception\Sql('Something went wrong while executing a query.');
     }
     
+    //Use the right creator.
+    $creator = (is_null($creator) ? $this->creator : $creator);
+    
     //Create the data for the result.
     $data = [];
     foreach($result->fetchAll(\PDO::FETCH_ASSOC) as $row){
-      $data[] = new $model($row);
+      $data[] = (is_null($creator) ? new \classes\sql\Row($row) : $creator($row));
     }
     
-    //Return a new SqlResult.
-    return new SqlResult($data);
+    //Return a new sql\Result.
+    return new Result($data);
     
   }
   
   //Normalizes and sanitizes the query, the data and the datatypes.
-  private function prepare(SqlConnection $conn = null)
+  private function prepare(Connection $conn = null)
   {
   
     //We don't need to do anything if we already prepared.
@@ -321,21 +333,6 @@ class SqlQuery
     
     //Enable chaining.
     return $this;
-    
-  }
-  
-  //Converts a php value to a mySQL value.
-  private function _toSql($value)
-  {
-    
-    switch(strtolower(gettype($value))){
-      case 'string': $value = (/*($value == 'NULL') ? 'NULL' : */"'$value'"); break;
-      case 'integer': case 'double': break;
-      case 'boolean': $value = (($value == true) ? 1 : 0); break;
-      case 'null': $value = 'NULL'; break;
-    }
-    
-    return $value;
     
   }
   

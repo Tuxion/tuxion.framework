@@ -1,6 +1,6 @@
-<?php namespace classes;
+<?php namespace classes\sql;
 
-class SqlConnection extends \PDO
+class Connection extends \PDO
 {
   
   public
