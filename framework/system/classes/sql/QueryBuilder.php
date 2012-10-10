@@ -43,6 +43,11 @@ class QueryBuilder
     
   }
   
+  
+  ##
+  ## EXECUTION METHODS
+  ##
+  
   //Build the query and return an Query object containing it.
   public function done(QueryBuilderModel $model = null)
   {
@@ -200,6 +205,11 @@ class QueryBuilder
     
   }
   
+  
+  ##
+  ## CLAUSE MODIFIERS
+  ##
+  
   //Add a column to the select clause.
   public function select($column, $alias=null)
   {
@@ -210,10 +220,29 @@ class QueryBuilder
     
   }
   
-  //Join a foreign model.
-  public function join($model, $type = null)
+  //Add a model to the from clause.
+  public function from($model, &$class=null)
   {
     
+    #TODO: Use a utility function to handle string input
+    
+    //Add to the clause.
+    $this->clause('from')->addModel($model);
+    
+    //Add to reference.
+    $class = $model;
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Join a foreign model.
+  public function join($model, $type = null, &$class=null)
+  {
+    
+    #TODO: Put in utility method
+    #TODO: Use present models
     //We can give the model as a string to internally call addModel.
     if(is_string($model))
     {
@@ -239,6 +268,49 @@ class QueryBuilder
     //Add the join to the FROM clause.
     $this->clause('from')->joinModel($model, $type);
     
+    //Add to reference.
+    $class = $model;
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  #TODO: Where
+  
+  //Add to the group clause.
+  public function group($by, $direction=null)
+  {
+    
+    //Add to the clause.
+    $this->clause('group')->by($by, $direction);
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Add the roll-up modifier to the group clause.
+  public function groupRollup()
+  {
+    
+    //Add to the clause.
+    $this->clause('group')->withRollup();
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  #TODO: Having
+  
+  //Add to the order clause.
+  public function order($by, $direction=null)
+  {
+    
+    //Add to the clause.
+    $this->clause('order')->by($by, $direction);
+    
     //Enable chaining.
     return $this;
     
@@ -261,6 +333,11 @@ class QueryBuilder
     return $this;
     
   }
+  
+  
+  ##
+  ## UTILITY METHODS
+  ##
   
   //Detect what kind of input has been given and use it to create a string usable by the query.
   public function prepare($input)

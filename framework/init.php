@@ -15,19 +15,6 @@ tx('Config');
 //Load the debug class.
 tx('Debug');
 
-$test = classes\Component::get('example')
-  ->fetchAll('Test', $T)
-  ->add('Derp', $D)
-  // ->join($D, 'left')
-  ->select($T)
-;
-
-$query = $test->done();
-
-trace($query->getQuery(), $query->execute()->toArray());
-
-exit;
-
 //Do everything you need to do to output the data.
 tx('Output');
 

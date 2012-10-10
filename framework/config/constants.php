@@ -41,6 +41,8 @@ return [
   'below' => -1,
   'equal' => 0,
   'above' => 1,
+  'asc'   => 1,
+  'desc'  => -1,
   
   //Common variables.
   'n'  => "\r\n",
