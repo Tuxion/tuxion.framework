@@ -1,6 +1,6 @@
 <?php namespace classes\sql;
 
-class QueryBuilder
+class Builder
 {
   
   use \traits\Successable;
@@ -49,7 +49,7 @@ class QueryBuilder
   ##
   
   //Build the query and return an Query object containing it.
-  public function done(QueryBuilderModel $model = null)
+  public function done(BuilderModel $model = null)
   {
     
     //Get the connection.
@@ -83,7 +83,7 @@ class QueryBuilder
   }
   
   //Executes the query right away and returns the result.
-  public function execute(QueryBuilderModel $model = null)
+  public function execute(BuilderModel $model = null)
   {
     
     //Get the result.
@@ -191,7 +191,7 @@ class QueryBuilder
   {
     
     //Create the model
-    $model = new QueryBuilderModel(
+    $model = new BuilderModel(
       $model_name,
       (is_null($alternative_component) ? $this->component : $alternative_component),
       $this
@@ -258,10 +258,10 @@ class QueryBuilder
       
     }
     
-    //We must now have an instance of QueryBuilderModel.
-    if(!($model instanceof QueryBuilderModel)){
+    //We must now have an instance of BuilderModel.
+    if(!($model instanceof BuilderModel)){
       throw new \exception\InvalidArgument(
-        'Expecting an instance of QueryBuilderModel. %s given.', typeof($model)
+        'Expecting an instance of BuilderModel. %s given.', typeof($model)
       );
     }
     
@@ -276,7 +276,24 @@ class QueryBuilder
     
   }
   
-  #TODO: Where
+  //Add more conditions to the where clause.
+  public function where()
+  {
+    
+    //A condition object was provided. Pass it directly to the where clause.
+    if(func_get_arg(0) instanceof BuilderCondition){
+      $this->clause('where')->addCondition(func_get_arg(0));
+    }
+    
+    //Create a factory, call it to create a condition and pass that on to the where clause.
+    else{
+      $this->clause('where')->addCondition(call_user_func_array($this->conditionFactory(), func_get_args()));
+    }
+    
+    //Enable chaining.
+    return $this;
+    
+  }
   
   //Add to the group clause.
   public function group($by, $direction=null)
@@ -302,7 +319,24 @@ class QueryBuilder
     
   }
   
-  #TODO: Having
+  //Add more conditions to the having clause.
+  public function having()
+  {
+    
+    //A condition object was provided. Pass it directly to the having clause.
+    if(func_get_arg(0) instanceof BuilderCondition){
+      $this->clause('having')->addCondition(func_get_arg(0));
+    }
+    
+    //Create a factory, call it to create a condition and pass that on to the having clause.
+    else{
+      $this->clause('having')->addCondition(call_user_func_array($this->conditionFactory(), func_get_args()));
+    }
+    
+    //Enable chaining.
+    return $this;
+    
+  }
   
   //Add to the order clause.
   public function order($by, $direction=null)
@@ -336,6 +370,32 @@ class QueryBuilder
   
   
   ##
+  ## FACTORY METHODS
+  ##
+  
+  //Sets $factory to a condition factory.
+  public function conditionFactory(&$factory)
+  {
+    
+    //Create the factory.
+    $factory = function(){
+      return new \classes\sql\BuilderCondition($this, func_get_args());
+    };
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Sets $factory to a function factory.
+  public function functionFactory(&$factory)
+  {
+    
+    #TODO: Create the functionFactory method.
+    
+  }
+  
+  ##
   ## UTILITY METHODS
   ##
   
@@ -349,12 +409,12 @@ class QueryBuilder
     }
     
     //Use a model.
-    if($input instanceof QueryBuilderModel){
+    if($input instanceof BuilderModel){
       return "`{$input->getUnique()}`";
     }
     
     //Use a column.
-    if($input instanceof QueryBuilderColumn){
+    if($input instanceof BuilderColumn){
       return $this->prepare($input->model).'.'.$input->getString();
     }
     
@@ -378,9 +438,8 @@ class QueryBuilder
       
     }
     
-    //Use a function.
-    if($input instanceof QueryBuilderFunction){
-      $input->setBuilder($this);
+    //Get the string of a condition or function.
+    if($input instanceof BuilderCondition || $input instanceof BuilderFunction){
       return $input->getString();
     }
     
@@ -389,14 +448,14 @@ class QueryBuilder
     
   }
   
-  //Validate if a model is in fact a model, and if it's being used in this QueryBuilder.
+  //Validate if a model is in fact a model, and if it's being used in this Builder.
   public function assertModel($model)
   {
     
-    //Must be an QueryBuilderModel.
-    if(!($model instanceof QueryBuilderModel)){
+    //Must be an BuilderModel.
+    if(!($model instanceof BuilderModel)){
       throw new \exception\InvalidArgument(
-        'Expecting an instance of SqlQueryBuilderModel. %s given.', typeof($model)
+        'Expecting an instance of SqlBuilderModel. %s given.', typeof($model)
       );
     }
     

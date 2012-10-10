@@ -23,7 +23,7 @@ class Select extends BaseClause
     $content = $this->builder->prepare($column);
     
     //If the content was a model, we'll select all the columns from it I guess..
-    if($column instanceof \classes\sql\QueryBuilderModel){
+    if($column instanceof \classes\sql\BuilderModel){
       $content .= '.*';
     }
     

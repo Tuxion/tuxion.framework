@@ -12,7 +12,7 @@ abstract class BaseClause
     $data=[];
     
   //Set the builder and the type.
-  public function __construct(\classes\sql\QueryBuilder $builder)
+  public function __construct(\classes\sql\Builder $builder)
   {
     
     $this->builder = $builder;

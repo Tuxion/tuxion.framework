@@ -1,6 +1,6 @@
 <?php namespace classes\sql;
 
-class QueryBuilderModel
+class BuilderModel
 {
   
   //Public properties.
@@ -16,7 +16,7 @@ class QueryBuilderModel
     $joins=[];
   
   //Start from here.
-  public function __construct($name, \classes\Component $component, QueryBuilder $builder)
+  public function __construct($name, \classes\Component $component, Builder $builder)
   {
     
     $this->name = $name;
@@ -37,7 +37,7 @@ class QueryBuilderModel
     
   }
   
-  //Return a QueryBuilderColumn object.
+  //Return a BuilderColumn object.
   public function __get($key)
   {
     
@@ -48,11 +48,11 @@ class QueryBuilderModel
       );
     }
     
-    return new QueryBuilderColumn($key, $this);
+    return new BuilderColumn($key, $this);
     
   }
   
-  //Forward calls to the QueryBuilder.
+  //Forward calls to the Builder.
   public function __call($method, $args)
   {
     
@@ -129,8 +129,8 @@ class QueryBuilderModel
   public function addJoin(
     $type,
     self $foreign_model,
-    QueryBuilderColumn $local_column,
-    QueryBuilderColumn $foreign_column
+    BuilderColumn $local_column,
+    BuilderColumn $foreign_column
   ){
     
     $this->joins[] = [

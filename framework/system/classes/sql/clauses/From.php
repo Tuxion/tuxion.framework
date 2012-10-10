@@ -8,7 +8,7 @@ class From extends BaseClause
     $models=[];
     
   //Add a model's table to the from clause.
-  public function addModel(\classes\sql\QueryBuilderModel $model)
+  public function addModel(\classes\sql\BuilderModel $model)
   {
     
     $this->models[] = $model;
@@ -16,7 +16,7 @@ class From extends BaseClause
   }
   
   //Add a model's table to the from clause using a JOIN.
-  public function joinModel(\classes\sql\QueryBuilderModel $foreign, $type = null)
+  public function joinModel(\classes\sql\BuilderModel $foreign, $type = null)
   {
     
     //Get the local model.

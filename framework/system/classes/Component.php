@@ -247,19 +247,19 @@ class Component
     
   }
   
-  //Create a QueryBuilder object which will return the given model when executed.
+  //Create a Builder object which will return the given model when executed.
   public function fetchA($model_name, &$model=null)
   {
     
-    return new sql\QueryBuilder(A, $this, $model_name, $model);
+    return new sql\Builder(A, $this, $model_name, $model);
     
   }
   
-  //Create a QueryBuilder object which will return a Result when executed.
+  //Create a Builder object which will return a Result when executed.
   public function fetchAll($model_name, &$model=null)
   {
     
-    return new sql\QueryBuilder(ALL, $this, $model_name, $model);
+    return new sql\Builder(ALL, $this, $model_name, $model);
     
   }
   

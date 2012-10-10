@@ -1,6 +1,6 @@
 <?php namespace classes\sql;
 
-class QueryBuilderColumn
+class BuilderColumn
 {
   
   //Private properties.
@@ -12,7 +12,7 @@ class QueryBuilderColumn
     $model;
     
   //Construct using a name and a model.
-  public function __construct($name, QueryBuilderModel $model)
+  public function __construct($name, BuilderModel $model)
   {
     
     $this->model = $model;
