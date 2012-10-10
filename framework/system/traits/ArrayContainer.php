@@ -300,6 +300,18 @@ trait ArrayContainer
     
   }
   
+  //Flatten the array and return a flat new self.
+  public function flatten($blank=false)
+  {
+    
+    $return = ($blank ? new \classes\ArrayObject : new $this);
+    
+    $return->set(array_flatten($this->arr));
+    
+    return $return;
+    
+  }
+  
   //Return the arr and optionally any of the arr's in the sub-nodes.
   public function toArray($recursive = true)
   {
