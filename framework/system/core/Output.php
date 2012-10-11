@@ -33,6 +33,7 @@ class Output
     
     //Make the router.
     $router = new \classes\Router(tx('Request')->method(), $path, tx('Request')->data->copy());
+    $router->execute();
 
     //Output! :O
     echo $this->route($router, $mime);

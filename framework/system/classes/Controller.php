@@ -3,7 +3,7 @@
 class Controller
 {
   
-  //protected static properties.
+  //Protected static properties.
   protected static
     $callbacks=[];
   
@@ -23,20 +23,20 @@ class Controller
     
   }
   
-  //protected properties.
+  //Protected properties.
   protected
-    $router,
     $pres=[],
+    $end,
     $posts=[];
     
   //Public properties.
   public
-    $end,
+    $router,
     $type=15,
     $root=false,
     $base=null;
   
-  //The constructor sets the type and base.
+  //The constructor sets the type, root, base and router.
   public function __construct($type=null, $root=false, $base=null, Router $router)
   {
     
@@ -54,7 +54,7 @@ class Controller
   public function pre($description, \Closure $callback)
   {
     
-    $this->pres[] = new \classes\RoutePreProcessor($description, $callback, $this->router);
+    $this->pres[] = new \classes\RoutePreProcessor($description, $callback, $this);
     
     return $this;
     
@@ -99,7 +99,7 @@ class Controller
     }
     
     //Yep.
-    $this->end = new \classes\RouteEndPoint($description, $callback, $this->router);
+    $this->end = new \classes\RouteEndPoint($description, $callback, $this);
     
     //Enable chaining.
     return $this;
@@ -110,7 +110,7 @@ class Controller
   public function post($description, \Closure $callback)
   {
     
-    $this->posts[] = new \classes\RoutePostProcessor($description, $callback, $this->router);
+    $this->posts[] = new \classes\RoutePostProcessor($description, $callback, $this);
     
     return $this;
     

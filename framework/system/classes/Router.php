@@ -175,8 +175,50 @@ class Router
       }
       
       //Are we dealing with a parameter?
-      if($key{0} == '$'){
+      if($key{0} == '$')
+      {
+        
+        //Are we dealing with a character class?
+        if($key{1} == '['
+        && substr($key, -1) == ']'
+        && substr_count($key, '[') == 1
+        && substr_count($key, ']') == 1
+        ){
+          
+          //Test is the value matches the character class.
+          if(preg_match('~^'.substr($key, 1).'+$~', $value) !== 1){
+            return false;
+          }
+          
+        }
+        
+        //Are we dealing with a data-preset?
+        switch(substr($key, 1))
+        {
+          
+          case 'int':
+            if(preg_match('~^[0-9]+$~', $value) !== 1){
+              return false;
+            }
+          break;
+            
+          case 'float':
+            if(preg_match('~^[0-9]+\.[0-9]+$~', $value) !== 1){
+              return false;
+            }
+          break;
+          
+          case 'word':
+            if(preg_match('~^\w+$~', $value) !== 1){
+              return false;
+            }
+          break;
+          
+        }
+        
+        //Add the value to our parameters.
         $parameters[substr($key, 1)] = $value;
+        
       }
       
       //If not, both segments must be the same, or it won't be a match.
@@ -208,7 +250,7 @@ class Router
     $path,
     $endpoint;
   
-  //The constructor will start routing straight away.
+  //The constructor will set some properties.
   public function __construct($type, $path, DataBranch $input)
   {
     
@@ -217,9 +259,6 @@ class Router
     
     //Clean the path.
     $this->path = self::cleanPath($path);
-    
-    //Enter a log entry.
-    tx('Log')->message($this, 'started routing', $this->path);
     
     //Split the path into segments, and put them in the future.
     $this->future = explode('/', $this->path);
@@ -230,25 +269,41 @@ class Router
     //Set the output.
     $this->output = Data([]);
     
+  }
+  
+  //Do the actual routing.
+  public function execute()
+  {
+    
+    //Enter a log entry.
+    tx('Log')->message($this, 'started routing', $this->path);
+    
     //Start routing.
     while($this->state < 30)
     {
       
+      //Preprocessing state.
       if($this->state < 10){
         $this->preProcess();
       }
       
+      //Endpoint processing state.
       elseif($this->state < 20){
         $this->endPoint();
       }
       
+      //Post-processing state.
       else{
         $this->postProcess();
       }
       
     }
+    
     //Enter a log entry.
     tx('Log')->message($this, 'finished routing', $this->path);
+    
+    //Enable chaining.
+    return $this;
     
   }
   
@@ -473,6 +528,7 @@ class Router
       
       //Load a resource.
       case 5:
+        #TODO: Load a resource of .htaccess failed.
         throw new \exception\Programmer('Not implemented yet.');
         break;
       

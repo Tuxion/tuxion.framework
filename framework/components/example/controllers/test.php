@@ -40,10 +40,10 @@ c(GET, 'test')->end('Loading the test page.', function(){
   
 // });
 
-c(GET, 'test/$input')->end('Testing something.', function($input){
+c(GET, 'test/$int')->end('Testing something.', function($input){
   
   $this->output->set([
-    'foo' => 'bar',
+    'foo' => 'int',
     'nyerk' => $input
   ]);
   

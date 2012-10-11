@@ -22,19 +22,33 @@ class Render
   public function request($path, DataBranch $data = null)
   {
     
-    $router = new Router(tx('Request')->method(), $path, is_null($data) ? Data([]) : $data);
-    $ext = $router->getExt();
+    //Set the default mime.
+    $mime = $this->mime;
     
-    //If we have an explicit extension, we will try to return the data in that format.
-    if($ext){
-      $mime = tx('Mime')->getMime($ext);
+    //Try to execute the router.
+    try{
+      
+      //Do some routing.
+      $router = new Router(tx('Request')->method(), $path, is_null($data) ? Data([]) : $data);
+      $router->execute();
+      
+      //Get the extension.
+      $ext = $router->getExt();
+      
+      //If we have an explicit extension, we will try to return the data in that format.
+      if($ext){
+        $mime = tx('Mime')->getMime($ext);
+      }
+      
     }
     
-    //Otherwise we will use the mime-type that we are already using for this template.
-    else{
-      $mime = $this->mime;
+    //The router failed to load. Instead of completely exploding, we will just ignore this module.
+    catch(\exception\Exception $e){
+      $e = new \exception\Programmer('Failed to load module: "%s" because: %s', $path, $e->getMessage());
+      return (new self)->setMime($mime)->generateError($e)->getOutput();
     }
-
+    
+    //Everything was alright. Load the module.
     return ((new self)
       ->setMime($mime)
       ->setTemplate($router->inner_template)
@@ -140,13 +154,15 @@ class Render
   private function findTemplate()
   {
     
-    # code...
+    #TODO: Implement the findTemplate method.
     
   }
   
   //Generate output based on an exception.
-  public function generateError($e)
+  public function generateError(\exception\Exception $e)
   {
+    
+    #TODO: Crete proper output based on debug mode.
     
     $this->output = $e->getMessage();
     $this->output .= "<br />";
@@ -167,8 +183,10 @@ class Render
       );
     }
     
+    //Set.
     $this->mime = $mime;
     
+    //Enable chaining.
     return $this;
     
   }

@@ -44,6 +44,9 @@ class RoutePreProcessor extends RouteProcessor
     //Reiterate the run callbacks blocks.
     \classes\Controller::rerun();
     
+    //Enable chaining.
+    return $this;
+    
   }
   
   //Method description.
