@@ -5,54 +5,7 @@ class Controller
   
   //protected static properties.
   protected static
-    $controllers=[],
     $callbacks=[];
-  
-  //Return all controllers with optional filtering.
-  public static function controllers()
-  {
-    
-    //No filters.
-    if(func_num_args() == 0){
-      return self::$controllers;
-    }
-    
-    //Prepare variables.
-    Router::handleArguments(func_get_args(), $type, $path);
-    $matches = [];
-    
-    //Iterate our controllers to filter them down.
-    foreach(self::$controllers as $controller)
-    {
-      
-      //Should we filter on path?
-      if(!is_null($path)){
-        
-        //Needs to be an exact match.
-        if(substr_count($path, '/') !== substr_count($controller->base, '/')){
-          continue;
-        }
-        
-        //If the path doesn't match.
-        if(Router::matchPath($controller->base, $path)===false){
-          continue;
-        }
-        
-      }
-      
-      //Should we filter on type?
-      if(!is_null($type) && !checkbit($type, $controller->type)){
-        continue;
-      }
-      
-      //Filters passed. Add to results.
-      $matches[] = $controller;
-      
-    }
-    
-    return $matches;
-    
-  }
   
   //Reiterate the uncalled callbacks.
   public static function rerun()
@@ -84,18 +37,16 @@ class Controller
     $base=null;
   
   //The constructor sets the type and base.
-  public function __construct($type=null, $root=false, $base=null)
+  public function __construct($type=null, $root=false, $base=null, Router $router)
   {
     
     $this->base = $base;
     $this->root = $root;
+    $this->router = $router;
     
     if(is_int($type)){
       $this->type = $type;
     }
-    
-    $key = "{$this->type}:{$this->base}";
-    self::$controllers[$key] = $this;
     
   }
   
@@ -248,19 +199,24 @@ class Controller
     //Set type to default.
     $type = (is_null($type) ? $this->type : $type);
     
+    //A sub-controller with a type that doesn't fit in the parent controller will never work.
+    if(!checkbit($type, $this->type)){
+      throw new \exception\Programmer(
+        'You made a sub-controller with type %s in a parent controller with type %s.',
+        $type, $this->type
+      );
+    }
+    
     //Make the path full.
     $path = $this->fullPath($path);
     
-    //Make the key.
-    $key = "$type:$path";
-    
-    //See if this controller has been defined before.
-    if(array_key_exists($key, self::$controllers)){
-      return self::$controllers[$key];
-    }
-    
     //Make the controller.
-    $r = (new $this($type, false, $path))->setRouter($this->router);
+    $r = (new $this($type, false, $path, $this->router));
+    
+    //Add the controller to the router.
+    if($r->active()){
+      $this->router->addController($r);
+    }
     
     //Return the controller.
     return $r;
@@ -289,20 +245,7 @@ class Controller
   public function active()
   {
     
-    if(!($this->router instanceof Router)){
-      throw new \exception\Unexpected('No router set in this controller.');
-    }
-    
     return $this->router->match($this->type, $this->base);
-    
-  }
-  
-  //Set the router.
-  public function setRouter(Router $router)
-  {
-    
-    $this->router = $router;
-    return $this;
     
   }
   

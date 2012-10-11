@@ -195,7 +195,8 @@ class Router
   private
     $state=0,
     $history=[],
-    $fututre=[];
+    $fututre=[],
+    $controllers=[];
   
   //Public properties.
   public
@@ -390,7 +391,7 @@ class Router
       tx('Log')->message($this, 'preprocessing route', $path);
       
       //call the processors.
-      foreach(Controller::controllers($this->type, $path) as $con){
+      foreach($this->getControllers($path) as $con){
         $con->callPres($this->input, $this->params($con->base));
       }
       
@@ -486,8 +487,8 @@ class Router
     //Enter a log entry.
     tx('Log')->message($this, 'processing endpoint', $this->type.':'.$this->path);
     
-    //Get the controllers that match the endpoint.
-    $controllers = Controller::controllers($this->type, $this->path);
+    //Get the controllers.
+    $controllers = $this->getControllers();
     
     //Get the controllers with an endpoint.
     foreach($controllers as $key => $con){
@@ -582,7 +583,7 @@ class Router
     //Walk through the history of routes in reversed order and execute their postProcessors.
     foreach(array_reverse($routes) as $path){
       tx('Log')->message($this, 'postprocessing route', $path);
-      foreach(Controller::controllers($this->type, $path) as $con){
+      foreach($this->getControllers($path) as $con){
         $con->callPosts($this->input, $this->output, $this->params($con->base));
       }
     }
@@ -628,7 +629,7 @@ class Router
       
       //Load the controllers of this component.
       tx('Log')->message($this, 'loading controllers', $com->title);
-      $com->loadControllers($this);
+      $this->addControllers($com->loadControllers($this));
       
       //Load the controllers of components extending this component.
       $com->getExtendingComponents()->each(function($com)use(&$loadControllers){
@@ -661,6 +662,80 @@ class Router
     //Reroute to the alias.
     $this->reroute($result[0]->value, true);
     $this->state = 0;
+    
+  }
+  
+  //Add more controllers to our controllers.
+  public function addControllers(array $controllers)
+  {
+    
+    //Add them one by one.
+    foreach($controllers as $controller){
+      $this->addController($controller);
+    }
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Add a controller to our array of controllers.
+  public function addController(Controller $controller)
+  {
+    
+    //Get type and path.
+    $type = $controller->type;
+    $path = $controller->base;
+    
+    //We don't need controllers with the wrong type.
+    if(!checkbit($this->type, $type)){
+      throw new \exception\InvalidArgument(
+        'We can not use a controller with type %s. We are type %s.', $type, $this->type
+      );
+    }
+    
+    //Add this path.
+    if(!array_key_exists($path, $this->controllers)){
+      $this->controllers[$path] = [];
+    }
+    
+    //Add the controller.
+    $this->controllers[$path][] = $controller;
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Get the controllers stored under the given path.
+  public function getControllers($path=null)
+  {
+    
+    //Prepare variables.
+    $path = (is_null($path) ? $this->path : $path);
+    $result = [];
+    
+    //Iterate our controllers to filter them down.
+    foreach($this->controllers as $base => $controllers)
+    {
+      
+      //Needs to be an exact match.
+      if(substr_count($base, '/') !== substr_count($path, '/')){
+        continue;
+      }
+      
+      //If the path doesn't match.
+      if(self::matchPath($base, $path)===false){
+        continue;
+      }
+      
+      //Filters passed. Add to results.
+      $result = array_merge($result, $controllers);
+      
+    }
+    
+    //Output.
+    return $result;
     
   }
   

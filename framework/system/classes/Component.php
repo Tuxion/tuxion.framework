@@ -118,16 +118,19 @@ class Component
     
   }
   
-  //Load all controllers in this component, so that they may fill their Route objects.
+  //Load all controllers in this component, so that they may fill their Controller objects.
   public function loadControllers(Router $router)
   {
     
     //Glob the files!
     $files = files($this->getPath().'/controllers/*.php');
     
+    //No controllers yet.
+    $controllers = [];
+    
     //No files? No nothing!
     if(empty($files)){
-      return $this;
+      return $controllers;
     }
     
     //Make a restore point.
@@ -142,13 +145,10 @@ class Component
         null,
         'com',
         "com/{$this->name}",
+        $router,
         $this,
         basename($file, '.php')
-      ))
-      
-      //Set the router in the controller object.
-      ->setRouter($router);
-      
+      ));
       
       //Log.
       tx('Log')->message(
@@ -162,6 +162,9 @@ class Component
       
       //Include the controller files.
       require($file);
+      
+      //Add to the controllers array.
+      $controllers[] = $controller;
     
     }
     
@@ -169,7 +172,7 @@ class Component
     c($c);
     
     //Enable chaining.
-    return $this;
+    return $controllers;
     
   }
   

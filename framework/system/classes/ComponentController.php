@@ -9,10 +9,10 @@ class ComponentController extends Controller
     $filename;
     
   //Set all the properties.
-  public function __construct($type, $root, $base, Component $com, $filename)
+  public function __construct($type, $root, $base, Router $router, Component $com, $filename)
   {
     
-    parent::__construct($type, $root, $base);
+    parent::__construct($type, $root, $base, $router);
     $this->component = $com;
     $this->filename = $filename;
     
@@ -37,19 +37,24 @@ class ComponentController extends Controller
     //Set type to default.
     $type = (is_null($type) ? $this->type : $type);
     
+    //A sub-controller with a type that doesn't fit in the parent controller will never work.
+    if(!checkbit($type, $this->type)){
+      throw new \exception\Programmer(
+        'You made a sub-controller with type %s in a parent controller with type %s.',
+        $type, $this->type
+      );
+    }
+    
     //Make the path full.
     $path = $this->fullPath($path);
     
-    //Make the key.
-    $key = "$type:$path";
-    
-    //See if this controller has been defined before.
-    if(array_key_exists($key, self::$controllers)){
-      return self::$controllers[$key];
-    }
-    
     //Make the controller.
-    $r = (new $this($type, false, $path, $this->component, $this->filename))->setRouter($this->router);
+    $r = (new $this($type, false, $path, $this->router, $this->component, $this->filename));
+    
+    //Add it to the router.
+    if($r->active()){
+      $this->router->addController($r);
+    }
     
     //Return the controller.
     return $r;
