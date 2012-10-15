@@ -18,15 +18,6 @@ class ComponentController extends Controller
     
   }
   
-  //Set the component.
-  public function setComponent(Component $com)
-  {
-    
-    $this->component = $com;
-    return $this;
-    
-  }
-  
   //Return a new controller, having it's base set at the given path relative to the base of this controller.
   public function getSubController()
   {
@@ -58,15 +49,6 @@ class ComponentController extends Controller
     
     //Return the controller.
     return $r;
-    
-  }
-  
-  //Check the database to see if this end may overwrite the previous.
-  public function end()
-  {
-    
-    #TODO: Check the database to see if this end may overwrite the previous.
-    return call_user_func_array('parent::end', func_get_args());
     
   }
   

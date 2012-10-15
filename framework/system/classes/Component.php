@@ -14,11 +14,18 @@ class Component
   //Try to find and return the component that could be identified with given identifier.
   public static function get($id, ArrayObject $cinfo=null)
   {
-
+    
+    //Somehow got back here?
+    if($id instanceof self){
+      return $id;
+    }
+    
+    //Look in cache.
     if(array_key_exists($id, self::$instances)){
       return self::$instances[$id];
     }
     
+    //no custom info given? Fill with database info.
     if(is_null($cinfo))
     {
     
@@ -35,8 +42,10 @@ class Component
     
     }
     
+    //Create the instance.
     self::$instances[$cinfo->id] = self::$instances[$cinfo->name] = $c = new self($cinfo);
     
+    //Return the instance.
     return $c;
     
   }

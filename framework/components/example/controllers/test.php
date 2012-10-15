@@ -12,14 +12,22 @@ c()
 
 ;
 
-c(GET, 'test')->end('Loading the test page.', function(){
+c(GET, 'test')
+
+->pre('Checking for permissions.', function(){
+  $this->permissions('eat_pie');
+})
+
+->end('Loading the test page.', function(){
   
   $this->output->set([
     'foo' => 'Test page!',
     'nyerk' => 'add another segment to the url'
   ]);
   
-})->post('Adding some stuff.', function(){
+})
+
+->post('Adding some stuff.', function(){
   
   $nyerk = $this->output->nyerk;
   

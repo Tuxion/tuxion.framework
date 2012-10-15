@@ -128,14 +128,19 @@ class Controller
   public function callPres(DataBranch $input, array $params)
   {
     
+    //This array will gather the called UserFunc objects.
+    $called = [];
+    
+    //Execute every preprocessor.
     foreach($this->pres as $pre){
       $pre->setProperties(['input' => $input]);
       $pre->setarguments($params);
       $pre->controller = $this;
-      $pre->execute();
+      $called[] = $pre->execute();
     }
     
-    return $this;
+    //Return the UserFunc objects.
+    return $called;
     
   }
   
@@ -148,15 +153,11 @@ class Controller
       throw new \exception\Programmer('No endpoint to call.');
     }
       
-    $this->end->setProperties([
-      'input' => $input,
-      'output' => $output
-    ]);
+    $this->end->setProperties(['input' => $input, 'output' => $output]);
     $this->end->setarguments($params);
     $this->end->controller = $this;
-    $this->end->execute();
     
-    return $this;
+    return $this->end->execute();
   
   }
   
@@ -164,20 +165,19 @@ class Controller
   public function callPosts(DataBranch $input, DataBranch $output, array $params)
   {
     
-    foreach($this->posts as $post)
-    {
-      
-      $post->setProperties([
-        'input' => $input,
-        'output' => $output
-      ]);
+    //This array will gather the called UserFunc objects.
+    $called = [];
+    
+    //Execute every post-processor.
+    foreach($this->posts as $post){
+      $post->setProperties(['input' => $input, 'output' => $output]);
       $post->setarguments($params);
       $post->controller = $this;
-      $post->execute();
-      
+      $called[] = $post->execute();
     }
     
-    return $this;
+    //Return the UserFunc objects.
+    return $called;
     
   }
   

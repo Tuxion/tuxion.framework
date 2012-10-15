@@ -49,11 +49,48 @@ class RoutePreProcessor extends RouteProcessor
     
   }
   
-  //Method description.
+  //Throw an Authorization exception when the user does not have one of the given permissions.
   public function permissions()
   {
     
-    # code...
+    //Handle arguments.
+    $permissions = array_flatten(func_get_args());
+    
+    //Here we will gather the failed permissions.
+    $failed = [];
+    
+    //Iterate.
+    foreach($permissions as $permission)
+    {
+      
+      //Check if the user has this permission.
+      if(tx('User')->hasPermission($this->controller->component, $permission)){
+        continue;
+      }
+      
+      //The user does not have this permission. Add it to the failed-array.
+      $failed[] = $permission;
+      
+    }
+    
+    //Did any permissions fail?
+    if(count($failed) > 0)
+    {
+      
+      //Create the friendly exception message.
+      if(false){
+        #TODO: Check database for permission description.
+      }
+      
+      //Create the less friendly exception message.
+      else{
+        throw new \exception\Authorization("You do not have the following permissions: %s", implode(', ', $permissions));
+      }
+      
+    }
+    
+    //Enable chaining.
+    return $this;
     
   }
 

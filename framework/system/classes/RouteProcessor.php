@@ -119,7 +119,7 @@ abstract class RouteProcessor
     echo $func->output;
     
     //Enable chaining.
-    return $this;
+    return $func;
     
   }
   

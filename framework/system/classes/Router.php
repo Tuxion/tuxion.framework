@@ -445,9 +445,29 @@ class Router
       //Enter a log entry.
       tx('Log')->message($this, 'preprocessing route', $path);
       
-      //call the processors.
-      foreach($this->getControllers($path) as $con){
-        $con->callPres($this->input, $this->params($con->base));
+      //For every controller.
+      foreach($this->getControllers($path) as $con)
+      {
+        
+        //Call the preprocessors and gather their UserFunc objects.
+        $called = $con->callPres($this->input, $this->params($con->base));
+        
+        //Iterate the UserFuncs.
+        foreach($called as $func)
+        {
+          
+          //Detect if it failed. If it did; ABORT!
+          if(!$func->success){
+            
+            #TODO: Handle the exception better.
+            throw new \exception\NotFound('Failed to load. %s', $func->getUserMessage());
+            
+            //$this->state = 30;
+            //return;
+          }
+          
+        }
+        
       }
       
       //Remember

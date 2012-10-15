@@ -19,6 +19,7 @@ class Permissions
     
   }
   
+  //Return the value of the given permission for the given user.
   public function getUserPermission($user_id, $component, $key)
   {
     
@@ -44,7 +45,11 @@ class Permissions
       
       //If the value is still null, something went wrong.
       if(is_null($cache[$cinfo->id][$key])){
-        throw new \exception\NotFound('Error reading permission-cache: "%s" was not found even though user(%s) permissions for "%s" have been cached.', $key, $user_id, $cinfo->title);
+        throw new \exception\NotFound(
+          'Error reading permission-cache: "%s" was not found even though user(%s) '.
+          'permissions for "%s" have been cached.',
+          $key, $user_id, $cinfo->title
+        );
       }
       
       //The permission exists in the cache. Return it.
@@ -53,9 +58,12 @@ class Permissions
     }
     
     //If the cache didn't exist yet, we will fetch it.
-    $permissions = tx('Sql')->exe('SELECT `key` FROM `#system_component_permissions` WHERE `component_id` = ?i', $cinfo->id)->map(function($row){
+    $permissions = tx('Sql')->exe(
+      'SELECT `key` FROM `#system_component_permissions` WHERE `component_id` = ?i',
+      $cinfo->id
+    )->map(function($row){
       return $row->key;
-    })->toArray();
+    }, true)->toArray();
     
     //And put its results as unset keys in our cache array.
     $cache[$cinfo->id] = array_fill_keys($permissions, null);
@@ -83,10 +91,11 @@ class Permissions
     });
     
     //And then retry.
-    return $this->getUserPermission($user_id, $cinfo->id, $key);
+    return $this->getUserPermission($user_id, $cinfo, $key);
     
   }
   
+  //Return the value for the given permission for guests.
   public function getGuestPermission($component, $key)
   {
     
@@ -106,8 +115,12 @@ class Permissions
       }
       
       //If the value is still null, something went wrong.
-      if(in_null($key, $cache[$cinfo->id])){
-        throw new \exception\NotFound('Error reading permission-cache: "%s" was not found even though guest permissions for "%s" have been cached.', $key, $cinfo->title);
+      if(is_null($cache[$cinfo->id][$key])){
+        throw new \exception\NotFound(
+          'Error reading permission-cache: "%s" was not found even though guest '.
+          'permissions for "%s" have been cached.',
+          $key, $cinfo->title
+        );
       }
       
       //The permission exists in the cache. Return it.
@@ -116,18 +129,24 @@ class Permissions
     }
     
     //If the cache didn't exist yet, we will fetch it.
-    $permissions = tx('Sql')->exe('SELECT `key` FROM `#system_component_permissions` WHERE `component_id` = ?i', $cinfo->id)->map(function($row){
+    $permissions = tx('Sql')->exe(
+      'SELECT `key` FROM `#system_component_permissions` WHERE `component_id` = ?i',
+      $cinfo->id
+    )->map(function($row){
       return $row->key;
-    })->toArray();
+    }, true)->toArray();
     
     //And put its results as unset keys in our cache array.
-    $cache[$cinfo->id] = array_fill_keys($permissions, null);
+    $cache[$cinfo->id] = array_fill_keys($permissions, false);
     
     //Make a reference to the guest cache.
     $guest_cache =& $cache[$cinfo->id];
     
     //Fetch role permissions.
-    $roles = tx('Sql')->exe('SELECT * FROM `#system_roles` WHERE `is_guest_role` = 1 AND `component_id` = ?i', $cinfo->id);
+    $roles = tx('Sql')->exe(
+      'SELECT * FROM `#system_roles` WHERE `is_guest_role` = 1 AND `component_id` = ?i',
+      $cinfo->id
+    );
     
     //Check for errors.
     if($roles->num() > 1){
@@ -139,7 +158,10 @@ class Permissions
     {
       
       //Fetch the actual permissions.
-      $role_permissions = tx('Sql')->exe('SELECT * FROM `#system_permissions_role` WHERE role_id = ?i', $roles[0]->id);
+      $role_permissions = tx('Sql')->exe(
+        'SELECT * FROM `#system_permissions_role` WHERE role_id = ?i',
+        $roles[0]->id
+      );
       
       //If there were, add them to the cache.
       $role_permissions->each(function($row)use(&$guest_cache){
@@ -149,19 +171,22 @@ class Permissions
     }
     
     //Now fetch guest permissions.
-    $guest_permissions = tx('Sql')->exe('SELECT * FROM `#system_permissions_guest` WHERE `component_id` = ?i', $cinfo->id);
+    $guest_permissions = tx('Sql')->exe(
+      'SELECT * FROM `#system_permissions_guest` WHERE `component_id` = ?i', $cinfo->id
+    );
     
     //And add those to the cache.
     $guest_permissions->each(function($row)use(&$guest_cache){
-      $guest_cache[$row->key] = $row->value;
+      $guest_cache[$row->key] = ($row->value > 0);
     });
     
     //Then retry.
-    return $this->getGuestPermission($cinfo->id, $key);
+    return $this->getGuestPermission($cinfo, $key);
     
   }
   
-  private function calculateUserPermissions($user_id, $component_id, $key = null)
+  //Calculate the outcome of permissions in a specific component for a given user.
+  private function calculateUserPermissions($user_id, $component_id)
   {
     
     //Get a reference to component info for pretty errors.
@@ -173,7 +198,9 @@ class Permissions
       //Get permissions for the global group role.
       ['SELECT `key`, `value`
         FROM `#system_permissions_role` AS `pr`
-        WHERE `role_id` = (SELECT `id` FROM `#system_roles` WHERE `is_user_global_role` = 1 AND `component_id` = ?i)',
+        WHERE `role_id` = (
+          SELECT `id` FROM `#system_roles` WHERE `is_user_global_role` = 1 AND `component_id` = ?i
+        )',
         $component_id
       ],
       
@@ -189,7 +216,9 @@ class Permissions
         FROM `#system_permissions_role` AS `pr`
         INNER JOIN `#system_roles_to_user_groups` AS `rtug` ON `pr`.`role_id` = `rtug`.`role_id`
         INNER JOIN `#system_roles` AS `r` ON `pr`.`role_id` = `r`.`id`
-        WHERE `rtug`.`user_group_id` IN (SELECT `user_group_id` FROM `#system_user_to_user_groups` WHERE `user_id` = ?i)
+        WHERE `rtug`.`user_group_id` IN (
+          SELECT `user_group_id` FROM `#system_user_to_user_groups` WHERE `user_id` = ?i
+        )
         AND `r`.`component_id` = ?i',
         $user_id, $component_id
       ],
@@ -197,7 +226,9 @@ class Permissions
       //Get permissions for every group that the user is a member of.
       ['SELECT `key`, `value`
         FROM `#system_permissions_user_group` AS `pug`
-        WHERE `pug`.`user_group_id` IN (SELECT `user_group_id` FROM `#system_user_to_user_groups` WHERE `user_id` = ?i)
+        WHERE `pug`.`user_group_id` IN (
+          SELECT `user_group_id` FROM `#system_user_to_user_groups` WHERE `user_id` = ?i
+        )
         AND `component_id` = ?i',
         $user_id, $component_id
       ],
@@ -217,7 +248,9 @@ class Permissions
         FROM `#system_permissions_user_group` AS `pug`
         INNER JOIN `#system_user_to_user_groups` AS `utug` ON `pug`.`id` = `utug`.`user_group_id`
         INNER JOIN `#system_users` AS `u` ON `utug`.`user_id` = `u`.`id`
-        WHERE `u`.`default_group_id` = `pug`.`user_group_id` AND `utug`.`user_id` = ?i AND `pug`.`component_id` = ?i',
+        WHERE `u`.`default_group_id` = `pug`.`user_group_id` 
+          AND `utug`.`user_id` = ?i
+          AND `pug`.`component_id` = ?i',
         $user_id, $component_id
       ],
       
@@ -231,11 +264,13 @@ class Permissions
       ],
       
       //Get user-specific permissions.
-      ['SELECT `key`, `value` FROM `#system_permissions_user` WHERE `user_id` = ?i AND `component_id` = ?i', $user_id, $component_id]
+      ['SELECT `key`, `value` FROM `#system_permissions_user` WHERE `user_id` = ?i AND `component_id` = ?i',
+        $user_id, $component_id
+      ]
     
     ];
     
-    $results = $results = tx('Sql')->queries($queries);
+    $results = tx('Sql')->queries($queries);
     $permissions = [];
     
     //Merge the global role permissions with the global permissions.
@@ -335,12 +370,18 @@ class Permissions
       
       //Still a permission conflict? We must ABORT!!
       if($value == -2){
-        throw new \exception\PermissionConflict('An unresolved YES/NO conflict occurred with the "%s" permission in %s for user %s.', $key, $cinfo->title, $user_id);
+        throw new \exception\PermissionConflict(
+          'An unresolved YES/NO conflict occurred with the "%s" permission in %s for user %s.',
+          $key, $cinfo->title, $user_id
+        );
       }
       
       //Still a permission conflict? We must ABORT!!
       elseif($value == -3){
-        throw new \exception\PermissionConflict('An unresolved ALWAYS/NEVER conflict occurred with the "%s" permission in %s for user %s.', $key, $cinfo->title, $user_id);
+        throw new \exception\PermissionConflict(
+          'An unresolved ALWAYS/NEVER conflict occurred with the "%s" permission in %s for user %s.',
+          $key, $cinfo->title, $user_id
+        );
       }
       
       //Cast to boolean.
@@ -353,17 +394,22 @@ class Permissions
     
   }
   
+  //Return the cache as it stands in the database.
   private function readCache($user_id, $component_id)
   {
     
-    return tx('Sql')->exe('SELECT * FROM `#system_permission_cache` WHERE `user_id` = ?i AND `component_id` = ?i', $user_id, $component_id);
+    return tx('Sql')->exe(
+      'SELECT * FROM `#system_permission_cache` WHERE `user_id` = ?i AND `component_id` = ?i',
+      $user_id, $component_id
+    );
     
   }
   
+  //Write the database cache.
   private function writeCache($user_id, $component_id, $data)
   {
   
-  
+    #TODO: Create the writeCache method.
   
   }
   
