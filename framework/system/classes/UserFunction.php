@@ -52,8 +52,8 @@ class UserFunction
       switch($this->exception->getExCode())
       {
         
-        case EX_AUTHORISATION:
-          $message = 'Failed to authorise while %s: %s';
+        case EX_AUTHORIZATION:
+          $message = 'Failed to authorize while %s: %s';
           break;
       
         case EX_VALIDATION:

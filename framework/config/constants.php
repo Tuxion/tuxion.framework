@@ -13,7 +13,7 @@ return [
   'ex_exception'          => 0b0000000000000000010,
   'ex_expected'           => 0b0000000000000000100,
   'ex_unexpected'         => 0b0000000000000001000,
-  'ex_authorisation'      => 0b0000000000000010000,
+  'ex_authorization'      => 0b0000000000000010000,
   'ex_configuration'      => 0b0000000000000100000,
   'ex_emptyresult'        => 0b0000000000001000000,
   'ex_validation'         => 0b0000000000010000000,
