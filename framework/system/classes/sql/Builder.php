@@ -391,7 +391,11 @@ class Builder
   public function functionFactory(&$factory)
   {
     
-    #TODO: Create the functionFactory method.
+    //Create the factory.
+    $factory = new BuilderFunctionFactory($this);
+    
+    //Enable chaining.
+    return $this;
     
   }
   
@@ -400,7 +404,7 @@ class Builder
   ##
   
   //Detect what kind of input has been given and use it to create a string usable by the query.
-  public function prepare($input)
+  public function prepare($input, &$data=null)
   {
     
     //This just stays untouched.
@@ -438,8 +442,15 @@ class Builder
       
     }
     
-    //Get the string of a condition or function.
-    if($input instanceof BuilderCondition || $input instanceof BuilderFunction){
+    //Get the string of a condition.
+    if($input instanceof BuilderCondition){
+      return $input->getString();
+    }
+    
+    //Get the string and data from Functions.
+    if($input instanceof BuilderFunction){
+      #TODO: Handle this data.
+      $data = $input->getData();
       return $input->getString();
     }
     
