@@ -53,7 +53,7 @@ class RoutePreProcessor extends RouteProcessor
   public function permissions()
   {
     
-    # code...
+    #TODO: Create the permissions method.
     
   }
 
