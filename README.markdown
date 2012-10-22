@@ -4,16 +4,16 @@
 
 These are the beginnings of what's going to be a framework to develop advanced
 web-applications with. It will have a robust MVC framework written in PHP on the
-serverside, focussing on routing, permissions and an API friendly to the programmer.
-It will have a simple yet strong Javascript/jQuery framework on the clientside, offering
-an API which simplifies communication with the server and creating clientside MVC
+server-side, focusing on routing, permissions and an API friendly to the programmer.
+It will have a simple yet strong Javascript/jQuery framework on the client-side, offering
+an API which simplifies communication with the server and creating client-side MVC
 structures.
 
 ## Authors
 
 ### Aldwin "[Avaq](https://github.com/Avaq)" Vlasblom
 
-PHP and Javascript programmer.
+PHP and JavaScript programmer.
 
 ## License
 
