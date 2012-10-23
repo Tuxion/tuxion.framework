@@ -12,7 +12,7 @@ class Limit extends BaseClause
   public function setLimit($input)
   {
     
-    return $this->_set('limit', $input, 0);
+    return $this->limit = $this->prepare($input);
     
   }
   
@@ -20,7 +20,7 @@ class Limit extends BaseClause
   public function setOffset($input)
   {
     
-    return $this->_set('offset', $input, 1);
+    return $this->offset = $this->prepare($input);
     
   }
   
@@ -32,38 +32,27 @@ class Limit extends BaseClause
     
   }
   
-  //Used internally to reuse code.
-  private function _set($key, $input, $datakey)
+  //Extend the prepare method to check if input is numeric.
+  public function prepare($input)
   {
     
+    //Prepare.
+    $prepared = parent::prepare($input, $data);
     
-    //Prepare the input.
-    $prepared = $this->builder->prepare($input);
-    
-    //If the input was a string, store it in the data.
-    if($prepared === false)
-    {
+    //Check for data.
+    if(empty($data)){
+      return $prepared;
+    }
       
-      //It must be numeric.
-      if(!is_numeric($input)){
-        throw new \exception\InvalidArgument(
-          'Expecting $input to be numeric. Non-numeric value (%s) given.', $input
-        );
-      }
-      
-      //Set
-      $this->{$key} = '?';
-      $this->data[$datakey] = $input;
-      
+    //We want a single numeric value.
+    if(count($data) > 1 || is_numeric($data[0])){
+      throw new \exception\InvalidArgument(
+        'Expecting a single numeric value. "%s" given.', implode('" and "', $data)
+      );
     }
     
-    //Otherwise use the prepared input.
-    else{
-      $this->{$key} = $prepared;
-    }
-    
-    //Enable chaining.
-    return $this;
+    //OK now.
+    return $prepared;
     
   }
   

@@ -19,15 +19,6 @@ abstract class Grourder extends BaseClause
   public function by($input, $direction=null)
   {
     
-    //Prepare the input.
-    $prepared = $this->builder->prepare($input);
-    
-    //If input was a string, add it to our data.
-    if($prepared === false){
-      $prepared = '?';
-      $this->data[] = $input;
-    }
-    
     //Convert directions.
     if(is_int($direction)){
       $directions = [-1 => 'DESC', 0 => null, 1 => 'ASC'];
@@ -38,7 +29,7 @@ abstract class Grourder extends BaseClause
     $direction = (is_null($direction) ? '' : " $direction");
     
     //Add it to the clause.
-    $this->by[] = "$prepared$direction";
+    $this->by[] = $this->prepare($input).$direction;
     
   }
   

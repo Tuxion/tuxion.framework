@@ -140,7 +140,7 @@ class Query
     $query = $this->getRawQuery($conn);
     $data = $this->data;
     
-    //Replace occurences of # with the database prefix used in this connection.
+    //Replace occurrences of # with the database prefix used in this connection.
     $query = str_replace('#', $conn->config->prefix, $this->query);
     
     //Put data in query.

@@ -41,6 +41,10 @@ class Builder
     $model = $this->addModel($model_name);
     $this->main_model = $this->working_model = $model;
     
+    //Add the model to the SELECT and the FROM clauses.
+    $this->clause('select')->addColumn($model);
+    $this->clause('from')->addModel($model);
+    
   }
   
   
@@ -109,16 +113,6 @@ class Builder
     //And the empty array that will grow up together with query.
     $data = [];
     
-    //We must have a select clause by now. If we don't we select everything.
-    if(!$this->hasClause('select')){
-      $this->clause('select')->addColumn('*');
-    }
-    
-    //We must have a from clause. If we don't we select from the main model.
-    if(!$this->hasClause('from')){
-      $this->clause('from')->addModel($this->main_model);
-    }
-    
     //A list of all mySQL clauses in the order of markup.
     $clauses = ['select', 'from', 'where', 'group', 'having', 'order', 'limit', 'procedure', 'into', 'for'];
     
@@ -167,19 +161,14 @@ class Builder
   public function add($model_name, &$model=null)
   {
     
-    //Is a component name given?
-    if(substr_count($model_name, '.') == 1){
-      list($component, $model_name) = explode('.', $model_name);
-      $component = \classes\Component::get($component);
-    }
-    
-    //Nope.
-    else{
-      $component = null;
-    }
+    //Get the component name and the model name from the key.
+    list($component_name, $model_name) = (substr_count($model, '.') == 1 
+      ? explode('.', $model)
+      : [$this->working_model->getComponent()->name, $model]
+    );
     
     //Fill the referenced model variable.
-    $model = $this->addModel($model_name, $component);
+    $model = $this->addModel($model_name, \classes\Component::get($component_name));
     
     //Enable chaining.
     return $this;
@@ -224,7 +213,10 @@ class Builder
   public function from($model, &$class=null)
   {
     
-    #TODO: Use a utility function to handle string input
+    //Convert string to actual model first?
+    if(is_string($model)){
+      $this->add($model, $model);
+    }
     
     //Add to the clause.
     $this->clause('from')->addModel($model);
@@ -241,21 +233,9 @@ class Builder
   public function join($model, $type = null, &$class=null)
   {
     
-    #TODO: Put in utility method
-    #TODO: Use present models
-    //We can give the model as a string to internally call addModel.
-    if(is_string($model))
-    {
-      
-      //Get the component name and the model name from the key.
-      list($component_name, $model_name) = (substr_count($model, '.') == 1 
-        ? explode('.', $model)
-        : [$this->working_model->getComponent()->name, $model]
-      );
-      
-      //Create the model.
-      $model = $this->addModel($model_name, \classes\Component::get($component_name));
-      
+    //Convert string to actual model first?
+    if(is_string($model)){
+      $this->add($model, $model);
     }
     
     //We must now have an instance of BuilderModel.
@@ -399,17 +379,23 @@ class Builder
     
   }
   
+  
   ##
   ## UTILITY METHODS
   ##
   
   //Detect what kind of input has been given and use it to create a string usable by the query.
-  public function prepare($input, &$data=null)
+  public function prepare($input, array &$data)
   {
     
     //This just stays untouched.
     if($input === '*'){
       return $input;
+    }
+    
+    //Add data.
+    if($input instanceof BaseBuilder){
+      $data = array_merge($data, $input->getData());
     }
     
     //Use a model.
@@ -419,7 +405,7 @@ class Builder
     
     //Use a column.
     if($input instanceof BuilderColumn){
-      return $this->prepare($input->model).'.'.$input->getString();
+      return $this->prepare($input->model, $data).'.'.$input->getString();
     }
     
     //Use a sub query.
@@ -442,20 +428,28 @@ class Builder
       
     }
     
-    //Get the string of a condition.
-    if($input instanceof BuilderCondition){
+    //Get the string of a Condition or Function.
+    if($input instanceof BuilderCondition || $input instanceof BuilderFunction){
       return $input->getString();
     }
     
-    //Get the string and data from Functions.
-    if($input instanceof BuilderFunction){
-      #TODO: Handle this data.
-      $data = $input->getData();
-      return $input->getString();
+    //Input was an array. Make a list in brackets.
+    if(is_array($input))
+    {
+      
+      //Prepare all nodes.
+      foreach($input as $key => $value){
+        $input[$key] = $this->prepare($value, $data);
+      }
+      
+      //Return the list.
+      return '('.implode(', ', $input).')';
+      
     }
     
-    //A string input must be handled by the method preparing it.
-    return false;
+    //Anything else will be handled later.
+    $data[] = $input;
+    return '?';
     
   }
   

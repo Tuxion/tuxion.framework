@@ -131,7 +131,7 @@ class From extends BaseClause
     {
       
       //We add that model to the clause.
-      $string .= "$d{$model->getMinfo()->table_name} AS ".$this->builder->prepare($model);
+      $string .= "$d{$model->getMinfo()->table_name} AS ".$this->prepare($model);
       
       //And then check if the model happens to have joins attached to it.
       if($model->hasJoins())
@@ -151,9 +151,9 @@ class From extends BaseClause
           //Add it to the clause.
           $string .= 
             " $type {$foreign_model->getMinfo()->table_name} AS ".
-            $this->builder->prepare($foreign_model).
-            " ON ".$this->builder->prepare($local_column).
-            " = ".$this->builder->prepare($foreign_column);
+            $this->prepare($foreign_model).
+            " ON ".$this->prepare($local_column).
+            " = ".$this->prepare($foreign_column);
           
         }
         

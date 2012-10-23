@@ -1,21 +1,13 @@
 <?php namespace classes\sql\clauses;
 
-abstract class BaseClause
+abstract class BaseClause extends \classes\sql\BaseBuilder
 {
   
-  //Public properties.
-  public
-    $builder;
-  
-  //Protected properties.
-  protected
-    $data=[];
-    
   //Set the builder and the type.
   public function __construct(\classes\sql\Builder $builder)
   {
     
-    $this->builder = $builder;
+    $this->setBuilder($builder);
     
   }
   
@@ -50,14 +42,6 @@ abstract class BaseClause
   {
     
     return '';
-    
-  }
-  
-  //Return the data that the string will need. To be extended.
-  public function getData()
-  {
-    
-    return $this->data;
     
   }
   

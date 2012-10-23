@@ -16,40 +16,30 @@ class Select extends BaseClause
   }
   
   //Add a column to the select clause.
-  public function addColumn($column, $alias=null)
+  public function addColumn($input, $alias=null)
   {
     
     //Prepare the content.
-    $content = $this->builder->prepare($column);
+    $prepared = $this->prepare($input, $data);
     
-    //If the content was a model, we'll select all the columns from it I guess..
-    if($column instanceof \classes\sql\BuilderModel){
-      $content .= '.*';
+    //If the input was a model, we'll select all the columns from it I guess..
+    if($input instanceof \classes\sql\BuilderModel){
+      $prepared .= '.*';
     }
     
-    //If the content was a string.
-    if($content === false)
-    {
-      
-      //We must have an alias.
-      if(is_null($alias)){
-        throw new \exception\Programmer('Can not select "%s" without giving it an alias.', $column);
-      }
-      
-      //Add the string to our data.
-      $content = '?';
-      $this->data[] = $column;
-      
+    //If there is data involved we must have an alias.
+    if(!empty($data) && is_null($alias)){
+      throw new \exception\Programmer('Can not select "%s" without giving it an alias.', $input);
     }
     
     //Use an alias?
     if(!is_null($alias)){
       $this->builder->validateAlias($alias)->addAlias($alias);
-      $content .= " AS `$alias`";
+      $prepared .= " AS `$alias`";
     }
     
     //Add the result to our columns.
-    $this->columns[] = $content;
+    $this->columns[] = $prepared;
     
     //Enable chaining.
     return $this;

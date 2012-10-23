@@ -1,14 +1,12 @@
 <?php namespace classes\sql;
 
-class BuilderFunction
+class BuilderFunction extends BaseBuilder
 {
   
   //Private properties.
   private
-    $builder,
     $function,
-    $args=[],
-    $data=[];
+    $args=[];
     
   //The constructor sets the function.
   public function __construct($function, Builder $builder)
@@ -21,7 +19,7 @@ class BuilderFunction
     
     //Set.
     $this->function = strtoupper($function);
-    $this->builder = $builder;
+    $this->setBuilder($builder);
     
   }
   
@@ -43,19 +41,8 @@ class BuilderFunction
   public function addArgument($input)
   {
     
-    //Prepare the input.
-    $prepared = $this->builder->prepare($input);
-    
-    //If the input could not be prepared.
-    if($prepared === false){
-      $this->args[] = '?';
-      $this->data[] = $input;
-    }
-    
-    //Use the prepared input.
-    else{
-      $this->args[] = $prepared;
-    }
+    //Add the prepared argument.
+    $this->args[] = $this->prepare($input);
     
     //Enable chaining.
     return $this;
@@ -67,14 +54,6 @@ class BuilderFunction
   {
     
     return "{$this->function}(".implode(', ', $this->args).')';
-    
-  }
-  
-  //Get the query data.
-  public function getData()
-  {
-    
-    return $this->data;
     
   }
   
