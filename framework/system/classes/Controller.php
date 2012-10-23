@@ -13,10 +13,10 @@ class Controller
     
     foreach(self::$callbacks as $k => $with){
       if($with[1]->active()){
-        $c = c();
-        c($with[1]);
+        $c = route();
+        route($with[1]);
         $with[0]();
-        c($c);
+        route($c);
         unset(self::$callbacks[$k]);
       }
     }
@@ -223,16 +223,16 @@ class Controller
     
   }
   
-  //Run a closure in which c() uses $this as context.
+  //Run a closure in which route() uses $this as context.
   public function run(\Closure $cb)
   {
     
     //Call or store the callback?
     if($this->active()){
-      $c = c();
-      c($this);
+      $c = route();
+      route($this);
       $cb();
-      c($c);
+      route($c);
     }else{
       self::$callbacks[] = [$cb, $this];
     }

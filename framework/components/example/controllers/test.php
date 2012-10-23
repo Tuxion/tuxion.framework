@@ -1,6 +1,6 @@
 <?php namespace components\controllers\example;
 
-c()
+route()
 
 ->pre('Setting the template.', function(){
   
@@ -12,7 +12,7 @@ c()
 
 ;
 
-c(GET, 'test')
+route(GET, 'test')
 
 ->pre('Checking for permissions.', function(){
   $this->permissions('eat_pie');
@@ -35,9 +35,9 @@ c(GET, 'test')
   
 });
 
-// c(GET, 'hoi')->run(function(){
+// route(GET, 'hoi')->run(function(){
   
-//   c(GET, 'test')->end('Hoi test.', function(){
+//   route(GET, 'test')->end('Hoi test.', function(){
     
 //     $this->output->set([
 //       'foo' => 'bar',
@@ -48,7 +48,7 @@ c(GET, 'test')
   
 // });
 
-c(GET, 'test/$int')->end('Testing something.', function($input){
+route(GET, 'test/$int')->end('Testing something.', function($input){
   
   $this->output->set([
     'foo' => 'int',

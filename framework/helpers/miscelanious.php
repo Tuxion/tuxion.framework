@@ -1,7 +1,7 @@
 <?php
 
 //Set or invoke a route object.
-function c(){
+function route(){
   
   static $c=null;
   

@@ -143,7 +143,7 @@ class Component
     }
     
     //Make a restore point.
-    $c = c();
+    $c = route();
     
     //Iterate over the files.
     foreach($files as $file)
@@ -166,8 +166,8 @@ class Component
         $controller->component->title.': '.$controller->filename
       );
       
-      //Set the magic c().
-      c($controller);
+      //Set the magic route().
+      route($controller);
       
       //Include the controller files.
       require($file);
@@ -178,7 +178,7 @@ class Component
     }
     
     //Restore the magic c.
-    c($c);
+    route($c);
     
     //Enable chaining.
     return $controllers;
