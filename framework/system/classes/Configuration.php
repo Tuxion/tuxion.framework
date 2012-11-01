@@ -31,7 +31,6 @@ class Configuration
   public function __get($key)
   {
     
-    
     //Check if the value is already in the cache.
     if($this->caching && array_key_exists($key, $this->cache)){
       return $this->cache[$key];
@@ -41,17 +40,17 @@ class Configuration
     elseif($this->dbo)
     {
       
-      $result = tx('Sql')->queries($this->domain, "SELECT value FROM `{$this->dbo['t']}` WHERE `key` = ?s", $key)[0];
+      $result = tx('Sql')->query($this->domain, "SELECT value FROM `{$this->dbo['t']}` WHERE `key` = ?s", [$key])->execute();
       
       if($result->num() > 0)
       {
         
         if($this->caching){
-          $this->cache[$key] = $r = $result[0]->value;
+          $this->cache[$key] = $r = $result->idx(0)->value;
         }
         
         else{
-          $r = $result[0]->value;
+          $r = $result->idx(0)->value;
         }
         
         return $r;
