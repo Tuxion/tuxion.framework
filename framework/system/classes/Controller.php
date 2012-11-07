@@ -173,7 +173,7 @@ class Controller
     
     //Do we even have one?
     if(!$this->hasEnd()){
-      throw new \exception\Programmer('No endpoint to return.');
+      throw new \exception\ResourceMissing('No endpoint to return.');
     }
     
     //Yep.
@@ -215,8 +215,8 @@ class Controller
     
     //A sub-controller with a type that doesn't fit in the parent controller will never work.
     if(!checkbit($type, $this->type)){
-      throw new \exception\Programmer(
-        'You made a sub-controller with type %s in a parent controller with type %s.',
+      throw new \exception\Restriction(
+        'You can not make sub-controllers with type %s while the parent controller has type %s.',
         $type, $this->type
       );
     }

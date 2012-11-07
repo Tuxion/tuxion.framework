@@ -527,7 +527,7 @@ class Builder
     
     //Then check if it even exists.
     if(!class_exists($class_name)){
-      throw new \exception\Programmer('No clause called %s.', $name);
+      throw new \exception\Nonexistent('No clause called %s.', $name);
     }
     
     //Then create an instance of it.

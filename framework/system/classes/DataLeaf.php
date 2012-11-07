@@ -120,10 +120,12 @@ class DataLeaf
     }
     
     catch(\exception\Error $e){
-      throw new \exception\Programmer(
+      $new = new \exception\Parsing(
         'An error occured while parsing "%s" using "%s": %s',
         $this->get('str'), $regex, $e->getMessage()
       );
+      $new->setPrev($e);
+      throw $new;
     }
     
   }

@@ -1,8 +1,5 @@
 <?php namespace exception;
 
-class InvalidArgument extends Programmer
+class InvalidArgument extends InternalServerError
 {
-
-  protected static $ex_code = EX_INVALIDARGUMENT;
-  
 }

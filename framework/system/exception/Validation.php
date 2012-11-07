@@ -1,6 +1,6 @@
 <?php namespace exception;
 
-class Validation extends Expected
+class Validation extends BadRequest
 {
 
   protected static $ex_code = EX_VALIDATION;

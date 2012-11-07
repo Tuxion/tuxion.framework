@@ -1,8 +1,5 @@
 <?php namespace exception;
 
-class Deprecated extends Programmer
+class Deprecated extends NotImplemented
 {
-
-  protected static $ex_code = EX_DEPRECATED;
-
 }

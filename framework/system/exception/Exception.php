@@ -4,7 +4,6 @@ class Exception extends \Exception
 {
 
   protected $prev; //Thanks PHP...
-  protected static $ex_code = EX_EXCEPTION;
   
   public function __construct()
   {
@@ -47,11 +46,6 @@ class Exception extends \Exception
   public function getPrev()
   {
     return $this->prev;
-  }
-  
-  public function getExCode()
-  {
-    return static::$ex_code;
   }
   
 }

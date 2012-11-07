@@ -92,37 +92,6 @@
     return $base;
   }
   
-  function array_get()
-  {
-    
-    $arguments = func_get_args();
-    $array = array_shift($arguments);
-    $num = count($arguments);
-    $i = 0;
-    $subject = $array;
-    
-    do
-    {
-      
-      if(!is_array($subject)){
-        throw new \exception\InvalidArgument('Subject is not an array.');
-        return false;
-      }
-      
-      if(!array_key_exists($arguments[$i], $subject)){
-        return null;
-      }
-      
-      $subject = $subject[$arguments[$i]];
-      $i++;
-      
-    }
-    while($i < $num);
-    
-    return $subject;
-  
-  }
-  
   function array_flatten(array $array)
   {
   

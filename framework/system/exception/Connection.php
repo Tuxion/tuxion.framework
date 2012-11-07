@@ -1,8 +1,5 @@
 <?php namespace exception;
 
-class Connection extends Unexpected
+class Connection extends InternalServerError
 {
-
-  protected static $ex_code = EX_CONNECTION;
-
 }

@@ -200,7 +200,9 @@ class Component
     
     //Check if the file exists.
     if(!file_exists($path)){
-      throw new \exception\FileMissing($path);
+      throw new \exception\ResourceMissing(
+        'Missing the file that should contain the %s-model: "%s".', $model_name, $path
+      );
     }
     
     //Require the file once.
@@ -208,7 +210,7 @@ class Component
     
     //Does the file not contain the class?
     if(!class_exists($class, false)){
-      throw new \exception\Programmer(
+      throw new \exception\ResourceMissing(
         'The file "%s" does not contain a model named "%s" or is not in the right name-space.',
         $path, $model_name
       );

@@ -203,7 +203,7 @@ class Response
     
     //Huh?
     if(count($templates) > 1){
-      throw new \exception\Programmer('There are multiple "%s"-templates in "%s".', $mime, $directory);
+      throw new \exception\InternalServerError('There are multiple "%s"-templates in "%s".', $mime, $directory);
     }
 
     return $templates[0];

@@ -45,7 +45,7 @@ abstract class BaseBuilder
     
     //Must have a builder set.
     if(!($this->builder instanceof Builder)){
-      throw new \exception\Programmer('No builder set.');
+      throw new \exception\Restriction('Can not prepare without having a builder.');
     }
     
     //Create the empty data array.

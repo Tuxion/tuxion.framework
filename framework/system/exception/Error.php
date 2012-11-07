@@ -4,7 +4,6 @@ class Error extends \ErrorException
 {
 
   protected $context;
-  protected static $ex_code = EX_ERROR;
   
   public function __construct($errno, $errstr, $errfile, $errline, $context)
   {
@@ -29,7 +28,7 @@ class Error extends \ErrorException
     
     $this->context = $context;
     
-    parent::__construct($message, 0, $errno, $errfile, $errline);
+    parent::__construct($message, $errno, 1, $errfile, $errline);
     
     if(tx('Config')->config->log_exception_caught){
       tx('Log')->error(__CLASS__, $this);
@@ -42,9 +41,4 @@ class Error extends \ErrorException
     return $this->context;
   }
   
-  public function getExCode()
-  {
-    return static::$ex_code;
-  }
-
 }

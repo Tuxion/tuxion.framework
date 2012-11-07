@@ -49,7 +49,7 @@ class User
     });
     
     if($active->size() > 1){
-      throw new \exception\Unexpected('More than one active user.');
+      throw new \exception\InternalServerError('More than one active user.');
     }
     
     if($active->size() < 1){

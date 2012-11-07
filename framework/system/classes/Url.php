@@ -67,7 +67,7 @@ class Url
       "(?:#?(?<anchor>.+))?$~"; //anchor
     
     if(!preg_match($regex, $url, $segments)){
-      throw new \exception\Unexpected("Oh no! The URL that was given could not be parsed.");
+      throw new \exception\Parsing("Oh no! The URL that was given could not be parsed.");
       return false;
     }
 

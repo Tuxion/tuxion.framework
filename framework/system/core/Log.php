@@ -15,9 +15,8 @@ class Log
       return false;
     }
     
-    
     //Are we even allowed to log this error?
-    if(is_int($c) && !checkbit($e->getExCode(), $c)){
+    if(is_array($c) && !in_array(baseclass(get_class($e)), $c)){
       return false;
     }
     

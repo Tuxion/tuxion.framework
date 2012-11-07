@@ -43,7 +43,7 @@ function load_class($file, $class)
   
   //Check for file existence.
   if(!file_exists($file)){
-    throw new \exception\FileMissing($file);
+    throw new \exception\ResourceMissing('Could not find the required file: "%s".', $file);
   }
   
   //Require the file. Once.
@@ -51,7 +51,7 @@ function load_class($file, $class)
   
   //Check for class existence.
   if(!class_exists($class, false)){
-    throw new \exception\Programmer('Expecting file "%s" to have class %s.', $file, $class);
+    throw new \exception\ResourceMissing('Expecting file "%s" to have class %s.', $file, $class);
   }
   
   //Done.

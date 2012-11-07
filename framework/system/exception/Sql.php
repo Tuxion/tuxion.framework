@@ -1,8 +1,5 @@
 <?php namespace exception;
 
-class Sql extends Unexpected
+class Sql extends InternalServerError
 {
-
-  protected static $ex_code = EX_SQL;
-
 }

@@ -97,7 +97,7 @@ class Sql
         {
           
           if(count($args) == 0){
-            throw new \exception\InputMissing('The amount of data given does not equal the amount of question-marks.');
+            throw new \exception\InternetServerError('The amount of data given does not equal the amount of question-marks.');
           }
           
           $queries[$k][] = array_shift($args);

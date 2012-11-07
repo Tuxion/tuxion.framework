@@ -38,7 +38,7 @@ abstract class Base
     
     //Otherwise location must be a directory.
     elseif(!is_dir($location)){
-      throw new \exception\FileMissing('Directory "%s" does not exist.', $location);
+      throw new \exception\ResourceMissing('Directory "%s" does not exist.', $location);
     }
     
     //Set.

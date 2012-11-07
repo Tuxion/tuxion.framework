@@ -380,7 +380,7 @@ class Router
     
     //Detect cyclic reference.
     if(in_array($path, $this->reroute_cache)){
-      throw new \exception\Configuration(
+      throw new \exception\InternalServerError(
         'Cyclic reference occurred: The "%s" path came back to itself after %s reroutings.',
         $path, count(array_slice($this->reroute_cache, array_search($path, $this->reroute_cache)))-1
       );
@@ -513,7 +513,7 @@ class Router
       
       //Route to a system utility.
       case 2:
-        throw new \exception\Programmer('Not implemented yet.');
+        throw new \exception\Todo('System utilities are not available as of yet.');
         break;
       
       //Reroute based on an alias.
@@ -525,7 +525,7 @@ class Router
       //Load a resource.
       case 5:
         #TODO: Load a resource if .htaccess failed.
-        throw new \exception\Programmer('Not implemented yet.');
+        throw new \exception\Todo('Fall-back server resource loading is not available as of yet.');
         break;
       
     }
@@ -590,7 +590,7 @@ class Router
     
     //There can be only one.
     if(count($controllers) > 1){
-      throw new \exception\Programmer(
+      throw new \exception\InternalServerError(
         'There are conflicting controllers with endpoints for "%s".', $this->path
       );
     }

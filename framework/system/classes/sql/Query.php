@@ -130,7 +130,7 @@ class Query
     
     //Check connection.
     if(is_null($conn)){
-      throw new \exception\InputMissing('No default connection set.');
+      throw new \exception\InternalServerError('No default connection set.');
     }
     
     //Prepare.
@@ -164,7 +164,7 @@ class Query
     
     //Check connection.
     if(is_null($conn)){
-      throw new \exception\InputMissing('No default connection set.');
+      throw new \exception\InternalServerError('No default connection set.');
     }
     
     //Prepare.
@@ -204,7 +204,7 @@ class Query
     
     //Check connection.
     if(is_null($conn)){
-      throw new \exception\InputMissing('No default connection set.');
+      throw new \exception\InternalServerError('No default connection set.');
     }
     
     //Create the query.
@@ -253,12 +253,12 @@ class Query
     
     //Check connection.
     if(is_null($conn)){
-      throw new \exception\InputMissing('No default connection set.');
+      throw new \exception\InternalServerError('No default connection set.');
     }
     
     //Validate presense of a query.
     if(is_null($this->query)){
-      throw new \exception\Programmer('Can not prepare() before having a query.');
+      throw new \exception\Restriction('Can not prepare() before having a query.');
     }
     
     //Data types.
@@ -269,7 +269,7 @@ class Query
     
     //Warn the programmer when the amount of data given does not equal the amount of ?'s.
     if(substr_count($this->query, '?') !== count($data)){
-      throw new \exception\InputMissing(
+      throw new \exception\InternalServerError(
         'The amount of data given (%s nodes) does not equal the'.
         ' amount of places for the data (%s question-marks).',
         count($data),

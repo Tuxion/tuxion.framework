@@ -29,7 +29,7 @@ class Select extends BaseClause
     
     //If there is data involved we must have an alias.
     if(!empty($data) && is_null($alias)){
-      throw new \exception\Programmer('Can not select "%s" without giving it an alias.', $input);
+      throw new \exception\Restriction('Can not select "%s" without giving it an alias.', $input);
     }
     
     //Use an alias?

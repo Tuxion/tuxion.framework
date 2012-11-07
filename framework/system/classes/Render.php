@@ -30,7 +30,7 @@ class Render
     
     //Does it exist?
     if(!file_exists($template)){
-      throw new \exception\FileMissing($template);
+      throw new \exception\ResourceMissing('Given template (%s) must be an existing file.', $template);
     }
     
     //Set the template.

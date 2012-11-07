@@ -31,7 +31,7 @@ class From extends BaseClause
       
       //Do we even have relations defined?
       if(!$minfo->arrayExists('relations')){
-        throw new \exception\NotFound(
+        throw new \exception\NotImplemented(
           'The "%s"-model in %s does not define relations.',
           $target->getName(), $target->getComponent()->title
         );
@@ -59,7 +59,7 @@ class From extends BaseClause
       
       //Check if we have a match.
       if(!$match){
-        throw new \exception\NotFound(
+        throw new \exception\NotImplemented(
           'The "%s"-model in %s does not define relations to the "%s"-model in %s.',
           $target->getName(), $target->getComponent()->title,
           $foreign->getName(), $foreign->getComponent()->title

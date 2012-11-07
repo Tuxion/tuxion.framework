@@ -19,7 +19,7 @@ function route(){
   }
   
   if(is_null($c)){
-    throw new \exception\Restriction('You can not use the c function here.');
+    throw new \exception\Restriction('You can not use the route function here.');
   }
   
   return call_user_func_array([$c, 'getSubController'], func_get_args());

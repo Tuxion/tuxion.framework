@@ -41,7 +41,7 @@ abstract class RouteProcessor
     
     //Detect nested execution. That would be bad!
     if($executing){
-      throw new \exception\Programmer(
+      throw new \exception\Restriction(
         'Nested execution occurred; %stried %s while %s.',
         ($this->description == $executing ? 'yo dawg, you ' : ''),
         strtolower(trim($this->description, ' .!?')),
@@ -80,48 +80,6 @@ abstract class RouteProcessor
     
   }
   
-  //Creates a message based on exceptions caught and operation description.
-  public function getUserMessage($description=null)
-  {
-    
-    if($this->success){
-      $message = '"%s" was successful';
-    }
-    
-    else
-    {
-    
-      switch($this->exception->getExCode())
-      {
-        
-        case EX_AUTHORIZATION:
-          $message = 'Failed to authorize while %s: %s';
-          break;
-      
-        case EX_VALIDATION:
-          $message = 'Failed to validate while %s, because: %s';
-          break;
-      
-        case EX_EMPTYRESULT:
-          $message = 'Failed to find database data needed for %s, because: %s';
-          break;
-      
-        default: case EX_EXPECTED: case EX_USER:
-          $message = 'Something went wrong while %s, because: %s';
-          break;
-          
-      }
-    
-    }
-    
-    return ucfirst(sprintf(
-      $message,
-      (is_null($description) ? $this->description : strtolower(trim($description, ' .!?'))),
-      ($this->exception instanceof \Exception ? ucfirst(strtolower(trim($this->exception->getMessage(), ' .!?'))) : 'No exception')
-    )).'.';
-  
-  }
-  
   //Return the context.
   public function getContext()
   {
@@ -145,16 +103,16 @@ abstract class RouteProcessor
     {
       
       if(method_exists($class, $key)){
-        $allowed = $class;
+        $allowed[] = $class;
       }
       
     }
     
     if(empty($allowed)){
-      throw new \exception\Programmer('There is no processor method named "%s".', $key);
+      throw new \exception\NotImplemented('There is no processor method named "%s".', $key);
     }
     
-    throw new \exception\Programmer(
+    throw new \exception\Restriction(
       'The %s method can only be used in %s.',
       $key, implode(' and ', $allowed)
     );

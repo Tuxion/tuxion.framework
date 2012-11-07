@@ -1,8 +1,5 @@
 <?php namespace exception;
 
-class Authorization extends Expected
+class Authorization extends Unauthorized
 {
-
-  protected static $ex_code = EX_AUTHORIZATION;
-
 }

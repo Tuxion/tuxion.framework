@@ -1,8 +1,5 @@
 <?php namespace exception;
 
-class Restriction extends Programmer
+class Restriction extends InternalServerError
 {
-
-  protected static $ex_code = EX_RESTRICTION;
-  
 }

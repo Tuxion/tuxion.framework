@@ -1,8 +1,5 @@
 <?php namespace exception;
 
-class NotFound extends Programmer
+class NotFound extends Exception
 {
-
-  protected static $ex_code = EX_NOTFOUND;
-
 }

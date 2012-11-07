@@ -30,7 +30,7 @@ class Resource
     
     //Check if this is a valid type.
     if(!class_exists($class)){
-      throw new \exception\FileMissing('No resource of type %s exists.', $type);
+      throw new \exception\ResourceMissing('No resource of type %s exists.', $type);
     }
     
     //Do we have a location? If not; find it by type.

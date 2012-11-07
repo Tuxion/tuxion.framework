@@ -48,7 +48,7 @@ abstract class BaseDatabase extends Base
       
       //Check if the resource was found in the database.
       if($result->isEmpty()){
-        throw new \exception\FileMissing('Resource was not defined in the database.');
+        throw new \exception\ResourceMissing('Resource was not defined in the database.');
       }
       
       //Get the row.

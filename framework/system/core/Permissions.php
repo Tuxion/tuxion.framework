@@ -40,12 +40,12 @@ class Permissions
       
       //If the value is not in the cache, the programmer must be checking for a non-existing permission.
       if( ! array_key_exists($key, $cache[$cinfo->id])){
-        throw new \exception\NotFound('The permission "%s" does not exist for "%s".', $key, $cinfo->title);
+        throw new \exception\Permission('The permission "%s" does not exist for "%s".', $key, $cinfo->title);
       }
       
       //If the value is still null, something went wrong.
       if(is_null($cache[$cinfo->id][$key])){
-        throw new \exception\NotFound(
+        throw new \exception\Permission(
           'Error reading permission-cache: "%s" was not found even though user(%s) '.
           'permissions for "%s" have been cached.',
           $key, $user_id, $cinfo->title
@@ -111,12 +111,12 @@ class Permissions
       
       //If the value is not in the cache, the programmer must be checking for a non-existing permission.
       if( ! array_key_exists($key, $cache[$cinfo->id])){
-        throw new \exception\NotFound('The permission "%s" does not exist for "%s".', $key, $cinfo->title);
+        throw new \exception\Permission('The permission "%s" does not exist for "%s".', $key, $cinfo->title);
       }
       
       //If the value is still null, something went wrong.
       if(is_null($cache[$cinfo->id][$key])){
-        throw new \exception\NotFound(
+        throw new \exception\Permission(
           'Error reading permission-cache: "%s" was not found even though guest '.
           'permissions for "%s" have been cached.',
           $key, $cinfo->title
@@ -370,7 +370,7 @@ class Permissions
       
       //Still a permission conflict? We must ABORT!!
       if($value == -2){
-        throw new \exception\PermissionConflict(
+        throw new \exception\Permission(
           'An unresolved YES/NO conflict occurred with the "%s" permission in %s for user %s.',
           $key, $cinfo->title, $user_id
         );
@@ -378,7 +378,7 @@ class Permissions
       
       //Still a permission conflict? We must ABORT!!
       elseif($value == -3){
-        throw new \exception\PermissionConflict(
+        throw new \exception\Permission(
           'An unresolved ALWAYS/NEVER conflict occurred with the "%s" permission in %s for user %s.',
           $key, $cinfo->title, $user_id
         );

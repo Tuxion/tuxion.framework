@@ -28,7 +28,7 @@ abstract class BaseTemplator
     
     //The custom getter must exist at this point.
     if(!method_exists($this, "get_$key")){
-      throw new \exception\Programmer(
+      throw new \exception\NotImplemented(
         'Property "%s" does not exist and does not have custom getter (%s).',
         $key, "get_$key"
       );

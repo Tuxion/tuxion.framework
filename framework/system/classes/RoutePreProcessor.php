@@ -84,7 +84,9 @@ class RoutePreProcessor extends RouteProcessor
       
       //Create the less friendly exception message.
       else{
-        throw new \exception\Authorization("You do not have the following permissions: %s", implode(', ', $permissions));
+        throw new \exception\Authorization(
+          'You do not have the following permissions: %s', implode(', ', $permissions)
+        );
       }
       
     }

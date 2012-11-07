@@ -33,7 +33,7 @@ trait ArrayContainer
     if($index < 0) $index = 0;
 
     if($this->isEmpty()){
-      throw new \exception\Programmer('The array is empty.');
+      throw new \exception\Restriction('Can not call ->idx() on empty ArrayContainer.');
     }
     
     $tmp = $this->arr;
@@ -468,7 +468,7 @@ trait ArrayContainer
     }
     
     if( ! array_key_exists($key, $this->arr)){
-      throw new \exception\NotFound('Could not find "%s" in %s.', $key, get_class($this));
+      throw new \exception\Nonexistent('Could not find "%s" in %s.', $key, get_class($this));
     }
     
     return $this->arr[$key];

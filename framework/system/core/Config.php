@@ -61,7 +61,7 @@ class Config
     }
     
     if(!array_key_exists($arguments[0], $this->{$key})){
-      throw new \exception\NotFound('No configuration settings found for domain: "%s".', $arguments[0]);
+      throw new \exception\NotImplemented('No configuration settings found for domain: "%s".', $arguments[0]);
     }
     
     return $this->{$key}[$arguments[0]];

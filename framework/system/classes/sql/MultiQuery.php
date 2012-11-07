@@ -45,7 +45,7 @@ class MultiQuery
     $conn = is_null($conn) ? $this->connection : $conn;
     
     if(is_null($conn)){
-      throw new \exception\InputMissing('No default connection set.');
+      throw new \exception\InternalServerError('No default connection set.');
     }
     
     if($this->prepared){
@@ -67,7 +67,7 @@ class MultiQuery
     $conn = is_null($conn) ? $this->connection : $conn;
     
     if(is_null($conn)){
-      throw new \exception\InputMissing('No default connection set.');
+      throw new \exception\InternalServerError('No default connection set.');
     }
     
     $query = $this->getQuery($conn);

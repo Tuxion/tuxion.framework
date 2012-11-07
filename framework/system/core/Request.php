@@ -26,7 +26,7 @@ class Request
       case 'POST': $this->method = POST; break;
       case 'PUT': $this->method = PUT; break;
       case 'DELETE': $this->method = DELETE; break;
-      default: throw new \exception\Unexpected(
+      default: throw new \exception\BadRequest(
         'Unsupported request method: %s.',
         tx('Server')->request_method
       );
@@ -86,7 +86,7 @@ class Request
         
         //We do not support other content types.
         default:
-          throw new \exception\Unexpected('Unsupported content-type "%s" sent to server.', $type);
+          throw new \exception\BadRequest('Unsupported content-type "%s" sent to server.', $type);
           break;
           
       }
