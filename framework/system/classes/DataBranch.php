@@ -35,7 +35,7 @@ class DataBranch extends ArrayObject
     
     $this->each(function($val, $key){
       $this->arraySet($key, clone $val);
-      $this->arrayGet($key)->_setContext($this, $key);
+      $this->arrayGet($key)->_setContext($key, $this);
     });
     
   }

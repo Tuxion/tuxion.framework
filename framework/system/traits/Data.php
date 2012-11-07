@@ -235,7 +235,7 @@ trait Data
   }
   
   //Used internally to handle context of Data nodes.
-  private function _setContext($key=false, $parent=false)
+  public function _setContext($key=false, $parent=false)
   {
     
     if(!is_null($key)){
