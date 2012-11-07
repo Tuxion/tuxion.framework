@@ -58,6 +58,7 @@ class Request
         $type = trim(tx('Server')->http_content_type);
       }
       
+      #TODO: Use proper data pipes.
       //Do different things with different types.
       switch($type)
       {

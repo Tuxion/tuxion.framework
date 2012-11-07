@@ -5,17 +5,16 @@ abstract class RouteProcessor
   
   //Private properties.
   private
-    $properties=[],
-    $arguments=[],
     $description,
-    $callback;
-    
-  //Public properties.
-  public
-    $controller=null;
+    $callback,
+    $context;
+  
+  //Protected properties.
+  protected
+    $materials=null;
   
   //Store the given callback.
-  public function __construct($description, \Closure $callback, Controller $controller = null)
+  public function __construct($description, \Closure $callback, ControllerContext $context)
   {
     
     //Validate argument.
@@ -29,23 +28,112 @@ abstract class RouteProcessor
     //Set properties.
     $this->description = $description;
     $this->callback = $callback->bindTo($this);
-    $this->controller = $controller;
+    $this->context = $context;
     
   }
   
-  //Return one of the variable properties.
-  public function __get($key)
+  //Call the associated callback with the arguments in given array.
+  public function execute(Materials $materials, array $arguments)
   {
     
-    //Does the property exist?
-    if(!array_key_exists($key, $this->properties)){
-      throw new \exception\Programmer('Property "%s" does not exist in %s.', $key, get_object_name($this));
+    //Define execution tracker.
+    static $executing=false;
+    
+    //Detect nested execution. That would be bad!
+    if($executing){
+      throw new \exception\Programmer(
+        'Nested execution occurred; %stried %s while %s.',
+        ($this->description == $executing ? 'yo dawg, you ' : ''),
+        strtolower(trim($this->description, ' .!?')),
+        strtolower(trim($executing, ' .!?'))
+      );
     }
     
-    //Return it.
-    return $this->properties[$key];
+    //Set the materials so that helper functions can use it.
+    $this->materials = $materials;
+    
+    //We are now executing the following:
+    $executing = $this->description;
+    
+    //Execute the callback.
+    try{
+      $cb = $this->callback;
+      call_user_func_array($cb, $arguments);
+    }
+    
+    //Add some extra data when an error occurs.
+    catch(\exception\Exception $e){
+      $materials->exception_occurred_in = $this;
+      $this->materials = null;
+      $executing = false;
+      throw $e;
+    }
+    
+    //No longer executing.
+    $executing = false;
+    
+    //We should not have materials set when not executing.
+    $this->materials = null;
+    
+    //Enable chaining.
+    return $this;
     
   }
+  
+  //Creates a message based on exceptions caught and operation description.
+  public function getUserMessage($description=null)
+  {
+    
+    if($this->success){
+      $message = '"%s" was successful';
+    }
+    
+    else
+    {
+    
+      switch($this->exception->getExCode())
+      {
+        
+        case EX_AUTHORIZATION:
+          $message = 'Failed to authorize while %s: %s';
+          break;
+      
+        case EX_VALIDATION:
+          $message = 'Failed to validate while %s, because: %s';
+          break;
+      
+        case EX_EMPTYRESULT:
+          $message = 'Failed to find database data needed for %s, because: %s';
+          break;
+      
+        default: case EX_EXPECTED: case EX_USER:
+          $message = 'Something went wrong while %s, because: %s';
+          break;
+          
+      }
+    
+    }
+    
+    return ucfirst(sprintf(
+      $message,
+      (is_null($description) ? $this->description : strtolower(trim($description, ' .!?'))),
+      ($this->exception instanceof \Exception ? ucfirst(strtolower(trim($this->exception->getMessage(), ' .!?'))) : 'No exception')
+    )).'.';
+  
+  }
+  
+  //Return the context.
+  public function getContext()
+  {
+    
+    return $this->context;
+    
+  }
+  
+  
+  ##
+  ## PROCESSING HELPERS
+  ##
   
   //Give some programmer feedback to prevent confusion when working with pre-, post- and end-processors.
   public function __call($key, $args)
@@ -73,69 +161,63 @@ abstract class RouteProcessor
     
   }
   
-  //Set an outer template inside the controller.
-  public function template($name, $data)
-  {
-    
-    $this->controller->router->outer_template = tx('Config')->paths->templates .'/'. $name;
-    
-  }
-  
   //Validate using the Validator class.
   public function validate($data, $rules)
   {
     
+    //Extract raw arguments.
+    raw($data, $rules);
+    
+    //Return a new Validator.
     return new Validator($data, $rules);
     
   }
   
-  //Call the associated callback with the arguments in given array.
-  public function execute()
+  //Set the outer template and optionally provide some data.
+  public function setTemplate($identifier, $data=null)
   {
+    //We need a materials.
+    $this->needsMaterials('to set a template');
     
-    //Define execution tracker.
-    static $executing=false;
+    //Extract the raw identifier.
+    raw($identifier);
     
-    //Detect nested execution. That would be bad!
-    if($executing){
-      throw new \exception\Programmer(
-        'Nested execution occurred; %stried %s while %s.',
-        ($this->description == $executing ? 'yo dawg, you ' : ''),
-        strtolower(trim($this->description, ' .!?')),
-        strtolower(trim($executing, ' .!?'))
-      );
+    //Set the template.
+    $this->materials->outer_template = tx('Resource')->template($identifier);
+    
+    //Set the data if given.
+    if(!is_null($data)){
+      $this->addTemplateData($data);
     }
     
-    //We are now executing the following:
-    $executing = $this->description;
+  }
+  
+  //Adds data to the template.
+  public function addTemplateData($data)
+  {
     
-    //Create the userFunction.
-    $func = new \classes\UserFunction($this->description, $this->callback, $this->arguments);
+    //We need materials.
+    $this->needsMaterials('to add data to the template');
     
-    //No longer executing.
-    $executing = false;
+    //Extract raw data.
+    raw($data);
     
-    #TEMP:
-    echo $func->output;
-    
-    //Enable chaining.
-    return $func;
+    //Delegate to the materials interface.
+    $this->materials->addTemplateData($data);
     
   }
   
-  //Set the properties that can be accessed during execution.
-  public function setProperties(array $properties)
+  //Checks if we have a materials and uses the given string to generate an error if we do not.
+  protected function needsMaterials($for_what)
   {
     
-    $this->properties = $properties;
+    //That's OK then.
+    if(!is_null($this->materials)){
+      return true;
+    }
     
-  }
-  
-  //Set the arguments that will be passed to the callback during execution.
-  public function setArguments(array $arguments)
-  {
-    
-    $this->arguments = $arguments;
+    //Generate an error.
+    throw new \exception\Restriction('The processor needs materials %s.', strtolower($for_what));
     
   }
   

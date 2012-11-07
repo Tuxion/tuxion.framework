@@ -170,6 +170,7 @@ class Router
       @list($key,$kext) = explode('.', $key);
       @list($value,$vext) = explode('.', $value);
       
+      //When both file extensions are present, they must have the same mime-type.
       if($kext && $vext && tx('Mime')->getMime($kext) !== tx('Mime')->getMime($vext)){
         return false;
       }
@@ -201,7 +202,7 @@ class Router
               return false;
             }
           break;
-            
+          
           case 'float':
             if(preg_match('~^[0-9]+\.[0-9]+$~', $value) !== 1){
               return false;
@@ -243,15 +244,11 @@ class Router
   //Public properties.
   public
     $type,
-    $input,
-    $output,
-    $inner_template,
-    $outer_template,
     $path,
-    $endpoint;
+    $materials;
   
   //The constructor will set some properties.
-  public function __construct($type, $path, DataBranch $input)
+  public function __construct($type, $path, Materials $materials)
   {
     
     //Set the request method.
@@ -263,11 +260,11 @@ class Router
     //Split the path into segments, and put them in the future.
     $this->future = explode('/', $this->path);
     
-    //Set the input.
-    $this->input = $input;
+    //Add ourselves to the materials.
+    $materials->router = $this;
     
-    //Set the output.
-    $this->output = Data([]);
+    //Set the materials.
+    $this->materials = $materials;
     
   }
   
@@ -307,12 +304,11 @@ class Router
     
   }
   
-  //Return the file extension in the path. False if there was none.
   public function getExt()
   {
     
-    $path = ($this->endpoint && substr_count($this->endpoint->base, '.') > 0)
-      ? $this->endpoint->base
+    $path = ($this->materials->full_path && substr_count($this->materials->full_path, '.') > 0)
+      ? $this->materials->full_path
       : $this->path;
     
     return trim(strstr(str_replace('.part', '', $path), '.'), '.');
@@ -323,7 +319,7 @@ class Router
   public function isPart()
   {
     
-    return substr_count($this->path, '.part') > 1;
+    return substr_count($this->path, '.part') > 0;
     
   }
   
@@ -445,32 +441,12 @@ class Router
       //Enter a log entry.
       tx('Log')->message($this, 'preprocessing route', $path);
       
-      //For every controller.
-      foreach($this->getControllers($path) as $con)
-      {
-        
-        //Call the preprocessors and gather their UserFunc objects.
-        $called = $con->callPres($this->input, $this->params($con->base));
-        
-        //Iterate the UserFuncs.
-        foreach($called as $func)
-        {
-          
-          //Detect if it failed. If it did; ABORT!
-          if(!$func->success){
-            
-            #TODO: Handle the exception better.
-            throw new \exception\NotFound('Failed to load. %s', $func->getUserMessage());
-            
-            //$this->state = 30;
-            //return;
-          }
-          
-        }
-        
+      //For every controller corresponding to our request.
+      foreach(tx('Controllers')->getAll($this->type, $path) as $con){
+        $con->callPres($this->materials, $this->params($con->path));
       }
       
-      //Remember
+      //Remember.
       $this->pre_process_cache[] = $path;
     
     }
@@ -548,7 +524,7 @@ class Router
       
       //Load a resource.
       case 5:
-        #TODO: Load a resource of .htaccess failed.
+        #TODO: Load a resource if .htaccess failed.
         throw new \exception\Programmer('Not implemented yet.');
         break;
       
@@ -564,7 +540,7 @@ class Router
     tx('Log')->message($this, 'processing endpoint', $this->type.':'.$this->path);
     
     //Get the controllers.
-    $controllers = $this->getControllers();
+    $controllers = tx('Controllers')->getAll($this->type, $this->path);
     
     //Get the controllers with an endpoint.
     foreach($controllers as $key => $con){
@@ -584,7 +560,7 @@ class Router
     {
       
       //Explode into segments.
-      $segments = explode('/', $con->base);
+      $segments = explode('/', $con->path);
       $i = 0;
       
       //Higher numbers mean that it's less solid.
@@ -610,36 +586,33 @@ class Router
     //The best matches.
     ksort($sorted);
     reset($sorted);
-    $endpoints = current($sorted);
+    $controllers = current($sorted);
     
     //There can be only one.
-    if(count($endpoints) > 1){
-      throw new \exception\Programmer('There are conflicting endpoints for "%s".', $this->path);
+    if(count($controllers) > 1){
+      throw new \exception\Programmer(
+        'There are conflicting controllers with endpoints for "%s".', $this->path
+      );
     }
     
-    $endpoint = $endpoints[0];
+    //Get the controller and its endpoint.
+    $controller = $controllers[0];
+    $endpoint = $controller->getEnd();
     
-    //If the endpoint we're using is a component, we will know the template to use.
-    if($endpoint instanceof \classes\ComponentController)
-    {
-      
-      $this->inner_template =
-        tx('Config')->paths->components.
-        '/'.$endpoint->component->name.
-        '/templates'.
-        '/'.$endpoint->filename;
-        
-    }
+    //Create the locator to the inner template.
+    $this->materials->inner_template = (
+      $endpoint
+      ->getContext()
+      ->getLocator()
+      ->template(explode('.', basename($endpoint->getContext()->getFilename()))[0])
+    );
     
-    else{
-      #TODO: Figure out which template to use when the controller is not a component controller.
-      throw new \exception\Programmer('Not implemented yet.');
-    }
+    //Call the endpoint.
+    tx('Log')->message($this, 'calling endpoint', $controller->path);
+    $endpoint->execute($this->materials, $this->params($controller->path));
     
-    //Call and store the used endpoint.
-    tx('Log')->message($this, 'calling endpoint', $endpoint->base);
-    $endpoint->callEnd($this->input, $this->output, $this->params($endpoint->base));
-    $this->endpoint = $endpoint;
+    //Store the full path in the materials.
+    $this->materials->full_path = $controller->path;
     
     //Set the state to postProcessing.
     $this->state = 20;
@@ -657,11 +630,17 @@ class Router
     }
     
     //Walk through the history of routes in reversed order and execute their postProcessors.
-    foreach(array_reverse($routes) as $path){
+    foreach(array_reverse($routes) as $path)
+    {
+      
+      //Create a log entry.
       tx('Log')->message($this, 'postprocessing route', $path);
-      foreach($this->getControllers($path) as $con){
-        $con->callPosts($this->input, $this->output, $this->params($con->base));
+      
+      //Iterate the controllers corresponding to this route.
+      foreach(tx('Controllers')->getAll($this->type, $path) as $con){
+        $con->callPosts($this->materials, $this->params($con->path));
       }
+      
     }
     
     //Set the state to done.
@@ -705,7 +684,7 @@ class Router
       
       //Load the controllers of this component.
       tx('Log')->message($this, 'loading controllers', $com->title);
-      $this->addControllers($com->loadControllers($this));
+      $com->loadControllers($this);
       
       //Load the controllers of components extending this component.
       $com->getExtendingComponents()->each(function($com)use(&$loadControllers){
@@ -738,80 +717,6 @@ class Router
     //Reroute to the alias.
     $this->reroute($result[0]->value, true);
     $this->state = 0;
-    
-  }
-  
-  //Add more controllers to our controllers.
-  public function addControllers(array $controllers)
-  {
-    
-    //Add them one by one.
-    foreach($controllers as $controller){
-      $this->addController($controller);
-    }
-    
-    //Enable chaining.
-    return $this;
-    
-  }
-  
-  //Add a controller to our array of controllers.
-  public function addController(Controller $controller)
-  {
-    
-    //Get type and path.
-    $type = $controller->type;
-    $path = $controller->base;
-    
-    //We don't need controllers with the wrong type.
-    if(!checkbit($this->type, $type)){
-      throw new \exception\InvalidArgument(
-        'We can not use a controller with type %s. We are type %s.', $type, $this->type
-      );
-    }
-    
-    //Add this path.
-    if(!array_key_exists($path, $this->controllers)){
-      $this->controllers[$path] = [];
-    }
-    
-    //Add the controller.
-    $this->controllers[$path][] = $controller;
-    
-    //Enable chaining.
-    return $this;
-    
-  }
-  
-  //Get the controllers stored under the given path.
-  public function getControllers($path=null)
-  {
-    
-    //Prepare variables.
-    $path = (is_null($path) ? $this->path : $path);
-    $result = [];
-    
-    //Iterate our controllers to filter them down.
-    foreach($this->controllers as $base => $controllers)
-    {
-      
-      //Needs to be an exact match.
-      if(substr_count($base, '/') !== substr_count($path, '/')){
-        continue;
-      }
-      
-      //If the path doesn't match.
-      if(self::matchPath($base, $path)===false){
-        continue;
-      }
-      
-      //Filters passed. Add to results.
-      $result = array_merge($result, $controllers);
-      
-    }
-    
-    //Output.
-    return $result;
     
   }
   

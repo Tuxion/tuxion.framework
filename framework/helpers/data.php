@@ -22,7 +22,7 @@ function is_data($data){
 
 function data_of($data){
   
-  if($data instanceof \classes\DataBranch){
+  if($data instanceof \classes\ArrayObject){
     return $data->asArray();
   }
   

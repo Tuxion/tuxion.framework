@@ -14,6 +14,14 @@ class DataUndefined
     
   }
   
+  //Return DataUndefined.
+  public function __toString()
+  {
+    
+    return '[DataUndefined]';
+    
+  }
+  
   //Can not call methods on Undefined.
   public function __call($key, $args)
   {

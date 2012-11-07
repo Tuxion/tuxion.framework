@@ -13,7 +13,7 @@ function __autoload($class)
   if(!in_array($class_array[0], ['classes', 'exception', 'traits', 'interfaces'])){
     die(sprintf(
       'Failed to auto-load "%s"; auto-loading is restricted to only: '.
-      'exceptions, interfaces, traits or core classes.', $class
+      'exceptions, interfaces, traits or classes.', $class
     ));
   }
   
@@ -27,39 +27,36 @@ function __autoload($class)
   
 }
 
-function load_html($___path, array $___data=[], $___once=false)
-{
-
-  static $file_checks = [];
-  
-  if(!in_array($___path, $file_checks)){
-    if(is_file($___path)){
-      $file_checks[] = $___path;
-    }else{
-      throw new \exception\FileMissing("Could not load contents of <b>%s</b>. It is not a file.", $___path);
-    }
-  }
-  
-  elseif($___once===true){
-    return '';
-  }
-  
-  extract($___data);
-  unset($___data);
-
-  ob_start();
-    require($___path);
-    $contents = ob_get_contents();
-  ob_end_clean();
-  
-  return $contents;
-
-}
-
 function files($pattern, $flags=0)
 {
   $glob = glob($pattern, $flags);
   return (is_array($glob) ? $glob : []);
+}
+
+function load_class($file, $class)
+{
+  
+  //Check for class existence.
+  if(class_exists($class, false)){
+    return true;
+  }
+  
+  //Check for file existence.
+  if(!file_exists($file)){
+    throw new \exception\FileMissing($file);
+  }
+  
+  //Require the file. Once.
+  require_once($file);
+  
+  //Check for class existence.
+  if(!class_exists($class, false)){
+    throw new \exception\Programmer('Expecting file "%s" to have class %s.', $file, $class);
+  }
+  
+  //Done.
+  return $class;
+  
 }
 
 //A shortcut for "core\Loader::load($arg1='Loader'[, $arg-n[, ...]])"

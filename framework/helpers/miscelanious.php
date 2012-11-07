@@ -1,6 +1,6 @@
 <?php
 
-//Set or invoke a route object.
+//Set or invoke a Controller object.
 function route(){
   
   static $c=null;

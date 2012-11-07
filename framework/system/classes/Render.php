@@ -5,100 +5,36 @@ class Render
   
   //Private properties.
   private
-    $template=false,
-    $mime=null,
-    $data=null,
-    $output='NotGenerated';
+    $templator,
+    $template,
+    $data;
   
-  //Returns the website title.
-  public function getTitle()
+  //Set the templator.
+  public function __construct(BaseTemplator $templator, $template, array $data = [])
   {
     
-    return tx('Config')->config->title;
-    
-  }
-  
-  //Do a request to a different route from within the template.
-  public function request($path, DataBranch $data = null)
-  {
-    
-    //Set the default mime.
-    $mime = $this->mime;
-    
-    //Try to execute the router.
-    try{
-      
-      //Do some routing.
-      $router = new Router(tx('Request')->method(), $path, is_null($data) ? Data([]) : $data);
-      $router->execute();
-      
-      //Get the extension.
-      $ext = $router->getExt();
-      
-      //If we have an explicit extension, we will try to return the data in that format.
-      if($ext){
-        $mime = tx('Mime')->getMime($ext);
-      }
-      
-    }
-    
-    //The router failed to load. Instead of completely exploding, we will just ignore this module.
-    catch(\exception\Exception $e){
-      $e = new \exception\Programmer('Failed to load module: "%s" because: %s', $path, $e->getMessage());
-      return (new self)->setMime($mime)->generateError($e)->getOutput();
-    }
-    
-    //Everything was alright. Load the module.
-    return ((new self)
-      ->setMime($mime)
-      ->setTemplate($router->inner_template)
-      ->setData($router->output)
-      ->generate()
-      ->getOutput()
-    );
-    
-  }
-  
-  //Set the data that will be injected into the template.
-  public function setData(DataBranch $data)
-  {
-    
+    $this->templator = $templator;
+    $this->setTemplate($template);
     $this->data = $data;
-    return $this;
     
   }
   
   //Set the template that we will inject the data into.
-  public function setTemplate($template=null)
+  public function setTemplate($template)
   {
     
     //No template?
     if(!is_string($template)){
-      $this->template = false;
-      return $this;
+      throw new \exception\InvalidArgument('Expecting $template to be string. %s given.', typeof($template));
     }
     
-    //We need to know the mime-type before.
-    if(is_null($this->mime)){
-      $this->mime = 'text/html';
-    }
-    
-    //Get all possible templates.
-    $templates = files("$template/{".implode(',', tx('Mime')->getTypes($this->mime)).'}.php', GLOB_BRACE);
-    
-    //This template does not exist.
-    if(count($templates) == 0){
-      $this->template = false;
-      return $this;
-    }
-    
-    //Huh?
-    if(count($templates) > 1){
-      throw new \exception\Programmer('There are multiple "%s"-templates in "%s".', $this->mime, $template);
+    //Does it exist?
+    if(!file_exists($template)){
+      throw new \exception\FileMissing($template);
     }
     
     //Set the template.
-    $this->template = $templates[0];
+    $this->template = $template;
     
     //Enable chaining.
     return $this;
@@ -108,95 +44,85 @@ class Render
   //Generate the output.
   public function generate()
   {
-
-    //Try to generate the output.
-    try{
-      
-      //Use a default mime-type?
-      if(is_null($this->mime)){
-        $this->mime = 'text/html';
-      }
-      
-      //Use default data?
-      if(is_null($this->data)){
-        $this->data = new DataBranch([]);
-      }
-      
-      //We need a template.
-      if($this->template===false){
-        #TODO: proper fallback templating
-        ob_start();
-        trace($this->data->toArray());
-        $this->output = ob_get_contents();
-        ob_end_clean();
-      }
-      
-      else{
-        ob_start();
-        extract($this->data->get());
-        require($this->template);
-        $this->output = ob_get_contents();
-        ob_end_clean();
-      }
-      
-    }
     
-    //If we fail, generate an error.
-    catch(\exception\Exception $e){
-      return $this->generateError($e);
-    }
+    ## Voordelen:
+    ## - Binnen de template heeft $this de juiste context
+    ##
+    ## Nadelen:
+    ## - Binnen de template is $___path beschikbaar.
+    ## - $___data kan niet als key worden gebruikt binnen zichzelf.
     
-    return $this;
+    //Store references to the required variables under obscure names.
+    $___data =& $this->data;
+    $___path =& $this->template;
+    
+    //Create the templator function that we will bind to the templator.
+    $templator = function()use(&$___data, &$___path){
+      $t = $templator = $this;
+      extract($___data);
+      unset($___data);
+      ob_start();
+        require($___path);
+        $r = new \classes\OutputData(ob_get_contents(), $t->getHeaders());
+      ob_end_clean();
+      return $r;
+    };
+    
+    //Bind it.
+    $templator = $templator->bindTo($this->templator);
+    
+    //Call it.
+    return $templator();
     
   }
   
-  //Find the right template based on the mime-type and template name.
-  private function findTemplate()
-  {
+  // //Generate the output.
+  // public function generate()
+  // {
     
-    #TODO: Implement the findTemplate method.
+  //   ## Voordelen:
+  //   ## - Geen rare variablen binnen de template.
+  //   ##
+  //   ## Nadelen:
+  //   ## - $this heeft de verkeerde waarde.
     
-  }
+  //   $t = $templator = $this->templator;
+  //   extract($this->data);
+  //   ob_start();
+  //     require($this->template);
+  //     $r = new \classes\OutputData(ob_get_contents(), $t->getHeaders());
+  //   ob_end_clean();
+    
+  //   return $r;
+    
+  // }
   
-  //Generate output based on an exception.
-  public function generateError(\exception\Exception $e)
-  {
+  // //Generate the output.
+  // public function generate()
+  // {
     
-    #TODO: Crete proper output based on debug mode.
+  //   ## Voordelen:
+  //   ## - Alle bovenstaande.
+  //   ##
+  //   ## Nadelen:
+  //   ## - eval.
     
-    $this->output = $e->getMessage();
-    $this->output .= "<br />";
-    $this->output .= tx('Debug')->printTrace($e->getTrace());
+  //   //Yarr!
+  //   $eval  = 'return function($'.implode(', $',array_keys($this->data)).'){';
+  //   $eval .= '$t = $template = $this;';
+  //   $eval .= "ob_start(); require('{$this->template}');";
+  //   $eval .= '$r = new \classes\OutputData(ob_get_contents(), $t->getHeaders());';
+  //   $eval .= 'ob_end_clean(); return $r; };';
     
-    return $this;
+  //   //Create the templator function that we will bind to the templator.
+  //   $templator = eval($eval);
     
-  }
-  
-  //Set the mime type that will be used for rendering.
-  public function setMime($mime)
-  {
+  //   //Bind it.
+  //   $templator->bindTo($this->templator);
     
-    //Expecting $mime to be string.
-    if(!(is_null($mime) || is_string($mime))){
-      throw new \exception\InvalidArgument(
-        'Expecting $mime to be string or null. %s given.', ucfirst(typeof($mime))
-      );
-    }
+  //   //Call it.
+  //   return call_user_func_array($templator, $this->data);
     
-    //Set.
-    $this->mime = $mime;
-    
-    //Enable chaining.
-    return $this;
-    
-  }
-  
-  //Return the output.
-  public function getOutput()
-  {
-    
-    return $this->output;
-    
-  }
+  // }
 
 }

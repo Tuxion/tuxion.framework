@@ -10,12 +10,12 @@
   
   <body>
     
-    <?=$content?>
+    <?=$this?>
     
     <div>
-    <?=$this->request('com/example/test/whoo1')?>
-    <?=$this->request('com/example/test/123')?>
-    <?=$this->request('com/example/test/HOI')?>
+    <?=$this->request('com/example/1/Hoi')?>
+    <?=$this->request('com/example/2/Doei')?>
+    <?=$this->request('com/example/3/Wereld')?>
     </div>
     
   </body>

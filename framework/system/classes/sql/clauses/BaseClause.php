@@ -37,12 +37,7 @@ abstract class BaseClause extends \classes\sql\BaseBuilder
     
   }
   
-  //Return the string representation of this clause. To be extended.
-  public function getString()
-  {
-    
-    return '';
-    
-  }
+  //Return the string representation of this clause.
+  abstract public function getString();
   
 }

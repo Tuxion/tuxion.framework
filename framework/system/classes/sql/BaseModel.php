@@ -143,17 +143,6 @@ abstract class BaseModel extends Row
     //We're going to do some stuff with the fields.
     self::tableInfo()->fields
     
-    #TODO: //Workaround for byte strings from mysql_fetch_assoc.
-    // ->each(function($val, $key)use(&$values){
-      
-    //   if($val->type->get() === 'bit'
-    //   && $val->arguments->{0}->get('int') === 1
-    //   && gettype($values[$key]) === 'string'){
-    //     $values[$key] = ($values[$key] === "\x01");
-    //   }
-      
-    // })
-    
     //Apply default values.
     ->each(function($info, $field_name){
       
@@ -169,6 +158,8 @@ abstract class BaseModel extends Row
     
     //Apply given values.
     $this->merge($values);
+    
+    #TODO: Convert bits.
     
   }
   

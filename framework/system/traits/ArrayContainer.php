@@ -453,8 +453,10 @@ trait ArrayContainer
   //Permission setter.
   public function setArrayPermissions($read = true, $write = true, $delete = true)
   {
+    
     $this->arr_permissions = ($read ? 1 : 0) | ($write ? 2 : 0) | ($delete ? 4 : 0);
     return $this;
+    
   }
   
   //Native getter.

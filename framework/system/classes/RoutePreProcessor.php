@@ -7,6 +7,9 @@ class RoutePreProcessor extends RouteProcessor
   public function reroute()
   {
     
+    //We need materials.
+    $this->needsMaterials('to reroute');
+    
     //Handle arguments.
     $args = func_get_args();
     
@@ -39,10 +42,7 @@ class RoutePreProcessor extends RouteProcessor
     }
     
     //Reroute.
-    tx('Router')->reroute($path, !$discard);
-    
-    //Reiterate the run callbacks blocks.
-    \classes\Controller::rerun();
+    $this->materials->router->reroute($path, !$discard);
     
     //Enable chaining.
     return $this;
@@ -64,7 +64,7 @@ class RoutePreProcessor extends RouteProcessor
     {
       
       //Check if the user has this permission.
-      if(tx('User')->hasPermission($this->controller->component, $permission)){
+      if(tx('User')->hasPermission($this->component_name, $permission)){
         continue;
       }
       

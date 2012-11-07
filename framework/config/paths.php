@@ -7,6 +7,7 @@ return [
   'logs' => "$base/logs",
   'plugins' => "$base/plugins",
   'components' => "$base/components",
+  'outputting' => "$base/outputting",
   'core' => "$base/system/core",
   'classes' => "$base/system/classes",
   'exceptions' => "$base/system/exceptions",

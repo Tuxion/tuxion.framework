@@ -3,26 +3,6 @@
 class Controller
 {
   
-  //Protected static properties.
-  protected static
-    $callbacks=[];
-  
-  //Reiterate the uncalled callbacks.
-  public static function rerun()
-  {
-    
-    foreach(self::$callbacks as $k => $with){
-      if($with[1]->active()){
-        $c = route();
-        route($with[1]);
-        $with[0]();
-        route($c);
-        unset(self::$callbacks[$k]);
-      }
-    }
-    
-  }
-  
   //Protected properties.
   protected
     $pres=[],
@@ -31,18 +11,18 @@ class Controller
     
   //Public properties.
   public
-    $router,
     $type=15,
-    $root=false,
-    $base=null;
+    $path;
   
-  //The constructor sets the type, root, base and router.
-  public function __construct($type=null, $root=false, $base=null, Router $router)
+  //Private properties.
+  private
+    $context=null;
+  
+  //The constructor sets the type, root, path and router.
+  public function __construct($type, $path)
   {
     
-    $this->base = $base;
-    $this->root = $root;
-    $this->router = $router;
+    $this->path = $path;
     
     if(is_int($type)){
       $this->type = $type;
@@ -50,12 +30,49 @@ class Controller
     
   }
   
+  //Set the context. Duh.
+  public function setContext(ControllerContext $context)
+  {
+    
+    //Are we being cheeky?
+    if(!is_null($this->context)){
+      throw new \exception\Restriction('You can not set contexts when the context has already been set.');
+    }
+    
+    //Set.
+    $this->context = $context;
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Removes the context.
+  public function clearContext()
+  {
+    
+    //Unset.
+    $this->context = null;
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+
+  
   //Add a preprocessor to this controller.
   public function pre($description, \Closure $callback)
   {
     
-    $this->pres[] = new \classes\RoutePreProcessor($description, $callback, $this);
+    //We need context.
+    if(is_null($this->context)){
+      throw new \exception\Restriction('Can not create processors when no context is set.');
+    }
     
+    //Create the processor.
+    $this->pres[] = new \classes\RoutePreProcessor($description, $callback, $this->context);
+    
+    //Enable chaining.
     return $this;
     
   }
@@ -63,6 +80,11 @@ class Controller
   //Add an endpoint to this controller.
   public function end()
   {
+    
+    //We need context.
+    if(is_null($this->context)){
+      throw new \exception\Restriction('Can not create processors when no context is set.');
+    }
     
     //Handle arguments.
     $args = func_get_args();
@@ -99,7 +121,7 @@ class Controller
     }
     
     //Yep.
-    $this->end = new \classes\RouteEndPoint($description, $callback, $this);
+    $this->end = new \classes\RouteEndPoint($description, $callback, $this->context);
     
     //Enable chaining.
     return $this;
@@ -110,8 +132,15 @@ class Controller
   public function post($description, \Closure $callback)
   {
     
-    $this->posts[] = new \classes\RoutePostProcessor($description, $callback, $this);
+    //We need context.
+    if(is_null($this->context)){
+      throw new \exception\Restriction('Can not create processors when no context is set.');
+    }
     
+    //Create the processor.
+    $this->posts[] = new \classes\RoutePostProcessor($description, $callback, $this->context);
+    
+    //Enable chaining.
     return $this;
     
   }
@@ -125,59 +154,44 @@ class Controller
   }
   
   //Call this controller's preprocessors with the given arguments.
-  public function callPres(DataBranch $input, array $params)
+  public function callPres(Materials $materials, array $params)
   {
-    
-    //This array will gather the called UserFunc objects.
-    $called = [];
     
     //Execute every preprocessor.
     foreach($this->pres as $pre){
-      $pre->setProperties(['input' => $input]);
-      $pre->setarguments($params);
-      $pre->controller = $this;
-      $called[] = $pre->execute();
+      $pre->execute($materials, $params);
     }
     
-    //Return the UserFunc objects.
-    return $called;
+    //Enable chaining.
+    return $this;
     
   }
   
-  //Call he endpoint of this controller.
-  public function callEnd(DataBranch $input, DataBranch $output, array $params)
+  //Return the endpoint of this Controller.
+  public function getEnd()
   {
     
-    
+    //Do we even have one?
     if(!$this->hasEnd()){
-      throw new \exception\Programmer('No endpoint to call.');
+      throw new \exception\Programmer('No endpoint to return.');
     }
-      
-    $this->end->setProperties(['input' => $input, 'output' => $output]);
-    $this->end->setarguments($params);
-    $this->end->controller = $this;
     
-    return $this->end->execute();
+    //Yep.
+    return $this->end;
   
   }
   
   //Call this controller's post-processors with the given arguments.
-  public function callPosts(DataBranch $input, DataBranch $output, array $params)
+  public function callPosts(Materials $materials, array $params)
   {
     
-    //This array will gather the called UserFunc objects.
-    $called = [];
-    
-    //Execute every post-processor.
+    //Execute every preprocessor.
     foreach($this->posts as $post){
-      $post->setProperties(['input' => $input, 'output' => $output]);
-      $post->setarguments($params);
-      $post->controller = $this;
-      $called[] = $post->execute();
+      $post->execute($materials, $params);
     }
     
-    //Return the UserFunc objects.
-    return $called;
+    //Enable chaining.
+    return $this;
     
   }
   
@@ -210,16 +224,8 @@ class Controller
     //Make the path full.
     $path = $this->fullPath($path);
     
-    //Make the controller.
-    $r = (new $this($type, false, $path, $this->router));
-    
-    //Add the controller to the router.
-    if($r->active()){
-      $this->router->addController($r);
-    }
-    
     //Return the controller.
-    return $r;
+    return tx('Controllers')->get($type, $path)->setContext($this->context);
     
   }
   
@@ -227,25 +233,9 @@ class Controller
   public function run(\Closure $cb)
   {
     
-    //Call or store the callback?
-    if($this->active()){
-      $c = route();
-      route($this);
-      $cb();
-      route($c);
-    }else{
-      self::$callbacks[] = [$cb, $this];
-    }
+    tx('Controllers')->when($this->type, $this->path, $cb);
     
     return $this;
-    
-  }
-  
-  //Return true if the path set in this controller matches the path in the router calling this controller.
-  public function active()
-  {
-    
-    return $this->router->match($this->type, $this->base);
     
   }
   
@@ -254,7 +244,7 @@ class Controller
     
     //Empty path.
     if(empty($path)){
-      return $this->base;
+      return $this->path;
     }
     
     //Absolute path.
@@ -272,7 +262,7 @@ class Controller
     }
     
     //Relative path.
-    return Router::cleanPath($this->base.'/'.$path);
+    return Router::cleanPath($this->path.'/'.$path);
     
   }
   

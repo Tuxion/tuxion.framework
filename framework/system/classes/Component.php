@@ -12,38 +12,32 @@ class Component
     $active=null;
   
   //Try to find and return the component that could be identified with given identifier.
-  public static function get($id, ArrayObject $cinfo=null)
+  public static function get($locator)
   {
     
     //Somehow got back here?
-    if($id instanceof self){
-      return $id;
+    if($locator instanceof self){
+      return $locator;
+    }
+    
+    //Is $locator a Locator?
+    if(!$locator instanceof locators\Component){
+      $locator = tx('Resource')->component($locator);
     }
     
     //Look in cache.
-    if(array_key_exists($id, self::$instances)){
-      return self::$instances[$id];
+    if(array_key_exists($locator->id, self::$instances)){
+      return self::$instances[$locator->id];
     }
     
-    //no custom info given? Fill with database info.
-    if(is_null($cinfo))
-    {
-    
-      try{
-        $cinfo = tx('Sql')->exe('
-          SELECT * FROM `#system_components` WHERE `'.(is_numeric($id) ? 'id' : 'name').'` = ?',
-          $id
-        )[0];
-      }
-      
-      catch(\exception\NotFound $e){
-        throw new \exception\NotFound('Could not find component "%s" in the database.', $id);
-      }
-    
-    }
+    //Get the component info.
+    $cinfo = tx('Sql')->exe('
+      SELECT * FROM `#system_components` WHERE `id` = ?',
+      $locator->id
+    )[0];
     
     //Create the instance.
-    self::$instances[$cinfo->id] = self::$instances[$cinfo->name] = $c = new self($cinfo);
+    self::$instances[$cinfo->id] = $c = new self($cinfo);
     
     //Return the instance.
     return $c;
@@ -54,10 +48,12 @@ class Component
   public
     $id,
     $name,
-    $title;
+    $title,
+    $locator;
     
   //Private properties.
   private
+    $controllers_loaded = false,
     $extended,
     $extending;
   
@@ -65,8 +61,9 @@ class Component
   public function __construct(ArrayObject $cinfo)
   {
     
-    $this->id = $cinfo->id;
-    $this->name = $cinfo->name;
+    $this->locator = tx('Resource')->component($cinfo->id);
+    $this->id = $this->locator->id;
+    $this->name = $this->locator->name;
     $this->title = $cinfo->title;
     
     tx('Log')->message($this, 'component loaded', $this->title);
@@ -84,15 +81,14 @@ class Component
     
     //Fetch from the database.
     $result = tx('Sql')->exe('
-      SELECT * FROM `#system_components` AS `c`
-      INNER JOIN `#system_component_extensions` AS `ce` ON `ce`.`extended_by_id` = `c`.`id`
-      WHERE `ce`.`component_id` = ?i',
+      SELECT `extended_by_id` FROM `#system_component_extensions`
+      WHERE `component_id` = ?i',
       $this->id
     )
     
     //Map the Component objects.
     ->map(function($row){
-      return self::get($row->id, $row);
+      return self::get(tx('Resource')->component($row->id));
     });
     
     //Return the result.
@@ -111,15 +107,14 @@ class Component
     
     //Fetch from the database.
     $result = tx('Sql')->exe('
-      SELECT * FROM `#system_components` AS `c`
-      INNER JOIN `#system_component_extensions` AS `ce` ON `ce`.`component_id` = `c`.`id`
-      WHERE `ce`.`extended_by_id` = ?i',
+      SELECT `component_id` FROM `#system_component_extensions`
+      WHERE `extended_by_id` = ?i',
       $this->id
     )
     
     //Map the Component objects.
     ->map(function($row){
-      return self::get($row->id, $row);
+      return self::get(tx('Resource')->component($row->id));
     });
     
     //Return the result.
@@ -128,18 +123,20 @@ class Component
   }
   
   //Load all controllers in this component, so that they may fill their Controller objects.
-  public function loadControllers(Router $router)
+  public function loadControllers()
   {
+    
+    //Do nothing?
+    if($this->controllers_loaded){
+      return $this;
+    }
     
     //Glob the files!
     $files = files($this->getPath().'/controllers/*.php');
     
-    //No controllers yet.
-    $controllers = [];
-    
     //No files? No nothing!
     if(empty($files)){
-      return $controllers;
+      return $this;
     }
     
     //Make a restore point.
@@ -149,22 +146,12 @@ class Component
     foreach($files as $file)
     {
     
-      //Create the controller object for the next include.
-      $controller = (new ComponentController(
-        null,
-        'com',
-        "com/{$this->name}",
-        $router,
-        $this,
-        basename($file, '.php')
-      ));
+      //Get the controller object for the next include.
+      $controller = tx('Controllers')->get(GET|POST|PUT|DELETE, "com/{$this->name}")
+        ->setContext(new ControllerContext($this->locator, $file));
       
       //Log.
-      tx('Log')->message(
-        $this,
-        'created controller',
-        $controller->component->title.': '.$controller->filename
-      );
+      tx('Log')->message($this, 'created controller', $this->title.': '.$file);
       
       //Set the magic route().
       route($controller);
@@ -172,16 +159,19 @@ class Component
       //Include the controller files.
       require($file);
       
-      //Add to the controllers array.
-      $controllers[] = $controller;
+      //Clear the context.
+      $controller->clearContext();
     
     }
     
     //Restore the magic c.
     route($c);
     
+    //Controllers have been loaded.
+    $this->controllers_loaded = true;
+    
     //Enable chaining.
-    return $controllers;
+    return $this;
     
   }
   

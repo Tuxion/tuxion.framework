@@ -184,6 +184,15 @@ class Query
     
   }
   
+  //Short for $this->execute()->idx(0);
+  public function single()
+  {
+    
+    $result = call_user_func_array([$this, 'execute'], func_get_args());
+    return $result->idx(0);
+    
+  }
+  
   //Executes the query and returns an Result object.
   public function execute(Connection $conn = null, \Closure $creator = null)
   {
