@@ -4,18 +4,18 @@
   
   <head>
     
-    <title><?=$this->getTitle()?></title>
+    <title><?=$t->getTitle()?></title>
     
   </head>
   
   <body>
     
-    <?=$this?>
+    <?=$t?>
     
     <div>
-    <?=$this->request('com/example/1/Hoi')?>
-    <?=$this->request('com/example/2/Doei')?>
-    <?=$this->request('com/example/3/Wereld')?>
+    <?=$t->request('com/example/1/Hoi')?>
+    <?=$t->request('com/example/2/Doei')?>
+    <?=$t->request('com/example/3/Wereld')?>
     </div>
     
   </body>

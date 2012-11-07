@@ -207,6 +207,16 @@ abstract class RouteProcessor
     
   }
   
+  //Returns the input.
+  public function input()
+  {
+    
+    $this->needsMaterials('to get input');
+    
+    return $this->materials->input;
+    
+  }
+  
   //Checks if we have a materials and uses the given string to generate an error if we do not.
   protected function needsMaterials($for_what)
   {
@@ -220,5 +230,6 @@ abstract class RouteProcessor
     throw new \exception\Restriction('The processor needs materials %s.', strtolower($for_what));
     
   }
+  
   
 }
