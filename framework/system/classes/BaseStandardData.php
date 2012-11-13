@@ -8,19 +8,39 @@ abstract class BaseStandardData
     $type,
     $mimes=[];
   
-  //Looks in the database to match the given mime-type to a converter-name.
-  public static function getConverterByMime($mime)
+  //Private properties.
+  private
+    $data;
+  
+  //Loads and returns the converter of the given name.
+  public static function loadConverter($name)
+  {
+    
+    //Create file and class paths.
+    $file = tx('Config')->paths->outputting.'/'.static::$type.'/converters/'.$name.'.php';
+    $class = "\\outputting\\".static::$type."\\converters\\$name";
+    
+    //Load the class.
+    load_class($file, $class);
+    
+    //Return the class name.
+    return $class;
+    
+  }
+  
+  //Loads and returns the converter corresponding to the given mime-type.
+  public function loadConverterByMime($mime)
   {
     
     //Do we have it in our cache?
     if(array_key_exists($mime, self::$mimes)){
-      return self::getConverter(self::$mimes[$mime]);
+      return self::loadConverter(self::$mimes[$mime]);
     }
     
     //Get it from the database.
     tx('Sql')->exe('
       SELECT mt.name AS mime, oc.name AS converter FROM #system_mime_types AS `mt` 
-      INNER JOIN #system_outputting_converters AS `oc` ON mt.id = oc.type_id
+      INNER JOIN #system_outputting_converters AS `oc` ON mt.id = oc.mime_type_id
     ')
     
     //Iterate the results and add them to our map.
@@ -34,29 +54,9 @@ abstract class BaseStandardData
     }
     
     //Try again.
-    return self::getConverterByMime($mime);
+    return self::loadConverter(self::$mimes[$mime]);
     
   }
-  
-  //Loads the given converter class and returns its object.
-  public static function getConverter($name)
-  {
-    
-    //Create file and class paths.
-    $file = tx('Config')->paths->outputting.'/'.self::$type.'/converters/'.$name.'.php';
-    $class = "\\outputting\\".self::$type."\\converters\\$name";
-    
-    //Load the class.
-    load_class($file, $class);
-    
-    //Create and return the instance.
-    return new $class($this);
-    
-  }
-  
-  //Private properties.
-  private
-    $data;
   
   //Set the data.
   public function __construct($data)
@@ -78,13 +78,31 @@ abstract class BaseStandardData
     
   }
   
-  //Output using one of our converters.
-  public function outputAs($converter_name)
+  //Looks in the database to match the given mime-type to a converter-name.
+  public function createConverterByMime($mime)
   {
     
-    return self::getConverter($converter_name)->output($this);
+    //Get the class.
+    $class = self::loadConverterByMime($mime);
+    
+    //Return an instance of it.
+    return new $class($this);
     
   }
+  
+  //Loads the given converter class and returns its object.
+  public function createConverter($name)
+  {
+    
+    //Get the class.
+    $class = self::loadConverter($name);
+    
+    //Create and return the instance.
+    return new $class($this);
+    
+  }
+  
+
   
   //Return the templator with this data.
   public function createTemplator(\classes\Materials $materials)

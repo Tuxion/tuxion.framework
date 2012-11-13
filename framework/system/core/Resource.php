@@ -17,7 +17,7 @@ class Resource
   {
     
     //Delegate.
-    return $this->getLocator(ucfirst($type), $args[0]);
+    return $this->getLocator(ucfirst($type), $args[0], @$args[1]);
     
   }
   
@@ -43,6 +43,7 @@ class Resource
     
     //Return the resource locator.
     return $r;
+    
     
   }
   

@@ -35,7 +35,6 @@ abstract class Base
       $this->parent = $parent;
       
     }
-    
     //Otherwise location must be a directory.
     elseif(!is_dir($location)){
       throw new \exception\ResourceMissing('Directory "%s" does not exist.', $location);

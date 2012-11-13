@@ -29,7 +29,7 @@ function get_object_id($object)
 {
   
   if(!is_object($object)){
-    throw new \exception\InvlaidArgument(
+    throw new \exception\InvalidArgument(
       'Expecting $object to be an object. %s given.',
       ucfirst(typeof($object))
     );

@@ -18,7 +18,7 @@ class Materials
     $mime;
   
   //Set the input.
-  public function __construct(DataBranch $input)
+  public function __construct(\outputting\nodes\Standard $input)
   {
     
     $this->input = $input;

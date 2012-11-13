@@ -171,7 +171,7 @@ abstract class RouteProcessor
     
     $this->needsMaterials('to get input');
     
-    return $this->materials->input;
+    return $this->materials->input->raw();
     
   }
   

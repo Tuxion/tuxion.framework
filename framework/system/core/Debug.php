@@ -33,8 +33,28 @@ class Debug
       tx('Log')->error(__CLASS__, $e);
     }
     
-    echo '<h1>'.get_class($e).'</h1><h3>'.$e->getMessage().'</h3>';
+    //Create the message.
+    $msg = sprintf(
+      '%s: %s'.(tx('Config')->config->debug ? ' (%s @ %s)' : ''),
+      baseclass(get_class($e)),
+      $e->getMessage(),
+      substr($e->getFile(), strlen(tx('Config')->paths->root)+1),
+      $e->getLine()
+    );
+    
+    //Uncaught exceptions. We can't do much with them.
+    set_status_header($this->getExceptionResponseCode($e), $msg);
+    
+    //Give the output in HTML.
+    header('Content-type: text/html; charset=UTF-8');
+    
+    //Output the message.
+    echo $msg;
+    echo BR.BR;
     echo $this->printTrace($e->getTrace());
+    
+    //We're dead.
+    exit;
     
   }
   
@@ -130,7 +150,7 @@ class Debug
       if(!array_key_exists('file', $entry)){
         $out .= '<b>[internal code]</b>';
       }else{
-        $out .= '<b title="'.@$entry['file'].'">'.basename(@$entry['file']).'</b>';
+        $out .= '<b title="'.@substr(@$entry['file'], strlen(tx('Config')->paths->root)+1).'">'.basename(@$entry['file']).'</b>';
         $out .= '@<i>'.@$entry['line'].'</i>';
       }
       
@@ -162,7 +182,38 @@ class Debug
   
   public function typeOf($var)
   {
+    
     return (is_object($var) ? sprintf('object(%s)', get_class($var)) : gettype($var));
+    
   }
-
+  
+  //Return the response code associated with this exception.
+  public function getExceptionResponseCode(\Exception $e)
+  {
+    
+    if($e instanceof \exception\BadRequest){
+      return 400;
+    }
+    
+    if($e instanceof \exception\Unauthorized){
+      return 401;
+    }
+    
+    if($e instanceof \exception\Forbidden){
+      return 403;
+    }
+    
+    if($e instanceof \exception\NotFound){
+      return 404;
+    }
+    
+    
+    if($e instanceof \exception\NotImplemented){
+      return 501;
+    }
+    
+    return 500;
+    
+  }
+  
 }

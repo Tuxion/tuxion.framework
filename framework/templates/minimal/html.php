@@ -14,7 +14,7 @@
     
     <div>
     <?=$t->request('com/example/1/Hoi')?>
-    <?=$t->request('com/example/2/Doei')?>
+    <?=$t->request('com/example/k/Doei')?>
     <?=$t->request('com/example/3/Wereld')?>
     </div>
     

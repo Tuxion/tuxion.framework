@@ -76,17 +76,28 @@ abstract class BaseTemplator
   }
   
   //Do a request to a different route from within the template.
-  public function request($path, DataBranch $data = null)
+  public function request($path, $data = null)
   {
     
-    return tx('Response')->outputRoute(
-      $this->materials->router->type,
-      $path,
-      (is_null($data) ? Data([]) : $data),
-      $this->materials->mime,
-      true,
-      false
-    )->data;
+    //Try doing the request.
+    try{
+      return tx('Response')->outputRoute(
+        $this->materials->router->type,
+        $path,
+        (is_null($data) ? new \outputting\nodes\Standard([]) : $data),
+        $this->materials->mime,
+        true,
+        false
+      )->data;
+    }
+    
+    //If something broke, we will return an error message.
+    catch(\exception\Exception $e)
+    {
+      
+      return sprintf('Failed to load "%s": %s', $path, $e->getMessage());
+      
+    }
     
   }
   

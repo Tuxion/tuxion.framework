@@ -42,7 +42,7 @@ class Mime
     $matches = array_search_recursive($type, $this->mimes);
     
     if($matches === false){
-      throw new \exception\Nonexistent('Could not find a mime for file-type "%s".', $type);
+      return false;
     }
     
     return $matches[0];
@@ -53,7 +53,7 @@ class Mime
   {
     
     if(!array_key_exists($mime, $this->mimes)){
-      throw new \exception\Nonexistent('Could not find a type for mime "%s".', $mime);
+      return false;
     }
     
     return $this->mimes[$mime][0];
@@ -65,7 +65,7 @@ class Mime
   {
       
     if(!array_key_exists($mime, $this->mimes)){
-      throw new \exception\Nonexistent('Could not find the types for mime "%s".', $mime);
+      return false;
     }
     
     return $this->mimes[$mime];

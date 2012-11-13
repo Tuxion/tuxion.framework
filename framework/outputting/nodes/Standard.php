@@ -11,7 +11,7 @@ class Standard extends \classes\BaseStandardData
   public static function accepts($input)
   {
     
-    return ($input instanceof \classes\ArrayObject);
+    return is_array($input);
     
   }
   

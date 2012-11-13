@@ -58,8 +58,36 @@ class Outputting
     
   }
   
+  //Create a StandardData instance of the given type using the given data.
+  public function createStandardInstance($type, $data)
+  {
+    
+    //Create the class name.
+    $class = $this->loadStandardClass($type);
+    
+    //Return the instance.
+    return new $class($data);
+    
+  }
+  
+  //Returns the class name for the given standard data type.
+  public function loadStandardClass($type)
+  {
+    
+    //Create the class string.
+    $class = "\\outputting\\$type\\Standard";
+    
+    //Check if the class exists.
+    if(!class_exists($class)){
+      throw new \exception\InvalidArgument('Given $type is not an existing standard data type.');
+    }
+    
+    return $class;
+    
+  }
+  
   //Loads all outputters.
-  public function loadOutputters()
+  private function loadOutputters()
   {
     
     $directories = files(tx('Config')->paths->outputting.'/*');

@@ -2,5 +2,5 @@
 
 route(GET, '$int/$[A-Za-z+]')->end('Generating data for the test page.', function($id, $word){
   $this->setTemplate('minimal');
-  $this->output($this->input()->merge(['foo' => "$word ($id)"]));
+  $this->output(array_merge($this->input(), ['foo' => "$word ($id)"]));
 });

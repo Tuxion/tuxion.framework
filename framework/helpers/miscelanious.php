@@ -77,7 +77,7 @@ function set_status_header($code=200, $text=null){
   ];
   
   if(!array_key_exists($code, $stati)){
-    throw new \exception\InvlaidArgument(
+    throw new \exception\InvalidArgument(
       'Invalid status code "%s" given. Valid status codes are: %s.',
       $code, implode(', ', array_keys($stati))
     );
