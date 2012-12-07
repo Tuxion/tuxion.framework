@@ -1,6 +1,6 @@
 <?php namespace classes\sql\clauses;
 
-class Where extends Whaving
+class Having extends Whaving
 {
   
   
