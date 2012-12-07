@@ -120,6 +120,10 @@ class Debug
               $args[] = ('object('.get_object_name($arg).')');
             }
             break;
+          
+          case 'NULL':
+            $args[] = 'NULL';
+            break;
             
           default:
             $args[] = $arg;
