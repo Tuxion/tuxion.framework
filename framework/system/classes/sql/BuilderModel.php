@@ -58,7 +58,7 @@ class BuilderModel
     
     //For certain methods.
     if(!in_array($method, ['join'])){
-      throw new \exception\Nonexistent('Method "%s" does not exist.', $method);
+      throw new \exception\NonExistent('Method "%s" does not exist.', $method);
     }
     
     //Go!
@@ -172,7 +172,7 @@ class BuilderModel
     
     //Check if the column name exists.
     if(!$this->tinfo->fields->has($column_name)){
-      throw new \exception\Nonexistent(
+      throw new \exception\NonExistent(
         'The column "%s" does not exist in the model "%s" of %s.',
         $column_name, $this->name, $this->component->title
       );

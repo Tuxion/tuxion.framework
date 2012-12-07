@@ -1,5 +1,5 @@
 <?php namespace exception;
 
-class Nonexistent extends InternalServerError
+class NonExistent extends InternalServerError
 {
 }

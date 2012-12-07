@@ -354,7 +354,7 @@ trait ArrayContainer
     }
     
     if( ! array_key_exists($key, $this->arr)){
-      throw new \exception\Nonexistent('Could not find "%s" in %s.', $key, get_class($this));
+      throw new \exception\NonExistent('Could not find "%s" in %s.', $key, get_class($this));
     }
     
     return $this->arr[$key];
