@@ -1,6 +1,6 @@
 <?php
 
-function Data(){
+function d(){
   
   $data = (func_num_args() == 1 ? func_get_arg(0) : (func_num_args() > 1 ? func_get_args() : null));
   

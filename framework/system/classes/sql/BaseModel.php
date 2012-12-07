@@ -81,7 +81,7 @@ abstract class BaseModel extends Row
       $finfo->merge(
         
         //Do the parsing.
-        Data($finfo->attributes)->parse('~'.
+        d($finfo->attributes)->parse('~'.
           '(?:^(?<type>\w+))'. //type
           '(?:\((?<arguments>[^\)]+)\))?'. //arguments
           '(?:(?<extra>(?:\s+\w+)*))'. //other attributes
@@ -96,7 +96,7 @@ abstract class BaseModel extends Row
       );
       
       //Parse the "extra" stuff.
-      $finfo->extra = Data($finfo->extra)
+      $finfo->extra = d($finfo->extra)
       ->trim()
       ->lowercase()
       ->split(' ')
@@ -106,7 +106,7 @@ abstract class BaseModel extends Row
       unset($finfo->attributes);
       
       //Prettify the arguments.
-      $finfo->arguments = Data($finfo->arguments)
+      $finfo->arguments = d($finfo->arguments)
         ->lowercase()
         ->split(',')
         ->map(function($arg){
@@ -116,7 +116,7 @@ abstract class BaseModel extends Row
       ;//Prettified.
       
       //Store.
-      $tinfo->fields[$column->Field] = Data($finfo->toArray());
+      $tinfo->fields[$column->Field] = d($finfo->toArray());
       
     });
 
@@ -260,7 +260,7 @@ abstract class BaseModel extends Row
       return self::tableInfo()->primary_keys;
     }
     
-    return $this->having(self::tableInfo()->primary_keys->toArray(), true);
+    return $this->having(self::tableInfo()->primary_keys->toArray());
     
   }
   
@@ -272,7 +272,7 @@ abstract class BaseModel extends Row
       return self::tableInfo()->fields->keys();
     }
     
-    return $this->having(self::tableInfo()->fields->keys()->toArray(), true);
+    return $this->having(self::tableInfo()->fields->keys()->toArray());
     
   }
   
@@ -333,7 +333,7 @@ abstract class BaseModel extends Row
     
     //Check if all the primary keys are set.
     foreach($this->pks() as $val){
-      if(Data($val)->isEmpty()){
+      if(d($val)->isEmpty()){
         return true;
       }
     }

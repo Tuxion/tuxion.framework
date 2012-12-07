@@ -4,6 +4,7 @@ trait Data
 {
   
   //Use the successable trait, and implement its is() and not() method as private, so we can extend them.
+  #TEMP: Copy of Successable code. Using causes memory leaks.
   public $success=null;
   
   //Sets the success state to the boolean that is given, or returned by given callback.
@@ -91,6 +92,7 @@ trait Data
     }
     
   }
+  #TEMP: End of TEMP.
   
   //Properties.
   private
@@ -175,7 +177,7 @@ trait Data
       $r = $this->_is($check);
     }
     
-    return Data($r);
+    return d($r);
     
   }
   
@@ -200,7 +202,7 @@ trait Data
       $r = $this->_not($check);
     }
     
-    return Data($r);
+    return d($r);
   
   }
   

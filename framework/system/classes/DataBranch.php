@@ -10,7 +10,7 @@ class DataBranch extends ArrayObject
   private $i = 0;
   
   //Constructor can accept initial data.
-  public function __construct($data=array(), $parent=null, $key=null)
+  public function __construct($data=[], $parent=null, $key=null)
   {
     
     if(uses($data, 'ArrayContainer')){

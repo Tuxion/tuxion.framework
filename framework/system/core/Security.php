@@ -81,7 +81,7 @@ class Security
   public function get_password_strength($password)
   {
   
-    $password = Data(data_of($password))
+    $password = d(data_of($password))
       ->validate('Password', array('string')); //Must be a string.
     
     $strength = 0; 

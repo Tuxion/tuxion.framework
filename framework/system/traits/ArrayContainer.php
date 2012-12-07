@@ -113,82 +113,6 @@ trait ArrayContainer
     
   }
   
-  //Return a new $this by iterating over the data and using the return value from the callback and return it.
-  public function map(\Closure $callback, $blank=false)
-  {
-  
-    $r = ($blank ? new \classes\ArrayObject : new $this);
-    $i = 0;
-    
-    foreach($this->arr as $key => $value){
-      $r->push($callback($value, $key, $i));
-      $i++;
-    }
-    
-    return $r;
-  
-  }
-  
-  //Return a new ArrayObject filled with the nodes that were at the given key.
-  public function pluck()
-  {
-    
-    $return = new \classes\ArrayObject;
-    
-    foreach($this->arr as $node)
-    {
-      
-      foreach(func_get_args() as $key){
-        $node = $node->arrayGet($key);
-      }
-      
-      $return->push($node);
-      
-    }
-    
-    return $return;
-    
-  }
-  
-  //Return a new DataBranch, excluding the nodes that were not in the given keys.
-  public function having(array $keys, $blank=false)
-  {
-    
-    $return = ($blank ? new \classes\ArrayObject : new $this);
-    
-    foreach($keys as $key1 => $key2)
-    {
-      
-      if(is_string($key1)){
-        $return->arraySet($key1, $this->arrayGet($key2));
-      }
-      
-      else{
-        $return->arraySet($key2, $this->arrayGet($key2));
-      }
-      
-    }
-    
-    return $return;
-    
-  }
-  
-  //Return a new DataBranch containing only the nodes that made the given callback return true.
-  public function filter(\Closure $callback, $blank=false)
-  {
-    
-    $return = ($blank ? new \classes\ArrayObject : new $this);
-    
-    foreach($this->arr as $k => $v){
-      if($callback($v, $k) === true){
-        $return->arraySet($k, $v);
-      }
-    }
-    
-    return $return;
-    
-  }
-  
   //Returns a string created of all child-nodes converted to string and joined together by the given $separator.
   public function join($separator='')
   {
@@ -202,16 +126,6 @@ trait ArrayContainer
     }
     
     return $return;
-    
-  }
-  
-  //Returns a slice of the array in the form of a new $this.
-  public function slice($offset=0, $length=null, $blank=false)
-  {
-    
-    $r = ($blank ? new \classes\ArrayObject : new $this);
-    $r->set(array_slice($this->arr, $offset, $length));
-    return $r;
     
   }
   
@@ -297,18 +211,6 @@ trait ArrayContainer
     
     //Enable chaining.
     return $this;
-    
-  }
-  
-  //Flatten the array and return a flat new self.
-  public function flatten($blank=false)
-  {
-    
-    $return = ($blank ? new \classes\ArrayObject : new $this);
-    
-    $return->set(array_flatten($this->arr));
-    
-    return $return;
     
   }
   
@@ -417,22 +319,6 @@ trait ArrayContainer
   {
     
     return $this->keyOf($value, $strict) !== false;
-    
-  }
-  
-  //Return a new ArrayObject with the keys of this array as values.
-  public function keys()
-  {
-    
-    return new \classes\ArrayObject(array_keys($this->arr));
-    
-  }
-  
-  //Return a new ArrayObject with the values of this array as values.
-  public function values()
-  {
-    
-    return new \classes\ArrayObject(array_values($this->arr));
     
   }
   

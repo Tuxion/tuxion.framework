@@ -63,7 +63,7 @@ class Permissions
       $cinfo->id
     )->map(function($row){
       return $row->key;
-    }, true)->toArray();
+    })->toArray();
     
     //And put its results as unset keys in our cache array.
     $cache[$cinfo->id] = array_fill_keys($permissions, null);
@@ -134,7 +134,7 @@ class Permissions
       $cinfo->id
     )->map(function($row){
       return $row->key;
-    }, true)->toArray();
+    })->toArray();
     
     //And put its results as unset keys in our cache array.
     $cache[$cinfo->id] = array_fill_keys($permissions, false);
