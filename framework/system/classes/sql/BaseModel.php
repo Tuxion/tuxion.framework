@@ -8,7 +8,7 @@ abstract class BaseModel extends Row
   {
     
     //Create a new ArrayObject to put our information into.
-    $info = new \classes\ArrayObject([]);
+    $info = wrap([]);
     
     //Add some of the meta-data provided by the model itself.
     foreach(['table_name', 'fields', 'relations'] as $var){
@@ -44,9 +44,9 @@ abstract class BaseModel extends Row
     }
     
     //Create the new entry in our cache.
-    $table_info[$table_name] = $tinfo = new \classes\ArrayObject([
-      'primary_keys' => new \classes\ArrayObject([]),
-      'fields' => new \classes\ArrayObject([])
+    $table_info[$table_name] = $tinfo = wrap([
+      'primary_keys' => wrap([]),
+      'fields' => wrap([])
     ]);
     
     //Fetch info from the database.
@@ -81,7 +81,7 @@ abstract class BaseModel extends Row
       $finfo->merge(
         
         //Do the parsing.
-        d($finfo->attributes)->parse('~'.
+        wrap($finfo->attributes)->parse('~'.
           '(?:^(?<type>\w+))'. //type
           '(?:\((?<arguments>[^\)]+)\))?'. //arguments
           '(?:(?<extra>(?:\s+\w+)*))'. //other attributes
@@ -96,7 +96,7 @@ abstract class BaseModel extends Row
       );
       
       //Parse the "extra" stuff.
-      $finfo->extra = d($finfo->extra)
+      $finfo->extra = wrap($finfo->extra)
       ->trim()
       ->lowercase()
       ->split(' ')
@@ -106,7 +106,7 @@ abstract class BaseModel extends Row
       unset($finfo->attributes);
       
       //Prettify the arguments.
-      $finfo->arguments = d($finfo->arguments)
+      $finfo->arguments = wrap($finfo->arguments)
         ->lowercase()
         ->split(',')
         ->map(function($arg){
@@ -116,7 +116,7 @@ abstract class BaseModel extends Row
       ;//Prettified.
       
       //Store.
-      $tinfo->fields[$column->Field] = d($finfo->toArray());
+      $tinfo->fields[$column->Field] = wrap($finfo->toArray());
       
     });
 
@@ -333,7 +333,7 @@ abstract class BaseModel extends Row
     
     //Check if all the primary keys are set.
     foreach($this->pks() as $val){
-      if(d($val)->isEmpty()){
+      if(wrap($val)->isEmpty()){
         return true;
       }
     }

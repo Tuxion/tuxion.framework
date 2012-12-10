@@ -1,15 +1,19 @@
-<?php namespace classes;
+<?php namespace classes\data;
 
-class ArrayObject implements \IteratorAggregate, \ArrayAccess
+class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
 {
   
   use \traits\ArrayContainer
   ;#TEMP: causes memory corruption
   //{
   //   set as private _set;
+  //   arrayGet as private _arrayGet;
   // }
   
-  
+  //Private properties.
+  private
+    $wrap_nodes=false;
+ 
   ##
   ## MAGIC METHODS
   ##
@@ -46,8 +50,16 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
   
   
   ##
-  ## TRANSFORMATION METHODS
+  ## MUTATION METHODS
   ##
+  
+  //Cast the array to a string.
+  public function toString()
+  {
+    
+    return new StringWrapper('[data\\Array]');
+    
+  }
   
   //Return a new ArrayObject with the keys of this array as values.
   public function keys()
@@ -180,6 +192,76 @@ class ArrayObject implements \IteratorAggregate, \ArrayAccess
   {
     
     return new self(array_flatten($this->toArray()));
+    
+  }
+  
+  //Boils down the array of values into a single value.
+  //reduce([int $mode = LEFT, ]callable $callback[, $initial = null]);
+  public function reduce()
+  {
+    
+    //Handle arguments.
+    $args = func_get_args();
+    
+    //Get mode.
+    $mode = ((is_int($args[0])) ? array_shift($args) : LEFT);
+    
+    //Validate remaining arguments.
+    if(count($args) < 1 || !is_callable($args[0])){
+      throw new \exception\InvalidArgument('No callback given.');
+    }
+    
+    //Get callback.
+    $callback = array_shift($args);
+    
+    //Get initial output value.
+    $output = ((count($args) > 0) ? array_shift($args) : null);
+    
+    //Get array.
+    $array = ($mode < 0 ? $this->arr : array_reverse($this->arr));
+    
+    //Iterate.
+    foreach($array as $key => $value){
+      $output = $callback($output, $value, $key);
+    }
+    
+    //Return the wrapped output.
+    return wrap($output);
+    
+  }
+  
+  //Returns a string created of all child-nodes converted to string and joined together by the given $separator.
+  public function join($separator='')
+  {
+    
+    return new StringWrapper(implode($separator, $this->arr));
+    
+  }
+  
+  
+  ##
+  ## GETTERS
+  ##
+  
+  //Alias for toArray(false).
+  public function get()
+  {
+    
+    return $this->toArray(false);
+    
+  }
+  
+  //Return the node under [key] wrapped in a new Data object.
+  public function wrap($key)
+  {
+    
+    //Return undefined if the node does not exist.
+    if(!$this->arrayExists($key)){
+      return new Undefined;
+    }
+    
+    //Return the node.
+    return wrap($this->arrayGet($key));
     
   }
   

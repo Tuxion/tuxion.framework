@@ -23,7 +23,7 @@ class Whaving extends BaseClause
     return strtoupper(substr(strrchr(get_class($this), '\\'), 1)).' '.
     
     //Wrap the conditions in Data.
-    d($this->conditions)
+    wrap($this->conditions)
     
     //Map the internal strings.
     ->map(function($cond){

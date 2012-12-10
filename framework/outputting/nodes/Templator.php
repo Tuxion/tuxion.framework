@@ -10,7 +10,7 @@ class Templator extends Base
   public function __get($key)
   {
     
-    return d($this->data->raw())[$key];
+    return wrap($this->data->raw())[$key];
     
   }
   

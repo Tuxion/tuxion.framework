@@ -125,8 +125,8 @@ class Response
       
       //Generate the template.
       $output_data = (new \classes\Render($templator, $inner_template, [
-        'errors' => d($materials->errors),
-        'warnings' => d($materials->warnings)
+        'errors' => wrap($materials->errors),
+        'warnings' => wrap($materials->warnings)
       ]))->generate();
       
     }

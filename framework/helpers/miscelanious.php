@@ -103,21 +103,4 @@ function set_status_header($code=200, $text=null){
   
 }
 
-function uses($class, $trait_name){
-  
-  //We must do this, because otherwise "class_uses" will attempt to autoload the class.
-  if(!is_object($class)){
-    return false;
-  }
-  
-  do{
-    if(array_key_exists("traits\\$trait_name", class_uses($class))){
-      return true;
-    }
-  }
-  while($class = get_parent_class($class));
-  
-  return false;
-  
-}
 

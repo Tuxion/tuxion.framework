@@ -390,7 +390,7 @@ class Permissions
     }
     
     //Return the calculated permissions in an ArrayObject.
-    return new \classes\ArrayObject($permissions);
+    return wrap($permissions);
     
   }
   

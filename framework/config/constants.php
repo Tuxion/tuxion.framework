@@ -22,6 +22,9 @@ return [
   'above' => 1,
   'asc'   => 1,
   'desc'  => -1,
+  'left'  => -1,
+  'both'  => 0,
+  'right' => 1,
   
   //Common variables.
   'n'  => "\r\n",

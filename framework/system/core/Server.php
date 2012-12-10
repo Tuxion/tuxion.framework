@@ -1,6 +1,6 @@
 <?php namespace core;
 
-class Server extends \classes\ArrayObject
+class Server extends \classes\data\ArrayWrapper
 {
   
   public function __construct()

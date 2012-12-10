@@ -1,6 +1,6 @@
 <?php namespace classes\sql;
 
-class Result extends \classes\ArrayObject
+class Result extends \classes\data\ArrayWrapper
 {
   
   public function __construct($rows=[])

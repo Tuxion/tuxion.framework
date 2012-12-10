@@ -1,4 +1,4 @@
 <?php namespace classes\sql;
 
-class Row extends \classes\ArrayObject
+class Row extends \classes\data\ArrayWrapper
 {}

@@ -3,7 +3,7 @@
 trait Successable
 {
   
-  public $success=null;
+  protected $success=null;
   
   //Sets the success state to the boolean that is given, or returned by given callback.
   public function is($check)
@@ -48,9 +48,13 @@ trait Successable
   }
   
   //Returns true, or executes $callback($this) if $this->success is true.
-  public function success(callable $callback)
+  public function success(callable $callback=null)
   {
-  
+    
+    if(is_null($callback)){
+      return $this->success;
+    }
+    
     if($this->success === true){
       $return = $callback($this);
       if(!is_null($return)) return $return;
@@ -63,6 +67,10 @@ trait Successable
   //Returns true, or executes $callback($this) if $this->success is false.
   public function failure(callable $callback=null)
   {
+    
+    if(is_null($callback)){
+      return !$this->success;
+    }
     
     if($this->success === false){
       $return = $callback($this);

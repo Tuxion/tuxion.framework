@@ -109,9 +109,9 @@ class Url
     //Set the input and build the URL.
     $this->input = $url;
     $this->options = $options;
-    $this->segments = new \classes\ArrayObject([]);
-    $this->meta = new \classes\ArrayObject([]);
-    $this->data = d([]);
+    $this->segments = wrap([]);
+    $this->meta = wrap([]);
+    $this->data = wrap([]);
     $this->_build();
     $this->segments->setArrayPermissions(1,0,0);
     $this->meta->setArrayPermissions(1,0,0);
