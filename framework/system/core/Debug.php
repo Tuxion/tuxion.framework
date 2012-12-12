@@ -129,7 +129,11 @@ class Debug
           case 'NULL':
             $arr[] = 'NULL';
             break;
-            
+          
+          case 'boolean':
+            $arr[] = ($arg ? 'true' : 'false');
+            break;
+          
           default:
             $arr[] = $arg;
           
