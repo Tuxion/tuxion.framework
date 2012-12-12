@@ -228,7 +228,7 @@ class Response
     $materials->outer_template = tx('Resource')->template('error');
     $materials->outer_template_data = [];
     $materials->addTemplateData([
-      'type' => baseclass(get_class($e)),
+      'type' => wrap($e)->baseclass()->get(),
       'code' => $code
     ]);
     

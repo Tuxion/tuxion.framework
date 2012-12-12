@@ -11,7 +11,7 @@ class Builder
     $connection=null,
     $main_model,
     $working_model;
-    
+  
   //Private properties.
   private
     $models=[],
@@ -468,7 +468,7 @@ class Builder
     if($model->getBuilder() !== $this){
       throw new \exception\Restriction(
         'Only models that are being used in this builder (%s) can be used. You used one for %s.',
-        get_object_name($this), get_object_name($model)
+        wrap($this)->name(), wrap($model)->name()
       );
     }
     

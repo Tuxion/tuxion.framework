@@ -25,6 +25,14 @@ class NumberWrapper extends BaseScalarData
     
   }
   
+  //Return the wrapped alternative if this number is zero or lower.
+  public function alt($alternative)
+  {
+    
+    return (($this->value > 0) ? $this : wrap($alternative));
+    
+  }
+  
   
   ##
   ## MATH
@@ -214,6 +222,30 @@ class NumberWrapper extends BaseScalarData
     
   }
   
+  
+  ##
+  ## BITS
+  ##
+  
+  //Check if a bitwise haystack contains the needle bit.
+  function hasBit($needle)
+  {
+    
+    return new BooleanWrapper(($this->value & $needle) === $needle);
+    
+  }
+  
+  //Counts the amount of bits set to 1.
+  function countBits()
+  {
+    
+    $v = $this->value;
+    $v = $v - (($v >> 1) & 0x55555555);
+    $v = ($v & 0x33333333) + (($v >> 2) & 0x33333333);
+    return new self((($v + ($v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24);
+    
+  }
+
   
   ##
   ## INFO

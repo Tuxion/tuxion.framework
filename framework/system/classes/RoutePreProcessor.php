@@ -54,7 +54,7 @@ class RoutePreProcessor extends RouteProcessor
   {
     
     //Handle arguments.
-    $permissions = array_flatten(func_get_args());
+    $permissions = wrap(func_get_args())->flatten()->get();
     
     //Here we will gather the failed permissions.
     $failed = [];

@@ -13,11 +13,27 @@ class ObjectWrapper extends BaseData
     
     raw($value);
     
-    if(!(is_object($value)){
+    if(!(is_object($value))){
       throw new \exception\InvalidArgument('Expecting $value to be an object. %s given.', typeof($value));
     }
     
     $this->object = $value;
+    
+  }
+  
+  //Return the object.
+  public function get()
+  {
+    
+    return $this->object;
+    
+  }
+  
+  //Implement some magic to bypass reserved words.
+  public function __call($method, $arguments)
+  {
+    
+    return call_user_func_array([$this, "_public_$method"], $arguments);
     
   }
   
@@ -38,7 +54,7 @@ class ObjectWrapper extends BaseData
   }
   
   //Returns a wrapped string containing the class name of the object.
-  public function class()
+  private function _public_class()
   {
     
     return new StringWrapper(get_class($this->object));
@@ -49,7 +65,7 @@ class ObjectWrapper extends BaseData
   public function baseclass()
   {
     
-    return new StringWrapper(baseclass(get_class($this->object)));
+    return new StringWrapper(substr(strrchr($this->_public_class(), '\\'), 1));
     
   }
   
@@ -74,6 +90,31 @@ class ObjectWrapper extends BaseData
     return false;
     
   }
+  
+  function id()
+  {
+    
+    static $object_ids = [];
+    
+    $hash = spl_object_hash($this->object);
+    
+    if(array_key_exists($hash, $object_ids)){
+      $id = $object_ids[$hash];
+    }
+    
+    else{
+      $object_ids[$hash] = $id = (count($object_ids) + 1);
+    }
+    
+    return $id;
 
+  }
+
+  function name()
+  {
+    
+    return get_class($this->object).'#'.$this->id();
+    
+  }
   
 }

@@ -21,7 +21,8 @@ class FormData extends \classes\BaseConverter
   protected function convertToStandard()
   {
     
-    return parse_string($this->raw->data);
+    parse_str($this->raw->data, $output);
+    return $output;
     
   }
   

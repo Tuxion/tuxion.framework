@@ -3,6 +3,14 @@
 trait ArrayContainer
 {
   
+  //Return true if the given input is an object using ArrayContainer.
+  private static function _isArr($input)
+  {
+    
+    return is_object($input) && wrap($input)->uses('ArrayContainer')->isTrue();
+    
+  }
+  
   private
     $arr_permissions=7,
     $arr=[];
@@ -76,7 +84,7 @@ trait ArrayContainer
     {
       
       //Get node from ArrayContainer.
-      if(uses($return, 'ArrayContainer')){
+      if(self::_isArr($return)){
         $return = $return->arrayGet($k);
         continue;
       }
@@ -108,7 +116,7 @@ trait ArrayContainer
     foreach($this->arr as $key => $value)
     {
       
-      if($recursive && uses($value, 'ArrayContainer')){
+      if($recursive && self::_isArr($value)){
         $value = $value->toArray();
       }
       
@@ -148,7 +156,7 @@ trait ArrayContainer
     {
       
       //Cast ArrayContainers to arrays.
-      if(uses($array, 'ArrayContainer')){
+      if(self::_isArr($array)){
         $array = $array->toArray(false);
       }
       
@@ -179,7 +187,7 @@ trait ArrayContainer
     {
       
       //Cast ArrayContainers to arrays.
-      if(uses($array, 'ArrayContainer')){
+      if(self::_isArr($array)){
         $array = $array->toArray(false);
       }
       
@@ -300,11 +308,11 @@ trait ArrayContainer
       
         $key = key($nodes);
         $node = current($nodes);
-        $delta = ($delta==0 && uses($node, 'ArrayContainer') ? 1 : $delta);
+        $delta = ($delta==0 && self::_isArr($node) ? 1 : $delta);
         $c = $callback->bindTo($node);
         $c($delta);
       
-        if(uses($node, 'ArrayContainer') && $delta >= 0){
+        if(self::_isArr($node) && $delta >= 0){
           $walker($node->toArray(false));
           $delta = -1;
           continue;
@@ -456,7 +464,7 @@ trait ArrayContainer
   public function arrayPermission($int)
   {
     
-    return checkbit($int, $this->arr_permissions);
+    return wrap($this->arr_permissions)->hasBit($int)->isTrue();
     
   }
   

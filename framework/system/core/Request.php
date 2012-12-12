@@ -145,11 +145,7 @@ class Request
       return $this->method;
     }
     
-    if(!is_int($in)){
-      throw new \exception\InvalidArgument('Expecting $in to be integer. %s given', ucfirst(typeof($in)));
-    }
-    
-    return checkbit($this->method, $in);
+    return wrap($in)->hasBit($this->method)->isTrue();
     
   }
   

@@ -188,10 +188,17 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
   }
   
   //Flatten the array and return a flat new ArrayObject.
-  public function flatten($blank=false)
+  public function flatten()
   {
     
-    return new self(array_flatten($this->toArray()));
+    $output = [];
+    $input = $this->toArray();
+    
+    array_walk_recursive($input, function($a)use(&$output){
+      $output[] = $a;
+    });
+    
+    return new self($output);
     
   }
   
@@ -230,11 +237,81 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
     
   }
   
-  //Returns a string created of all child-nodes converted to string and joined together by the given $separator.
+  //Returns a string created of all nodes converted to string and joined together by the given separator.
   public function join($separator='')
   {
     
     return new StringWrapper(implode($separator, $this->arr));
+    
+  }
+  
+  //Like join, instead of using just the values concatenates the key and value together using the [delimiter].
+  public function joinWithKeys($delimiter, $separator)
+  {
+    
+    $implode = '';
+    $array = $this->arr;
+    
+    for($i=1, $size = count($array); list($key, $value) = each($array), $i <= $size; $i++){
+      $implode .= "$key$separator$value".($i<$size?$delimitter:'');
+    }
+    
+    return new StringWrapper($implode);
+    
+  }
+  
+  //Return the key at the first node with the given value.
+  public function search($value, $strict = false)
+  {
+    
+    return wrap(array_search($value, $this->arr, $strict));
+    
+  }
+  
+  //Recursively search through the array and return an array of keys, leading to the first match found.
+  public function searchRecursive($needle, $offset=0, $strict=false)
+  {
+    
+    //Create the iterator closure.
+    $iterator = function($haystack, $depth = 0)use(&$needle, &$offset, &$strict, &$iterator){
+      
+      //Iterate over the haystack.
+      foreach($haystack AS $key => $value)
+      {
+        
+        //If the value is an array.
+        if(is_array($value))
+        {
+          
+          //Iterate over the sub-nodes.
+          $keys = $iterator($value, ($depth+1));
+          
+          //If no match was found, continue to the next iteration.
+          if(empty($keys)){
+            continue;
+          }
+          
+          //A match was found. Add our own key and cancel the iteration. We're done.
+          array_unshift($keys, $key);
+          break;
+          
+        }
+        
+        //Match the values if we're passed our offset depth.
+        if(($depth >= $offset) && ($strict === true ? ($value === $needle) : ($value == $needle))){
+          $keys = [$key];
+          break;
+        }
+        
+      }
+      
+      //Return the keys.
+      return isset($keys) ? $keys : [];
+      
+    };
+    
+    //Return the wrapped result of the iterator.
+    return wrap($iterator($this->arr));
     
   }
   
@@ -262,6 +339,14 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
     
     //Return the node.
     return wrap($this->arrayGet($key));
+    
+  }
+  
+  //Return the wrapped alternative if this array is empty.
+  public function alt($alternative)
+  {
+    
+    return ($this->isEmpty() ? wrap($alternative) : $this);
     
   }
   

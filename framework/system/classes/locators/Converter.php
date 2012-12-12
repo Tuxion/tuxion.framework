@@ -11,7 +11,7 @@ class Template extends BaseDatabase
   protected function getLocationByParent(Base $parent)
   {
     
-    switch(baseclass(get_class($parent))){
+    switch(wrap($parent)->baseclass()->get()){
       case 'StandardData': return 'converters';
     }
     

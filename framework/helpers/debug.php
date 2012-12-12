@@ -24,37 +24,3 @@ function trace(){
 function typeof($var){
   return tx('Debug')->typeOf($var);
 }
-
-function get_object_id($object)
-{
-  
-  if(!is_object($object)){
-    throw new \exception\InvalidArgument(
-      'Expecting $object to be an object. %s given.',
-      ucfirst(typeof($object))
-    );
-  }
-  
-  static $object_ids = [];
-  
-  $hash = spl_object_hash($object);
-  
-  if(array_key_exists($hash, $object_ids)){
-    $id = $object_ids[$hash];
-  }
-  
-  else{
-    $id = $object_ids[$hash] = (count($object_ids))+1;
-  }
-  
-  return $id;
-
-}
-
-function get_object_name($object)
-{
-  
-  return get_class($object).'#'.get_object_id($object);
-  
-}
-

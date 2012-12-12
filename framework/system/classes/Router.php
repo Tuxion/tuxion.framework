@@ -334,7 +334,7 @@ class Router
     {
       
       //See if the type matches the current request type.
-      if(!checkbit($this->type, $type)){
+      if(wrap($type)->hasBit($this->type)->isFalse()){
         return false;
       }
       

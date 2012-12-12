@@ -39,36 +39,22 @@ class Mime
   public function getMime($type)
   {
     
-    $matches = array_search_recursive($type, $this->mimes);
-    
-    if($matches === false){
-      return false;
-    }
-    
-    return $matches[0];
+    return wrap($this->mimes)->searchRecursive($type)->alt([false])[0];
     
   }
   
   public function getType($mime)
   {
     
-    if(!array_key_exists($mime, $this->mimes)){
-      return false;
-    }
-    
-    return $this->mimes[$mime][0];
+    return wrap($this->mimes)->wrap($mime)->alt([false])[0];
     
   }
   
   //Return all types associated with the given mime.
   public function getTypes($mime)
   {
-      
-    if(!array_key_exists($mime, $this->mimes)){
-      return false;
-    }
     
-    return $this->mimes[$mime];
+    return wrap($this->mimes)->wrap($mime)->alt(false)->unwrap();
     
   }
   

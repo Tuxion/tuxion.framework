@@ -89,7 +89,7 @@ trait Successable
       return (bool) $check($this);
     }
     
-    elseif(uses($check, 'Successable')){
+    elseif(is_object($check) && wrap($check)->uses('Successable')->isTrue()){
       return $check->success === true;
     }
     

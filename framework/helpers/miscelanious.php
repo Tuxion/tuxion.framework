@@ -102,5 +102,3 @@ function set_status_header($code=200, $text=null){
   }
   
 }
-
-

@@ -17,7 +17,7 @@ class Templator extends Base
   {
     
     $this->exception = $data->raw();
-    $this->type = baseclass(get_class($this->exception));
+    $this->type = wrap($this->exception)->baseclass()->get();
     $this->debug = tx('Config')->config->debug;
     
     parent::__construct($data, $materials);

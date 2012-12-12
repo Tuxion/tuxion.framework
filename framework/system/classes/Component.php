@@ -58,7 +58,7 @@ class Component
     $extending;
   
   //The constructor stores component info.
-  public function __construct(ArrayObject $cinfo)
+  public function __construct($cinfo)
   {
     
     $this->locator = tx('Resource')->component($cinfo->id);

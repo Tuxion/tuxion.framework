@@ -1,7 +1,15 @@
-<?php namespace classes;
+<?php namespace classes\data;
 
-class DataUndefined extends BaseData
+class Undefined extends BaseData
 {
+  
+  //Return NULL.
+  public function get()
+  {
+    
+    return null;
+    
+  }
   
   //Return an appropriate indication of fail.
   public function toString()

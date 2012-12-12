@@ -67,7 +67,7 @@ class Controllers
       }
       
       //Should we filter on type?
-      if(!is_null($type) && !checkbit($type, $controller->type)){
+      if(!is_null($type) && wrap($controller->type)->hasBit($type)->isFalse()){
         continue;
       }
       

@@ -214,7 +214,7 @@ class Controller
     $type = (is_null($type) ? $this->type : $type);
     
     //A sub-controller with a type that doesn't fit in the parent controller will never work.
-    if(!checkbit($type, $this->type)){
+    if(wrap($this->type)->hasBit($type)->isFalse()){
       throw new \exception\Restriction(
         'You can not make sub-controllers with type %s while the parent controller has type %s.',
         $type, $this->type

@@ -36,17 +36,18 @@ class Debug
     //Create the message.
     $msg = sprintf(
       '%s: %s'.(tx('Config')->config->debug ? ' (%s @ %s)' : ''),
-      baseclass(get_class($e)),
+      wrap($e)->baseclass()->get(),
       $e->getMessage(),
       substr($e->getFile(), strlen(tx('Config')->paths->root)+1),
       $e->getLine()
     );
     
+    #TEMP: Commented until better exception handling is implemented.
     //Uncaught exceptions. We can't do much with them.
-    set_status_header($this->getExceptionResponseCode($e), $msg);
+    // set_status_header($this->getExceptionResponseCode($e), $msg);
     
-    //Give the output in HTML.
-    header('Content-type: text/html; charset=UTF-8');
+    // //Give the output in HTML.
+    // header('Content-type: text/html; charset=UTF-8');
     
     //Output the message.
     echo $msg;
@@ -94,10 +95,10 @@ class Debug
       
     };
     
-    $args = function($entry)
+    $args = function($entry)use(&$args)
     {
       
-      $args = [];
+      $arr = [];
       
       foreach($entry['args'] as $arg)
       {
@@ -106,34 +107,38 @@ class Debug
         {
           
           case 'array':
-            $args[] = 'array('.count($arg).')';
+            $arr[] = 'array('.count($arg).')';
             break;
             
           case 'string':
-            $args[] = "'$arg'";
+            $arr[] = "'$arg'";
             break;
           
           case 'object':
             if($arg instanceof \Closure){
-              $args[] = ('{closure}');
-            }else{
-              $args[] = ('object('.get_object_name($arg).')');
+              $arr[] = ('{closure}');
+            }
+            elseif($arg instanceof \classes\data\BaseData){
+              $arr[] = ('data'.$args(['args' => [$arg->get()]]));
+            }
+            else{
+              $arr[] = ('object('.wrap($arg)->name().')');
             }
             break;
           
           case 'NULL':
-            $args[] = 'NULL';
+            $arr[] = 'NULL';
             break;
             
           default:
-            $args[] = $arg;
+            $arr[] = $arg;
           
         }
         
       }
       
       
-      return '('.implode(', ', $args).')';
+      return '('.implode(', ', $arr).')';
       
     };
     

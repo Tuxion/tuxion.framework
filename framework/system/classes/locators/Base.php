@@ -107,7 +107,7 @@ abstract class Base
   public function isAmongst()
   {
     
-    $types = array_flatten(func_get_args());
+    $types = wrap(func_get_args())->flatten()->get();
     
     foreach($types as $type){
       if($this->is($type)){
@@ -131,7 +131,7 @@ abstract class Base
   public function notAmongst()
   {
     
-    $types = array_flatten(func_get_args());
+    $types = wrap(func_get_args())->flatten()->get();
     
     foreach($types as $type){
       if($this->is($type)){

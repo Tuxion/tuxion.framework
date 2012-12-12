@@ -76,10 +76,10 @@ class Url
 
       if(is_numeric($key)
         || (empty($val)
-          && !checkbit(constant('self::'.strtoupper($key)), $flags)
+          && wrap($flags)->hasBit(constant('self::'.strtoupper($key)))->isFalse()
         )
         || ($flags > 0
-          && !checkbit(constant('self::'.strtoupper($key)), $flags)
+          && wrap($flags)->hasBit(constant('self::'.strtoupper($key)))->isFalse()
         )
       ){
         unset($segments[$key]);
@@ -87,7 +87,7 @@ class Url
 
     }
 
-    if(count_bits($flags) == 1){
+    if(wrap($flags)->countBits()->get() == 1){
       return (count($segments) == 1 ? current($segments) : false);
     }
 

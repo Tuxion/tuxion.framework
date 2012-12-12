@@ -16,7 +16,7 @@ class Log
     }
     
     //Are we even allowed to log this error?
-    if(is_array($c) && !in_array(baseclass(get_class($e)), $c)){
+    if(is_array($c) && !in_array(wrap($e)->baseclass()->get(), $c)){
       return false;
     }
     
@@ -81,7 +81,7 @@ class Log
     
     //If the key is an object, we are going to find it's ID.
     if(is_object($key)){
-      $key = get_object_name($key);
+      $key = wrap($key)->name();
     }
     
     //Log it!

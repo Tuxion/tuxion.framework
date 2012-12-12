@@ -7,8 +7,8 @@ abstract class BaseModel extends Row
   public static function modelInfo()
   {
     
-    //Create a new ArrayObject to put our information into.
-    $info = wrap([]);
+    //Create the array to put our information into.
+    $info = [];
     
     //Add some of the meta-data provided by the model itself.
     foreach(['table_name', 'fields', 'relations'] as $var){
@@ -20,11 +20,8 @@ abstract class BaseModel extends Row
     //Add the name of the model.
     $info['model_name'] = strstr(get_class(), '\\');
     
-    //Changing it now is verboten!
-    $info->setArrayPermissions(true, false, false);
-    
-    //Return the info.
-    return $info;
+    //Return the wrapped info.
+    return wrap($info);
     
   }
   
@@ -45,15 +42,16 @@ abstract class BaseModel extends Row
     
     //Create the new entry in our cache.
     $table_info[$table_name] = $tinfo = wrap([
-      'primary_keys' => wrap([]),
-      'fields' => wrap([])
+      'auto_increment' => false,
+      'primary_keys' => [],
+      'fields' => []
     ]);
     
     //Fetch info from the database.
     tx('Sql')->exe("SHOW COLUMNS FROM `$table_name`")
     
     //Iterate over the columns.
-    ->each(function($column)use($tinfo){
+    ->each(function($column)use(&$tinfo){
       
       //Check if it's an auto_increment.
       if($column->Extra == 'auto_increment'){
@@ -62,7 +60,7 @@ abstract class BaseModel extends Row
 
       //Check if it's a primary key.
       if($column->Key == 'PRI' && !$tinfo->primary_keys->has($column->Field)){
-        $tinfo->primary_keys->push($column->Field);
+        $tinfo->primary_keys[] = $column->Field;
       }
 
       //Set some essential information per column.
@@ -81,7 +79,7 @@ abstract class BaseModel extends Row
       $finfo->merge(
         
         //Do the parsing.
-        wrap($finfo->attributes)->parse('~'.
+        $finfo->wrap('attributes')->parse('~'.
           '(?:^(?<type>\w+))'. //type
           '(?:\((?<arguments>[^\)]+)\))?'. //arguments
           '(?:(?<extra>(?:\s+\w+)*))'. //other attributes
@@ -91,32 +89,27 @@ abstract class BaseModel extends Row
         ->having(['type', 'arguments', 'extra'])
         
         //Make a real array.
-        ->toArray()
+        ->unwrap()
         
       );
       
       //Parse the "extra" stuff.
-      $finfo->extra = wrap($finfo->extra)
-      ->trim()
-      ->lowercase()
-      ->split(' ')
-      ->toArray();
+      $finfo->extra = $finfo->wrap('extra')->trim()->lowercase()->split(' ')->toArray();
       
       //Unset the attributes attribute.
       unset($finfo->attributes);
       
       //Prettify the arguments.
-      $finfo->arguments = wrap($finfo->arguments)
+      $finfo->arguments = $finfo->wrap('arguments')
         ->lowercase()
         ->split(',')
         ->map(function($arg){
           return $arg->trim(' \'');
         })
-        ->toArray()
-      ;//Prettified.
+      ->unwrap();
       
       //Store.
-      $tinfo->fields[$column->Field] = wrap($finfo->toArray());
+      $tinfo->fields[$column->Field] = $finfo->unwrap();
       
     });
 

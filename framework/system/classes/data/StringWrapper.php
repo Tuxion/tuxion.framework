@@ -116,6 +116,23 @@ class StringWrapper extends BaseScalarData
     
   }
   
+  //Cut off the string if it's longer than [max], then [append] something to it.
+  public function max($max, $append = '')
+  {
+    
+    //Convert input to integer.
+    $max = (int) $max;
+    
+    //Cut it up?
+    if(strlen($this->value) > $max + strlen($append)){
+      return new self(substr($this->value, 0, $max).$append);
+    }
+    
+    //Do nothing.
+    return new self($this->value);
+    
+  }
+  
   //Repeat the string n times.
   public function repeat($n)
   {
