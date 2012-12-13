@@ -128,6 +128,21 @@ trait ArrayContainer
     
   }
   
+  //Return the node under the given [key] and remove it from the array.
+  public function steal($key)
+  {
+    
+    //Get the value.
+    $value = $this->arrayGet($key);
+    
+    //Remove from array.
+    $this->arrayUnset($key);
+    
+    //Return the value.
+    return $value;
+    
+  }
+  
   
   ##
   ## SETTERS

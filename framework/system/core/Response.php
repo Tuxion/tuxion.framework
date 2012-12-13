@@ -35,11 +35,13 @@ class Response
       return $this->redirect(url("/$path"))->_handleRedirect();
     }
     
-    //Store the mime so we can pass a reference.
-    $mime = tx('Request')->accept['mimes'][0]['value'];
-    
     //Output.
-    $this->outputRoute(tx('Request')->method(), $path, tx('Request')->data, $mime);
+    $this->outputRoute(
+      tx('Request')->method(),
+      $path,
+      tx('Request')->data,
+      tx('Request')->accept['mimes'][0]['value']
+    );
     
   }
   
@@ -86,8 +88,7 @@ class Response
     catch(\exception\Exception $e)
     {
       
-      
-      $this->materializeException($e, $materials);
+      $materials->exception($e);
       $part = (is_bool($part) ? $part : false);
       
     }
@@ -162,7 +163,7 @@ class Response
         }
         
         //Otherwise there might still be a chance.
-        $this->materializeException($new, $materials);
+        $materials->exception($new);
         return $this->outputMaterials(
           $materials,
           (is_bool($part) ? $part : false),
@@ -202,38 +203,19 @@ class Response
     }
     
     //Output to stream?
-    if($to_stream){
+    if($to_stream)
+    {
+      
+      $output_data->setHeader('Status', $materials->getStatus());
       $output_data->setHeader('Content-type', $materials->mime.'; charset=utf-8');
       $output_data->output();
       return;
+      
     }
     
     //Return the output data.
     return $output_data;
         
-  }
-  
-  //Fill the materials object with data given by the exception.
-  public function materializeException(\Exception $e, \classes\Materials $materials)
-  {
-    
-    $code = tx('Debug')->getExceptionResponseCode($e);
-    
-    $materials->output = tx('Outputting')->standardize($e);
-    
-    $materials->inner_template = tx('Resource')->template(
-      'template', tx('Config')->paths->outputting.'/error'
-    );
-    
-    $materials->outer_template = tx('Resource')->template('error');
-    $materials->outer_template_data = [];
-    $materials->addTemplateData([
-      'type' => wrap($e)->baseclass()->get(),
-      'code' => $code
-    ]);
-    
-    set_status_header($code, $e->getMessage());
-    
   }
   
   //Set the URL to redirect to.
@@ -279,6 +261,14 @@ class Response
     }
 
     return $templates[0];
+    
+  }
+  
+  //Set the status header that will be sent with the output.
+  public function setStatusHeader($code, $message=null)
+  {
+    
+    #TODO: Create the setStatusHeader method.
     
   }
   

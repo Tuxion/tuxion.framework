@@ -58,7 +58,6 @@ class Controller
     return $this;
     
   }
-
   
   //Add a preprocessor to this controller.
   public function pre($description, \Closure $callback)
@@ -239,6 +238,7 @@ class Controller
     
   }
   
+  //Return the cleaned path, appended to the relative or absolute root.
   protected function fullPath($path='')
   {
     
@@ -252,12 +252,12 @@ class Controller
     {
       
       //Is this object allowed to use absolute paths?
-      if($this->root === false){
+      if(!$this->context){
         throw new \exception\Restriction('You can not use absolute paths here, you tried: "%s".', $path);
       }
       
       //Return the cleaned path.
-      return Router::cleanPath($this->root.$path);
+      return Router::cleanPath($this->context->getRootPath().$path);
       
     }
     

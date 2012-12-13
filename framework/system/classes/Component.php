@@ -140,7 +140,7 @@ class Component
     }
     
     //Make a restore point.
-    $c = route();
+    $r = route();
     
     //Iterate over the files.
     foreach($files as $file)
@@ -148,7 +148,7 @@ class Component
     
       //Get the controller object for the next include.
       $controller = tx('Controllers')->get(GET|POST|PUT|DELETE, "com/{$this->name}")
-        ->setContext(new ControllerContext($this->locator, $file));
+        ->setContext(new ControllerContext($this->locator, $file, 'com'));
       
       //Log.
       tx('Log')->message($this, 'created controller', $this->title.': '.$file);
@@ -164,8 +164,8 @@ class Component
     
     }
     
-    //Restore the magic c.
-    route($c);
+    //Restore the magic route().
+    route($r);
     
     //Controllers have been loaded.
     $this->controllers_loaded = true;

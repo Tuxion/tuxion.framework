@@ -50,9 +50,42 @@ class OutputData
   public function output()
   {
     
-    //Set the headers.
-    foreach($this->headers as $header => $value){
-      header("$header: $value");
+    //Wrap the headers to work with them.
+    $headers = wrap($this->headers);
+    
+    //Handle status headers with care!
+    if($headers->arrayExists('Status'))
+    {
+      
+      //Steal the value from the array and get the server protocol.
+      $status = $headers->steal('Status');
+      $protocol = tx('Server')->server_protocol;
+      
+      //If we're using PHP CGI, we'll just use a Status header. CGI will do the rest.
+      if(substr(php_sapi_name(), 0, 3) == 'cgi'){
+        header("Status: $status", true);
+      }
+      
+      //No CGI? We must do it ourselves.
+      else
+      {
+        
+        //Get the code from the status.
+        $code = wrap($status)->split(' ')->wrap(0)->toInt()->get();
+        
+        //Set a default server protocol.
+        $protocol = wrap($protocol)->alt('HTTP/1.1')->get();
+        
+        //Set the header.
+        header("$protocol $status", true, $code);
+        
+      }
+      
+    }
+    
+    //Set the remaining headers.
+    foreach($headers as $header => $value){
+      header("$header: $value", true);
     }
     
     //Output the data.

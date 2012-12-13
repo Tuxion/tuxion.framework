@@ -3,7 +3,7 @@
 class Mime
 {
   
-  public $mimes = [];
+  private $mimes = [];
   
   //Initialize.
   public function init()
@@ -36,6 +36,7 @@ class Mime
     
   }
   
+  //Return the mime belonging to the given file-type.
   public function getMime($type)
   {
     
@@ -43,6 +44,15 @@ class Mime
     
   }
   
+  //Return the entire mimes array.
+  public function getMimes()
+  {
+    
+    return $this->mimes;
+    
+  }
+  
+  //Return the first file-type associated with the given mime.
   public function getType($mime)
   {
     

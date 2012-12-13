@@ -27,6 +27,14 @@ class StringWrapper extends BaseScalarData
     
   }
   
+  //Return a NumberWrapper with the integer value of the string.
+  public function toInt()
+  {
+    
+    return new NumberWrapper(intval($this->value));
+    
+  }
+  
   //Set the value of this leaf-node.
   public function set($value)
   {

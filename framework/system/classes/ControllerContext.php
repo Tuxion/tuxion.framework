@@ -6,10 +6,11 @@ class ControllerContext
   //Private properties.
   private
     $locator,
-    $filename;
+    $filename,
+    $root_path;
   
   //Set properties.
-  public function __construct(locators\Base $locator, $filename)
+  public function __construct(locators\Base $locator, $filename, $root_path)
   {
     
     //We need a Component or a System locator for the Controller to work with.
@@ -22,6 +23,7 @@ class ControllerContext
     //Set.
     $this->locator = $locator;
     $this->filename = $filename;
+    $this->root_path = $root_path;
     
   }
   
@@ -38,6 +40,14 @@ class ControllerContext
   {
     
     return $this->filename;
+    
+  }
+  
+  //Returns the root_path.
+  public function getRootPath()
+  {
+    
+    return $this->root_path;
     
   }
   
