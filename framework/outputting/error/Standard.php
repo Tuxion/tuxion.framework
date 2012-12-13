@@ -11,7 +11,7 @@ class Standard extends \classes\BaseStandardData
   public static function accepts($input)
   {
     
-    return ($input instanceof \exception\Exception);
+    return ($input instanceof \Exception);
     
   }
   

@@ -34,15 +34,13 @@ class Materials
     //Get the exception status code.
     $code = tx('Debug')->getExceptionResponseCode($e);
     
-    //Override output data.
+    //Override inner template and data.
     $this->output = tx('Outputting')->standardize($e);
-    
-    //Override inner template.
     $this->inner_template = tx('Resource')->template(
       'template', tx('Config')->paths->outputting.'/error'
     );
     
-    //Override outer template.
+    //Override outer template and data.
     $this->outer_template = tx('Resource')->template('error');
     $this->outer_template_data = [];
     $this->addTemplateData([

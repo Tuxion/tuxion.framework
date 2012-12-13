@@ -49,15 +49,13 @@ class Response
   public function outputRoute($method, $path, \outputting\nodes\Standard $data, $mime, $part=null, $to_stream=true)
   {
     
-    //Make the Materials.
+    //Make the Materials and the Router.
     $materials = new \classes\Materials($data);
+    $router = new \classes\Router($method, $path, $materials);
     
     //Try to execute the router.
     try
     {
-      
-      //Make the router.
-      $router = new \classes\Router($method, $path, $materials);
       
       //Execute the router.
       $router->execute();
@@ -90,6 +88,12 @@ class Response
       
       $materials->exception($e);
       $part = (is_bool($part) ? $part : false);
+      $mime = ($router->getExt()
+        ? (tx('Mime')->getMime($router->getExt())
+          ? tx('Mime')->getMime($router->getExt())
+          : 'text/html')
+        : $mime
+      );
       
     }
     

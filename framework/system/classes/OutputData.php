@@ -63,7 +63,7 @@ class OutputData
       
       //If we're using PHP CGI, we'll just use a Status header. CGI will do the rest.
       if(substr(php_sapi_name(), 0, 3) == 'cgi'){
-        header("Status: $status", true);
+        $headers->push('Status', $status);
       }
       
       //No CGI? We must do it ourselves.

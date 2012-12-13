@@ -61,6 +61,14 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
     
   }
   
+  //JSON encode and return in a StringWrapper.
+  public function toJSON()
+  {
+    
+    return new StringWrapper(json_encode($this->arr));
+    
+  }
+  
   //Return a new ArrayObject with the keys of this array as values.
   public function keys()
   {
