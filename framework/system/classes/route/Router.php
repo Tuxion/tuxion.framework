@@ -1,4 +1,7 @@
-<?php namespace classes;
+<?php namespace classes\route;
+
+use \classes\Materials;
+use \classes\Component;
 
 class Router
 {

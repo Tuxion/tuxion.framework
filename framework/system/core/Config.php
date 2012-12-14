@@ -1,5 +1,7 @@
 <?php namespace core;
 
+use \classes\Configuration;
+
 class Config
 {
   
@@ -26,10 +28,10 @@ class Config
     }
     
     //Set paths.
-    $this->paths = new \classes\Configuration('*', require("$path_config/paths.php"));
+    $this->paths = new Configuration('*', require("$path_config/paths.php"));
     
     //Set urls.
-    $this->urls = new \classes\Configuration('*', require("$path_config/urls.php"));
+    $this->urls = new Configuration('*', require("$path_config/urls.php"));
     
     //Set database config.
     $this->database = $this->_setMulti(require("$path_config/database.php"));
@@ -74,16 +76,16 @@ class Config
     $return = [];
     
     if(array_key_exists('*', $arr)){
-      $return['*'] = $defaults = new \classes\Configuration('*', $arr['*']);
+      $return['*'] = $defaults = new Configuration('*', $arr['*']);
       unset($arr['*']);
     }
     
     foreach($arr as $domain => $values){
-      $return[$domain] = new \classes\Configuration($domain, $values, $defaults);
+      $return[$domain] = new Configuration($domain, $values, $defaults);
     }
     
     if(!array_key_exists(tx('Server')->http_host, $return)){
-      $return[tx('Server')->http_host] = new \classes\Configuration(tx('Server')->http_host, [], $defaults);
+      $return[tx('Server')->http_host] = new Configuration(tx('Server')->http_host, [], $defaults);
     }
     
     return $return;

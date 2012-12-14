@@ -11,6 +11,7 @@ function __autoload($class)
   $class_array = explode('\\', $class);
   
   if(!in_array($class_array[0], ['classes', 'exception', 'traits', 'interfaces'])){
+    echo tx('Debug')->printTrace(debug_backtrace());
     die(sprintf(
       'Failed to auto-load "%s"; auto-loading is restricted to only: '.
       'exceptions, interfaces, traits or classes.', $class
@@ -20,6 +21,7 @@ function __autoload($class)
   $file = realpath(dirname(__FILE__).'/../system').'/'.implode('/', $class_array).'.php';
   
   if(!is_file($file)){
+    echo tx('Debug')->printTrace(debug_backtrace());
     die(sprintf('Failed to auto-load: "%s"', $file));
   }
   

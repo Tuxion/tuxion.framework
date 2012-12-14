@@ -2,6 +2,7 @@
 
 use \classes\BaseTemplator as Base;
 use \classes\BaseStandardData;
+use \classes\Materials;
 
 class Templator extends Base
 {
@@ -13,7 +14,7 @@ class Templator extends Base
     $type;
   
   //Set some data.
-  public function __construct(Standard $data, \classes\Materials $materials)
+  public function __construct(Standard $data, Materials $materials)
   {
     
     $this->exception = $data->raw();

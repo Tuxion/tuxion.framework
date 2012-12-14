@@ -1,9 +1,8 @@
 <?php namespace outputting\output;
 
-use \classes\BaseTemplator as Base;
-use \classes\BaseStandardData;
+use \classes\BaseTemplator;
 
-class Templator extends Base
+class Templator extends BaseTemplator
 {
   
   //Echo the raw data.

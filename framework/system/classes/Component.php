@@ -1,5 +1,7 @@
 <?php namespace classes;
 
+use \classes\route\ControllerContext;
+
 class Component
 {
 

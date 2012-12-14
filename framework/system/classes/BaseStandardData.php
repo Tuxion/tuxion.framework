@@ -102,10 +102,8 @@ abstract class BaseStandardData
     
   }
   
-
-  
   //Return the templator with this data.
-  public function createTemplator(\classes\Materials $materials)
+  public function createTemplator(Materials $materials)
   {
     
     //Create file and class paths.

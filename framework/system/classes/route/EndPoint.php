@@ -1,6 +1,6 @@
-<?php namespace classes;
+<?php namespace classes\route;
 
-class RouteEndPoint extends RouteProcessor
+class EndPoint extends BaseProcessor
 {
 
   //Set the output.

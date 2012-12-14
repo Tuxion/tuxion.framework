@@ -1,6 +1,8 @@
 <?php namespace components\models\example;
 
-class Derp extends \classes\sql\BaseModel
+use \classes\sql\BaseModel;
+
+class Derp extends BaseModel;
 {
   
   static

@@ -12,11 +12,11 @@ abstract class BaseConverter
   final public function __construct($data)
   {
     
-    if($data instanceof \classes\BaseStandardData){
+    if($data instanceof BaseStandardData){
       $this->standard = $data;
     }
     
-    elseif($data instanceof \classes\OutputData){
+    elseif($data instanceof OutputData){
       $this->raw = $data;
     }
     
@@ -117,7 +117,7 @@ abstract class BaseConverter
       }
       
       //Convert the standard data and create the object.
-      $this->raw = new \classes\OutputData($this->convertToRaw(false), $headers);
+      $this->raw = new OutputData($this->convertToRaw(false), $headers);
       
       //Return the Output data.
       return $this->raw;

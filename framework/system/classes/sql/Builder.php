@@ -1,5 +1,7 @@
 <?php namespace classes\sql;
 
+use \classes\Component;
+
 class Builder
 {
   
@@ -21,7 +23,7 @@ class Builder
     $aliases=[];
   
   //Set the amount of rows to select (0 for all), the component and the model name.
-  public function __construct($amount=0, \classes\Component $component, $model_name, &$model=null)
+  public function __construct($amount=0, Component $component, $model_name, &$model=null)
   {
     
     //Limit the amount of rows?
@@ -168,7 +170,7 @@ class Builder
     );
     
     //Fill the referenced model variable.
-    $model = $this->addModel($model_name, \classes\Component::get($component_name));
+    $model = $this->addModel($model_name, Component::get($component_name));
     
     //Enable chaining.
     return $this;
@@ -176,7 +178,7 @@ class Builder
   }
   
   //Adds a builder-model to our collection of models and returns it.
-  public function addModel($model_name, \classes\Component $alternative_component=null)
+  public function addModel($model_name, Component $alternative_component=null)
   {
     
     //Create the model
@@ -359,7 +361,7 @@ class Builder
     
     //Create the factory.
     $factory = function(){
-      return new \classes\sql\BuilderCondition($this, func_get_args());
+      return new BuilderCondition($this, func_get_args());
     };
     
     //Enable chaining.

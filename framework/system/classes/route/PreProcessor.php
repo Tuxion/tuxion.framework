@@ -1,6 +1,6 @@
-<?php namespace classes;
+<?php namespace classes\route;
 
-class RoutePreProcessor extends RouteProcessor
+class PreProcessor extends BaseProcessor
 {
   
   //Reroutes to the new given route. ([$discardFuture=false, ]$path)

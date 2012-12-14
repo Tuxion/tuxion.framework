@@ -1,5 +1,7 @@
 <?php namespace core;
 
+use \classes\data\BaseData;
+
 class Debug
 {
 
@@ -118,7 +120,7 @@ class Debug
             if($arg instanceof \Closure){
               $arr[] = ('{closure}');
             }
-            elseif($arg instanceof \classes\data\BaseData){
+            elseif($arg instanceof BaseData){
               $arr[] = ('data'.$args(['args' => [$arg->get()]]));
             }
             else{

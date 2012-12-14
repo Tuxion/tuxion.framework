@@ -1,6 +1,8 @@
 <?php namespace outputting\nodes\converters;
 
-class Json extends \classes\BaseConverter
+use \classes\BaseConverter;
+
+class Json extends BaseConverter
 {
   
   //Converts the standard data to JSON.

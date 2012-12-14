@@ -1,6 +1,8 @@
 <?php namespace outputting\nodes\converters;
 
-class FormData extends \classes\BaseConverter
+use \classes\BaseConverter;
+
+class FormData extends BaseConverter
 {
   
   //Converts the standard data to form data.

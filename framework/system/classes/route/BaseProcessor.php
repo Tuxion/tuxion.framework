@@ -1,6 +1,8 @@
-<?php namespace classes;
+<?php namespace classes\route;
 
-abstract class RouteProcessor
+use \classes\Materials;
+
+abstract class BaseProcessor
 {
   
   //Private properties.
@@ -99,10 +101,10 @@ abstract class RouteProcessor
     
     $allowed = [];
     
-    foreach(['RoutePreProcessor', 'RoutePostProcessor', 'RouteEndPoint'] as $class)
+    foreach(['PreProcessor', 'PostProcessor', 'EndPoint'] as $class)
     {
       
-      if(method_exists($class, $key)){
+      if(method_exists(__NAMESPACE__.'\\'.$class, $key)){
         $allowed[] = $class;
       }
       

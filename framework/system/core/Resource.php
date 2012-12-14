@@ -1,5 +1,7 @@
 <?php namespace core;
 
+use \classes\locators\Base as BaseLocator;
+
 class Resource
 {
   
@@ -22,7 +24,7 @@ class Resource
   }
   
   //Find or create a resource locator of given [type] and identified by [name].
-  public function getLocator($type, $name, $location = null, \classes\locators\Base $parent = null)
+  public function getLocator($type, $name, $location = null, BaseLocator $parent = null)
   {
     
     //Build a class name.

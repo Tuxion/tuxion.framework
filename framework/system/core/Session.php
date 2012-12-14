@@ -1,6 +1,8 @@
 <?php namespace core;
 
-class Session extends \classes\DataBranch
+use \classes\data\ArrayWrapper;
+
+class Session extends ArrayWrapper
 {
 
   private

@@ -1,6 +1,9 @@
 <?php namespace outputting\output;
 
-class Standard extends \classes\BaseStandardData
+use \classes\BaseStandardData;
+use \classes\OutputData;
+
+class Standard extends BaseStandardData
 {
   
   //Protected static properties.
@@ -11,7 +14,7 @@ class Standard extends \classes\BaseStandardData
   public static function accepts($input)
   {
     
-    return ($input instanceof \classes\OutputData);
+    return ($input instanceof OutputData);
     
   }
   

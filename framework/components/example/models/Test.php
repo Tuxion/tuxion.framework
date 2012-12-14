@@ -1,6 +1,8 @@
 <?php namespace components\models\example;
 
-class Test extends \classes\sql\BaseModel
+use \classes\sql\BaseModel;
+
+class Test extends BaseModel;
 {
   
   static

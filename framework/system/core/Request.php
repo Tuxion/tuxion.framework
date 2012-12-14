@@ -1,5 +1,8 @@
 <?php namespace core;
 
+use \classes\Url;
+use \classes\OutputData;
+
 class Request
 {
   
@@ -36,7 +39,7 @@ class Request
     $port = ((tx('Server')->server_port == 80) ? '' : (':'.tx('Server')->server_port));
     
     //Set the URL.
-    $this->url = \classes\Url::create("$scheme://$server$port$req_uri", true, false);
+    $this->url = Url::create("$scheme://$server$port$req_uri", true, false);
     
     //Set the request-method.
     switch(tx('Server')->request_method){
@@ -60,7 +63,7 @@ class Request
     
     //Get the input body from the URL.
     if($this->method(GET)){
-      $input = new \classes\OutputData(
+      $input = new OutputData(
         $this->url->segments->arrayExists('query')
         ? $this->url->segments->query
         : ''
@@ -69,7 +72,7 @@ class Request
     
     //Get the input body from the request body.
     else{
-      $input = new \classes\OutputData(file_get_contents('php://input'));
+      $input = new OutputData(file_get_contents('php://input'));
     }
     
     //Get the class name to the standard node data type. All given input must be convert-able using this.

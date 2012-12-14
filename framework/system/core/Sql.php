@@ -1,5 +1,9 @@
 <?php namespace core;
 
+use \classes\sql\Query;
+use \classes\sql\MultiQuery;
+use \classes\sql\Connection;
+
 class Sql
 {
   
@@ -36,7 +40,7 @@ class Sql
   {
     
     $this->handleArguments(func_get_args(), $domain, $query, $data);
-    return (new \classes\sql\Query($this->connection($domain), $query, $data));
+    return (new Query($this->connection($domain), $query, $data));
     
   }
   
@@ -46,7 +50,7 @@ class Sql
   {
     
     $this->handleArguments(func_get_args(), $domain, $query, $data);
-    return (new \classes\sql\Query($this->connection($domain), $query, $data, true));
+    return (new Query($this->connection($domain), $query, $data, true));
     
   }
   
@@ -118,21 +122,21 @@ class Sql
     {
       
       if(is_string($query)){
-        $queries[$k] = (new \classes\sql\Query($this->connection($domain)))->setQuery($query);
+        $queries[$k] = (new Query($this->connection($domain)))->setQuery($query);
       }
       
       elseif(is_array($query)){
-        $queries[$k] = (new \classes\sql\Query($this->connection($domain), $query));
+        $queries[$k] = (new Query($this->connection($domain), $query));
       }
       
-      elseif(!($query instanceof \classes\sql\Query)){
+      elseif(!($query instanceof Query)){
         throw new \exception\InvalidArgument('Expecting string, array or an instance of SqlQuery. %s given.', ucfirst(typeof($query)));
       }
       
     }
     
     //Create the MultiQuery object and execute it.
-    return (new \classes\sql\MultiQuery($this->connection($domain), $queries))->execute();
+    return (new MultiQuery($this->connection($domain), $queries))->execute();
     
   }
   
@@ -148,7 +152,7 @@ class Sql
       return $this->connections[$domain];
     }
     
-    $this->connections[$domain] = $r = new \classes\sql\Connection($domain);
+    $this->connections[$domain] = $r = new Connection($domain);
     
     return $r;
     

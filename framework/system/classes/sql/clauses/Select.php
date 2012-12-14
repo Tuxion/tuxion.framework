@@ -1,5 +1,7 @@
 <?php namespace classes\sql\clauses;
 
+use \classes\sql\BuilderModel;
+
 class Select extends BaseClause
 {
   
@@ -23,7 +25,7 @@ class Select extends BaseClause
     $prepared = $this->prepare($input, $data);
     
     //If the input was a model, we'll select all the columns from it I guess..
-    if($input instanceof \classes\sql\BuilderModel){
+    if($input instanceof BuilderModel){
       $prepared .= '.*';
     }
     

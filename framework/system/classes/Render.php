@@ -45,13 +45,6 @@ class Render
   public function generate()
   {
     
-    ## Voordelen:
-    ## - Binnen de template heeft $this de juiste context
-    ##
-    ## Nadelen:
-    ## - Binnen de template is $___path beschikbaar.
-    ## - $___data kan niet als key worden gebruikt binnen zichzelf.
-    
     //Store references to the required variables under obscure names.
     $___data =& $this->data;
     $___path =& $this->template;
@@ -63,7 +56,7 @@ class Render
       unset($___data);
       ob_start();
         require($___path);
-        $r = new \classes\OutputData(ob_get_contents(), $t->getHeaders());
+        $r = new OutputData(ob_get_contents(), $t->getHeaders());
       ob_end_clean();
       return $r;
     };
@@ -75,54 +68,5 @@ class Render
     return $templator();
     
   }
-  
-  // //Generate the output.
-  // public function generate()
-  // {
-    
-  //   ## Voordelen:
-  //   ## - Geen rare variablen binnen de template.
-  //   ##
-  //   ## Nadelen:
-  //   ## - $this heeft de verkeerde waarde.
-    
-  //   $t = $templator = $this->templator;
-  //   extract($this->data);
-  //   ob_start();
-  //     require($this->template);
-  //     $r = new \classes\OutputData(ob_get_contents(), $t->getHeaders());
-  //   ob_end_clean();
-    
-  //   return $r;
-    
-  // }
-  
-  // //Generate the output.
-  // public function generate()
-  // {
-    
-  //   ## Voordelen:
-  //   ## - Alle bovenstaande.
-  //   ##
-  //   ## Nadelen:
-  //   ## - eval.
-    
-  //   //Yarr!
-  //   $eval  = 'return function($'.implode(', $',array_keys($this->data)).'){';
-  //   $eval .= '$t = $template = $this;';
-  //   $eval .= "ob_start(); require('{$this->template}');";
-  //   $eval .= '$r = new \classes\OutputData(ob_get_contents(), $t->getHeaders());';
-  //   $eval .= 'ob_end_clean(); return $r; };';
-    
-  //   //Create the templator function that we will bind to the templator.
-  //   $templator = eval($eval);
-    
-  //   //Bind it.
-  //   $templator->bindTo($this->templator);
-    
-  //   //Call it.
-  //   return call_user_func_array($templator, $this->data);
-    
-  // }
 
 }

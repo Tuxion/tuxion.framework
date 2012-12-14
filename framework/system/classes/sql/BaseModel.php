@@ -1,5 +1,7 @@
 <?php namespace classes\sql;
 
+use \classes\Component;
+
 abstract class BaseModel extends Row
 {
   
@@ -127,7 +129,7 @@ abstract class BaseModel extends Row
     $cache=[];
   
   //Sets default values.
-  public function __construct(array $values = [], \classes\Component $component)
+  public function __construct(array $values = [], Component $component)
   {
     
     //Set the component.

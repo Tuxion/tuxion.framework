@@ -1,4 +1,6 @@
-<?php namespace classes;
+<?php namespace classes\route;
+
+use \classes\Materials;
 
 class Controller
 {
@@ -69,7 +71,7 @@ class Controller
     }
     
     //Create the processor.
-    $this->pres[] = new \classes\RoutePreProcessor($description, $callback, $this->context);
+    $this->pres[] = new PreProcessor($description, $callback, $this->context);
     
     //Enable chaining.
     return $this;
@@ -120,7 +122,7 @@ class Controller
     }
     
     //Yep.
-    $this->end = new \classes\RouteEndPoint($description, $callback, $this->context);
+    $this->end = new EndPoint($description, $callback, $this->context);
     
     //Enable chaining.
     return $this;
@@ -137,7 +139,7 @@ class Controller
     }
     
     //Create the processor.
-    $this->posts[] = new \classes\RoutePostProcessor($description, $callback, $this->context);
+    $this->posts[] = new PostProcessor($description, $callback, $this->context);
     
     //Enable chaining.
     return $this;

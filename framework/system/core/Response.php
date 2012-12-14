@@ -1,5 +1,11 @@
 <?php namespace core;
 
+use \classes\route\Router;
+use \classes\Materials;
+use \classes\Render;
+use \classes\Url;
+use \classes\locators\Template;
+
 class Response
 {
   
@@ -27,7 +33,7 @@ class Response
     $path = $start = substr($path, strlen(tx('Config')->urls->path)+2);
     
     //Clean the path.
-    $path = \classes\Router::cleanPath($path);
+    $path = Router::cleanPath($path);
     
     //Redirect if the router object changed the path.
     if($path != $start){
@@ -50,8 +56,8 @@ class Response
   {
     
     //Make the Materials and the Router.
-    $materials = new \classes\Materials($data);
-    $router = new \classes\Router($method, $path, $materials);
+    $materials = new Materials($data);
+    $router = new Router($method, $path, $materials);
     
     //Try to execute the router.
     try
@@ -106,7 +112,7 @@ class Response
   }
   
   //Use Materials to create an output.
-  public function outputMaterials(\classes\Materials $materials, $part=null, $to_stream=true)
+  public function outputMaterials(Materials $materials, $part=null, $to_stream=true)
   {
     
     //Get the inner template.
@@ -129,7 +135,7 @@ class Response
       $templator = $materials->output->createTemplator($materials);
       
       //Generate the template.
-      $output_data = (new \classes\Render($templator, $inner_template, [
+      $output_data = (new Render($templator, $inner_template, [
         'errors' => wrap($materials->errors),
         'warnings' => wrap($materials->warnings)
       ]))->generate();
@@ -198,7 +204,7 @@ class Response
       $templator = $data->createTemplator($materials);
       
       //Render.
-      $output_data = (new \classes\Render(
+      $output_data = (new Render(
         $templator,
         $outer_template,
         $materials->outer_template_data
@@ -223,7 +229,7 @@ class Response
   }
   
   //Set the URL to redirect to.
-  public function redirect(\classes\Url $url)
+  public function redirect(Url $url)
   {
     
     //Set the redirect URL.
@@ -243,7 +249,7 @@ class Response
   }
   
   //Return the right template file in given directory based on mime-type.
-  public function getTemplate(\classes\locators\Template $locator, $mime)
+  public function getTemplate(Template $locator, $mime)
   {
     
     //Get the directory.

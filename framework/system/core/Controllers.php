@@ -1,7 +1,7 @@
 <?php namespace core;
 
-use \classes\Controller as Controller;
-use \classes\Router as Router;
+use \classes\route\Controller;
+use \classes\route\Router;
 
 class Controllers
 {

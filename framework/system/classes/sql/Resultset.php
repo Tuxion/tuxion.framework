@@ -1,6 +1,8 @@
 <?php namespace classes\sql;
 
-class Resultset extends \classes\data\ArrayWrapper
+use \classes\data\ArrayWrapper;
+
+class Resultset extends ArrayWrapper
 {
   
   public function __construct(array $rows=[])

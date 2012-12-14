@@ -1,5 +1,7 @@
 <?php namespace classes\sql\clauses;
 
+use \classes\sql\BuilderCondition;
+
 class Whaving extends BaseClause
 {
   
@@ -8,7 +10,7 @@ class Whaving extends BaseClause
     $conditions=[];
   
   //Add a condition. Duh.
-  public function addCondition(\classes\sql\BuilderCondition $condition)
+  public function addCondition(BuilderCondition $condition)
   {
     
     $this->conditions[] = $condition;

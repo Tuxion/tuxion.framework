@@ -1,6 +1,8 @@
 <?php namespace outputting\error;
 
-class Standard extends \classes\BaseStandardData
+use \classes\BaseStandardData;
+
+class Standard extends BaseStandardData
 {
   
   //Protected static properties.

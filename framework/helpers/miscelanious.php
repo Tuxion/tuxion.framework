@@ -10,10 +10,7 @@ function route(){
   }
   
   if(func_num_args() == 1
-    && ( func_get_arg(0) instanceof \classes\Controller
-      || func_get_arg(0) instanceof \classes\ComponentController
-      || is_null(func_get_arg(0))
-    )
+  &&(func_get_arg(0) instanceof \classes\route\Controller || is_null(func_get_arg(0)))
   ){
     return $c = func_get_arg(0);
   }

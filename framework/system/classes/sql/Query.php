@@ -229,7 +229,7 @@ class Query
     //Create the data for the result.
     $data = [];
     foreach($result->fetchAll(\PDO::FETCH_ASSOC) as $row){
-      $data[] = (is_null($creator) ? new \classes\sql\Row($row) : $creator($row));
+      $data[] = (is_null($creator) ? new Row($row) : $creator($row));
     }
     
     //Return a new sql\Result.

@@ -1,5 +1,7 @@
 <?php namespace core;
 
+use \classes\BaseStandardData;
+
 class Outputting
 {
   
@@ -28,7 +30,7 @@ class Outputting
   {
     
     //Data has already been standardized?
-    if($data instanceof \classes\BaseStandardData){
+    if($data instanceof BaseStandardData){
       return $data;
     }
     

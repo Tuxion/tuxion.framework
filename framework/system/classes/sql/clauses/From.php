@@ -1,5 +1,8 @@
 <?php namespace classes\sql\clauses;
 
+use \classes\sql\BuilderModel;
+use \classes\Component;
+
 class From extends BaseClause
 {
   
@@ -8,7 +11,7 @@ class From extends BaseClause
     $models=[];
     
   //Add a model's table to the from clause.
-  public function addModel(\classes\sql\BuilderModel $model)
+  public function addModel(BuilderModel $model)
   {
     
     $this->models[] = $model;
@@ -16,7 +19,7 @@ class From extends BaseClause
   }
   
   //Add a model's table to the from clause using a JOIN.
-  public function joinModel(\classes\sql\BuilderModel $foreign, $type = null)
+  public function joinModel(BuilderModel $foreign, $type = null)
   {
     
     //Get the local model.
@@ -91,7 +94,7 @@ class From extends BaseClause
       //Otherwise create a new model based on the acquired information and add it.
       else{
         $new_target = $this->builder->addModel(
-          $foreign_model_name, \classes\Component::get($foreign_component_name)
+          $foreign_model_name, Component::get($foreign_component_name)
         );
       }
       

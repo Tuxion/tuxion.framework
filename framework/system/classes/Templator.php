@@ -1,6 +1,8 @@
 <?php namespace classes;
 
-class Templator extends \classes\data\ArrayWrapper
+use \classes\data\ArrayWrapper;
+
+class Templator extends ArrayWrapper
 {
   
   //Always wrap nodes.

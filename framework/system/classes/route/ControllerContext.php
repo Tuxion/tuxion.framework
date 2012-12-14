@@ -1,4 +1,6 @@
-<?php namespace classes;
+<?php namespace classes\route;
+
+use \classes\locators\Base as BaseLocator;
 
 class ControllerContext
 {
@@ -10,7 +12,7 @@ class ControllerContext
     $root_path;
   
   //Set properties.
-  public function __construct(locators\Base $locator, $filename, $root_path)
+  public function __construct(BaseLocator $locator, $filename, $root_path)
   {
     
     //We need a Component or a System locator for the Controller to work with.

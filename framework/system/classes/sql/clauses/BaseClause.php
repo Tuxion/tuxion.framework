@@ -1,10 +1,13 @@
 <?php namespace classes\sql\clauses;
 
-abstract class BaseClause extends \classes\sql\BaseBuilder
+use \classes\sql\BaseBuilder;
+use \classes\sql\Builder;
+
+abstract class BaseClause extends BaseBuilder
 {
   
   //Set the builder and the type.
-  public function __construct(\classes\sql\Builder $builder)
+  public function __construct(Builder $builder)
   {
     
     $this->setBuilder($builder);

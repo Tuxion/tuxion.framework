@@ -1,5 +1,7 @@
 <?php namespace classes\sql;
 
+use \classes\Component;
+
 class BuilderModel
 {
   
@@ -16,7 +18,7 @@ class BuilderModel
     $joins=[];
   
   //Start from here.
-  public function __construct($name, \classes\Component $component, Builder $builder)
+  public function __construct($name, Component $component, Builder $builder)
   {
     
     $this->name = $name;
