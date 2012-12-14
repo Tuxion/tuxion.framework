@@ -26,6 +26,9 @@ abstract class BaseData
   //Must implement string casting.
   abstract public function toString();
   
+  //Must implement visualization.
+  abstract public function visualize();
+  
   //Magic method for when PHP casts this object to string.
   final public function __toString()
   {

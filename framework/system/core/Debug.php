@@ -100,51 +100,14 @@ class Debug
     $args = function($entry)use(&$args)
     {
       
-      $arr = [];
-      
-      foreach($entry['args'] as $arg)
-      {
-        
-        switch(gettype($arg))
-        {
-          
-          case 'array':
-            $arr[] = 'array('.count($arg).')';
-            break;
-            
-          case 'string':
-            $arr[] = "'$arg'";
-            break;
-          
-          case 'object':
-            if($arg instanceof \Closure){
-              $arr[] = ('{closure}');
-            }
-            elseif($arg instanceof BaseData){
-              $arr[] = ('data'.$args(['args' => [$arg->get()]]));
-            }
-            else{
-              $arr[] = ('object('.wrap($arg)->name().')');
-            }
-            break;
-          
-          case 'NULL':
-            $arr[] = 'NULL';
-            break;
-          
-          case 'boolean':
-            $arr[] = ($arg ? 'true' : 'false');
-            break;
-          
-          default:
-            $arr[] = $arg;
-          
-        }
-        
-      }
-      
-      
-      return '('.implode(', ', $arr).')';
+      return wrap($entry['args'])
+        ->map(function($arg){
+          return wrap($arg)->visualize(true)->unwrap();
+        })
+        ->join(', ')
+        ->prepend('(')
+        ->append(')')
+      ;
       
     };
     

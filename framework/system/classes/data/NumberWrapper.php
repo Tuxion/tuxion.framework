@@ -25,6 +25,14 @@ class NumberWrapper extends BaseScalarData
     
   }
   
+  //Return a StringWrapper containing the visual representation of this number.
+  public function visualize()
+  {
+    
+    return $this->toString();
+    
+  }
+  
   //Return the wrapped alternative if this number is zero or lower.
   public function alt($alternative)
   {

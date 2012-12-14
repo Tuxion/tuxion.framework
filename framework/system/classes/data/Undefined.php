@@ -19,6 +19,14 @@ class Undefined extends BaseData
     
   }
   
+  //Return "NULL".
+  public function visualize()
+  {
+    
+    return new StringWrapper("NULL");
+    
+  }
+  
   //Can not call methods on Undefined.
   public function __call($key, $args)
   {

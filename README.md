@@ -1,4 +1,4 @@
-# Tuxion Framework 0.2 Alpha
+# Tuxion Framework 0.1.1 Alpha
 
 ## Description
 
@@ -18,14 +18,25 @@ client-side work together seamlessly.
 
 PHP and JavaScript programmer.
 
+## Change log
+
+### [Version 0.1.1](https://github.com/Tuxion/tuxion.framework/tree/master)
+ * More structured use of name spaces.
+ * Fixed bug: Content headers sometimes not properly set.
+ * Extended DataWrappers
+ * Extended Standard Data Converters.
+
+### [Version 0.1](https://github.com/Tuxion/tuxion.framework/tree/940779eee25311464b17c41b98b2f58dfa43940c)
+ * First version to go to Beta!
+
 ## License
 
 ### GPLv3
 
 Tuxion.Framework is licensed under the GPLv3 license. You can read more about this license
 on the [Free Software Foundations website](http://www.gnu.org/licenses/gpl-3.0.html). The
-license is included as
-[LICENSE in this directory](https://github.com/Tuxion/tuxion.framework/blob/master/LICENSE).
+license is included as [LICENSE](https://github.com/Tuxion/tuxion.framework/blob/master/LICENSE)
+in this directory.
 
 ### Commercial License
 

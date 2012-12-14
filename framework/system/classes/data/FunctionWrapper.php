@@ -25,6 +25,14 @@ class FunctionWrapper extends BaseScalarData
     
   }
   
+  //Return {Closure}.
+  public function visualize()
+  {
+    
+    return new StringWrapper('{Closure}');
+    
+  }
+  
   //Return the Function, bound to a new object.
   public function bind($object)
   {

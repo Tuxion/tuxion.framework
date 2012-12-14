@@ -25,6 +25,14 @@ class BooleanWrapper extends BaseScalarData
     
   }
   
+  //Return a StringWrapper containing the visual representation of this boolean.
+  public function visualize()
+  {
+    
+    return new StringWrapper($this->value ? 'true' : 'false');
+    
+  }
+  
   //Return the wrapped alternative if this boolean is false.
   public function alt($alternative)
   {

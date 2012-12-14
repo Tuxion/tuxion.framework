@@ -45,6 +45,14 @@ class ObjectWrapper extends BaseData
     
   }
   
+  //Return a StringWraper containing the visual representation of this object.
+  public function visualize()
+  {
+    
+    return new StringWrapper('object('.$this->name().')');
+    
+  }
+  
   //Get the variables in the object as a wrapped array.
   public function vars()
   {

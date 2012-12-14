@@ -69,6 +69,25 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
     
   }
   
+  //Return a StringWrapper containing the visual representation of this array.
+  public function visualize($short=false)
+  {
+    
+    if($short){
+      return new StringWrapper('['.$this->size().']');
+    }
+    
+    return $this
+      ->map(function($node, $key){
+        return wrap($key)->visualize().' => '.wrap($node)->visualize();
+      })
+      ->join(', ')
+      ->prepend('[')
+      ->append(']')
+    ;
+    
+  }
+  
   //Return a new ArrayObject with the keys of this array as values.
   public function keys()
   {

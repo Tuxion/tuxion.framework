@@ -27,6 +27,14 @@ class StringWrapper extends BaseScalarData
     
   }
   
+  //Return a StringWrapper containing the visual representation of this string.
+  public function visualize()
+  {
+    
+    return new self('"'.addslashes($this->value).'"');
+    
+  }
+  
   //Return a NumberWrapper with the integer value of the string.
   public function toInt()
   {
@@ -88,6 +96,22 @@ class StringWrapper extends BaseScalarData
       case BOTH: return new self(trim($characters));
       case RIGHT: return new self(rtrim($characters));
     }
+    
+  }
+  
+  //Prepend the given string to this one.
+  public function prepend($string)
+  {
+    
+    return new self($string.$this->value);
+    
+  }
+  
+  //Append the given string to this one.
+  public function append($string)
+  {
+    
+    return new self($this->value.$string);
     
   }
   
