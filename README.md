@@ -1,13 +1,16 @@
-# Tuxion Framework 0.1 Alpha
+# Tuxion Framework 0.1 Beta
 
 ## Description
 
-These are the beginnings of what's going to be a framework to develop advanced
-web-applications with. It will have a robust MVC framework written in PHP on the
-server-side, focusing on routing, permissions and an API friendly to the programmer.
-It will have a simple yet strong Javascript/jQuery framework on the client-side, offering
-an API which simplifies communication with the server and creating client-side MVC
-structures.
+This is a framework to develop advanced web-applications with. As of now, it is still in
+Beta. It has a robust routing-focused MVC framework written in PHP on the server-side.
+The PHP framework aims to be  friendly to the programmer: It is built so that tedious
+tasks such as creating controllers, validating permissions and writing database queries
+become easy.
+
+It will have a the [dollar.mvc](https://github.com/Avaq/dollar.mvc) JavaScript framework
+built-in in the core, and will add functionality to it, to make the server-side and the
+client-side work together seamlessly.
 
 ## Authors
 
