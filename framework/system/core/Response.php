@@ -182,12 +182,6 @@ class Response
         
       }
       
-      //Output directly to stream?
-      if(!($outer_template) && $to_stream){
-        $converter->output();
-        return;
-      }
-      
       //Output to this variable.
       $output_data = $converter->output(false);
       

@@ -1,6 +1,8 @@
 <?php namespace classes\route;
 
 use \classes\Materials;
+use \classes\Component;
+use \classes\locators\Component as ComponentLocator;
 
 abstract class BaseProcessor
 {
@@ -174,6 +176,28 @@ abstract class BaseProcessor
     $this->needsMaterials('to get input');
     
     return $this->materials->input->raw();
+    
+  }
+  
+  //Return the component of the given name or id.
+  public function component($identifier = null)
+  {
+    
+    //Return the component based on given identifier.
+    if(!is_null($identifier)){
+      return Component::get($identifier);
+    }
+    
+    //Get the locator from our context.
+    $locator = $this->context->getLocator();
+    
+    //If the locator is no ComponentLocator, we can't do anything.
+    if(!($locator instanceof ComponentLocator)){
+      throw new \exception\Restriction('Can only leave $identifier empty when you are in component context.');
+    }
+    
+    //Return the Component object by retrieving it using the locator.
+    return Component::get($locator);
     
   }
   

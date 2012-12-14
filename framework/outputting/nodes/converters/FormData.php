@@ -6,16 +6,10 @@ class FormData extends BaseConverter
 {
   
   //Converts the standard data to form data.
-  protected function convertToRaw($to_stream=true)
+  protected function convertToRaw()
   {
     
-    if($to_stream){
-      echo http_build_query($this->standard->raw(), null, ini_get('arg_separator.output'), PHP_QUERY_RFC3986);
-    }
-    
-    else{
-      return http_build_query($this->standard->raw(), null, ini_get('arg_separator.output'), PHP_QUERY_RFC3986);
-    }
+    return http_build_query($this->standard->raw(), null, ini_get('arg_separator.output'), PHP_QUERY_RFC3986);
     
   }
   

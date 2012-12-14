@@ -31,7 +31,7 @@ abstract class BaseConverter
   }
   
   //Should return or echo the raw output.
-  abstract protected function convertToRaw($to_stream=true);
+  abstract protected function convertToRaw();
   
   //Should return the data required for the standard data.
   abstract protected function convertToStandard();
@@ -71,72 +71,11 @@ abstract class BaseConverter
     
   }
   
-  //Converts $this->standard to raw data, and either outputs it directly to the
-  //stream, or caches and returns an instance of OutputData.
-  public function output($to_stream=true)
+  //Get or create OutputData.
+  public function output()
   {
     
-    //Set the headers of the already present raw data?
-    if(!is_null($this->raw)){
-      $headers = $this->raw->headers;
-    }
-    
-    //Create the headers.
-    else{
-      $headers = [];
-    }
-    
-    //Output directly to stream?
-    if($to_stream)
-    {
-      
-      //Set the headers.
-      $this->setHeaders($headers);
-      
-      //Output the data.
-      if(is_null($this->raw)){
-        $this->convertToRaw(true);
-      }
-      
-      else{
-        echo $this->raw->data;
-      }
-      
-      //Return void.
-      return;
-      
-    }
-    
-    //Return an OutputData object.
-    else
-    {
-      
-      //Check the cache.
-      if(!is_null($this->raw)){
-        return $this->raw;
-      }
-      
-      //Convert the standard data and create the object.
-      $this->raw = new OutputData($this->convertToRaw(false), $headers);
-      
-      //Return the Output data.
-      return $this->raw;
-      
-    }
-    
-  }
-  
-  //Output headers.
-  protected function setHeaders(array $headers)
-  {
-    
-    //Iterate the given headers and output them.
-    foreach($headers as $key => $value){
-      header("$key: $value");
-    }
-    
-    //Enable chaining.
-    return $this;
+    return (is_null($this->raw) ? new OutputData($this->convertToRaw(false)) : $this->raw);
     
   }
   

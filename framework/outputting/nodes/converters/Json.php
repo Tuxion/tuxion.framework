@@ -6,16 +6,10 @@ class Json extends BaseConverter
 {
   
   //Converts the standard data to JSON.
-  protected function convertToRaw($to_stream=true)
+  protected function convertToRaw()
   {
     
-    if($to_stream){
-      echo json_encode($this->standard->raw());
-    }
-    
-    else{
-      return json_encode($this->standard->raw());
-    }
+    return json_encode($this->standard->raw());
     
   }
   

@@ -155,8 +155,9 @@ class Component
       //Log.
       tx('Log')->message($this, 'created controller', $this->title.': '.$file);
       
-      //Set the magic route().
+      //Set the magic route() and an alias to $this.
       route($controller);
+      $component = $this;
       
       //Include the controller files.
       require($file);
