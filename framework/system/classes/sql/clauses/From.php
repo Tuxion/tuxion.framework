@@ -111,7 +111,7 @@ class From extends BaseClause
     
     //Everything good? Check if the local model is in the from clause yet.
     if(!in_array($local, $this->models)){
-      $this->models[] = $local;
+      $this->addModel($local);
     }
     
     //Enable chaining.

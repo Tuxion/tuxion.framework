@@ -196,7 +196,7 @@ class Builder
   
   
   ##
-  ## CLAUSE MODIFIERS
+  ## LOW LEVEL CLAUSE MODIFIERS
   ##
   
   //Add a column to the select clause.
