@@ -22,7 +22,7 @@ PHP and JavaScript programmer.
 
 ### [Version 0.1.1](https://github.com/Tuxion/tuxion.framework/tree/master)
  * More structured use of name spaces.
- * Fixed bug: Content headers sometimes not properly set.
+ * Lots of bug fixes.
  * Extended DataWrappers
  * Extended Standard Data Converters.
 

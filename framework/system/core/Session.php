@@ -8,6 +8,10 @@ class Session extends ArrayWrapper
   private
     $id;
   
+  ##
+  ## MANAGEMENT METHODS
+  ##
+  
   public function init()
   {
     
@@ -60,7 +64,83 @@ class Session extends ArrayWrapper
   
   public function id()
   {
+    
     return $this->id;
+    
+  }
+  
+  
+  ##
+  ## MODIFIER METHODS
+  ##
+  
+  //Edit session data.
+  //edit($key[, $key, ...], $value)
+  public function edit()
+  {
+    
+    //Handle arguments.
+    $args = func_get_args();
+    
+    //Must have at least 2 arguments.
+    if(count($args) < 2){
+      throw new \exception\InvalidArgument(
+        'Expecting at least two arguments. A key and a value. %s Given.', count($args)
+      );
+    }
+    
+    //Pop the value off.
+    $value = array_pop($args);
+    
+    //Set the first "current".
+    $current =& $this->arr;
+    
+    //Find or create the arrays that correspond to the keys.
+    for($i=0, $total=count($args); $i < $total, list(, $key) = each($args); $i++)
+    {
+      
+      //Set the the given value?
+      if($i == $total){
+        $current[$key] = $value;
+        break;
+      }
+      
+      //Create the node?
+      if(!array_key_exists($key, $current)){
+        $current[$key] = [];
+      }
+      
+      //Store the node.
+      $current =& $current[$key];
+      
+    }
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Return true if the given keys lead to existing data.
+  public function exists()
+  {
+    
+    //Handle arguments.
+    $args = func_get_args();
+    $current =& $this->arr;
+    
+    foreach($args as $key)
+    {
+      
+      if(!array_key_exists($key, $current)){
+        return false;
+      }
+      
+      $current =& $current[$key];
+      
+    }
+    
+    return true;
+    
   }
   
 }

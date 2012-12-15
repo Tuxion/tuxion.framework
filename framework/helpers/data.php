@@ -4,10 +4,6 @@ function wrap(){
   
   $data = (func_num_args() == 1 ? func_get_arg(0) : (func_num_args() > 1 ? func_get_args() : null));
   
-  if(is_wrapped($data)){
-    return $data;
-  }
-  
   if(is_null($data)){
     return new \classes\data\Undefined;
   }
@@ -37,6 +33,18 @@ function wrap(){
   }
   
   throw new \exception\NotImplemented('No wrapper implemented for data of type: %s', typeof($data));
+  
+}
+
+//Only wrap raw input.
+function wrapRaw($input)
+{
+  
+  if(is_wrapped($input)){
+    return $input;
+  }
+  
+  return wrap($input);
   
 }
 

@@ -11,8 +11,6 @@ class ObjectWrapper extends BaseData
   public function __construct($value)
   {
     
-    raw($value);
-    
     if(!(is_object($value))){
       throw new \exception\InvalidArgument('Expecting $value to be an object. %s given.', typeof($value));
     }
@@ -33,6 +31,10 @@ class ObjectWrapper extends BaseData
   public function __call($method, $arguments)
   {
     
+    if(!method_exists($this, "_public_$method")){
+      throw new \exception\NonExistent('Class %s has no method %s.', get_class(), $method);
+    }
+    
     return call_user_func_array([$this, "_public_$method"], $arguments);
     
   }
@@ -42,6 +44,14 @@ class ObjectWrapper extends BaseData
   {
     
     return new StringWrapper('[data\Object]');
+    
+  }
+  
+  //Return the variables of this object in JSON format.
+  public function toJSON()
+  {
+    
+    return new StringWrapper(json_encode($this->vars()));
     
   }
   
@@ -73,7 +83,10 @@ class ObjectWrapper extends BaseData
   public function baseclass()
   {
     
-    return new StringWrapper(substr(strrchr($this->_public_class(), '\\'), 1));
+    return new StringWrapper(substr_count($this->_public_class()->get(), '\\') > 0
+      ? substr(strrchr($this->_public_class()->get(), '\\'), 1)
+      : $this->_public_class()->get()
+    );
     
   }
   
@@ -87,7 +100,7 @@ class ObjectWrapper extends BaseData
     //Get the traits used by its class.
     do{
       if(array_key_exists("traits\\$trait_name", class_uses($object))){
-        return true;
+        return new BooleanWrapper(true);
       }
     }
     
@@ -95,7 +108,7 @@ class ObjectWrapper extends BaseData
     while($object = get_parent_class($object));
     
     //Nope.
-    return false;
+    return new BooleanWrapper(false);
     
   }
   
@@ -114,14 +127,14 @@ class ObjectWrapper extends BaseData
       $object_ids[$hash] = $id = (count($object_ids) + 1);
     }
     
-    return $id;
+    return new NumberWrapper($id);
 
   }
 
   function name()
   {
     
-    return get_class($this->object).'#'.$this->id();
+    return new StringWrapper(get_class($this->object).'#'.$this->id());
     
   }
   

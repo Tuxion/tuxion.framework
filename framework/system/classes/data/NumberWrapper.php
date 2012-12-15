@@ -7,8 +7,6 @@ class NumberWrapper extends BaseScalarData
   public function __construct($value)
   {
     
-    raw($value);
-    
     if(!(is_int($value) || is_float($value) || is_real($value) || is_long($value))){
       throw new \exception\InvalidArgument('Expecting $value to be a number. %s given.', typeof($value));
     }
@@ -22,6 +20,14 @@ class NumberWrapper extends BaseScalarData
   {
     
     return new StringWrapper((string) $this->value);
+    
+  }
+  
+  //Return a StringWrapper containing the number in JSON format.
+  public function toJSON()
+  {
+    
+    return $this->toString();
     
   }
   

@@ -1,6 +1,7 @@
 <?php namespace outputting\nodes;
 
 use \classes\BaseStandardData;
+use \classes\data\ArrayWrapper;
 
 class Standard extends BaseStandardData
 {
@@ -13,7 +14,7 @@ class Standard extends BaseStandardData
   public static function accepts($input)
   {
     
-    return is_array($input);
+    return ($input instanceof ArrayWrapper);
     
   }
   

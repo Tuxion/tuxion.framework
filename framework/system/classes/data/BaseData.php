@@ -26,6 +26,9 @@ abstract class BaseData
   //Must implement string casting.
   abstract public function toString();
   
+  //Must implement JSON conversion.
+  abstract public function toJSON();
+  
   //Must implement visualization.
   abstract public function visualize();
   

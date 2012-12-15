@@ -1,6 +1,7 @@
 <?php namespace outputting\nodes\converters;
 
 use \classes\BaseConverter;
+use \classes\data\ArrayWrapper;
 
 class FormData extends BaseConverter
 {
@@ -9,7 +10,7 @@ class FormData extends BaseConverter
   protected function convertToRaw()
   {
     
-    return http_build_query($this->standard->raw(), null, ini_get('arg_separator.output'), PHP_QUERY_RFC3986);
+    return http_build_query($this->standard->raw()->toArray(), null, ini_get('arg_separator.output'), PHP_QUERY_RFC3986);
     
   }
   
@@ -18,7 +19,7 @@ class FormData extends BaseConverter
   {
     
     parse_str($this->raw->data, $output);
-    return $output;
+    return new ArrayWrapper($output);
     
   }
   

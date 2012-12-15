@@ -11,7 +11,7 @@ trait ArrayContainer
     
   }
   
-  private
+  protected
     $arr_permissions=7,
     $arr=[];
   
@@ -167,7 +167,7 @@ trait ArrayContainer
   {
     
     //Loop arguments.
-    foreach($arrays as $array)
+    foreach(func_get_args() as $array)
     {
       
       //Cast ArrayContainers to arrays.
@@ -309,6 +309,29 @@ trait ArrayContainer
     
   }
   
+  //Iterate over the array and return true if it was fully iterated. Return value must pass truth test.
+  public function every(\Closure $callback)
+  {
+    
+    $i = 0;
+    
+    foreach($this->arr as $key => $value)
+    {
+      
+      $r = $callback($value, $key, $i);
+      
+      if($r !== true){
+        return false;
+      }
+      
+      $i++;
+      
+    }
+    
+    return true;
+    
+  }
+  
   //Iterate over the array and it's sub-arrays.
   public function walk(\Closure $callback)
   {
@@ -414,6 +437,13 @@ trait ArrayContainer
     
   }
   
+  //Return true if the node under the given key is set, and resolves to true.
+  public function check($key)
+  {
+    
+    return ($this->arrayExists($key) && $this->arrayGet($key));
+    
+  }
   
   ##
   ## NATIVE CODE

@@ -6,30 +6,27 @@ class User
   private
     $users;
   
+  //Initialize the user array in the session.
   public function init()
   {
     
     //Enter a log entry.
     tx('Log')->message($this, 'User class initializing.');
     
-    //Create the system data if it doesn't exist.
-    if( ! tx('Session')->system->isDefined()){
-      tx('Session')->system->set([]);
-    }
-    
-    //Create the users data if it doesn't exist.
-    if( ! tx('Session')->system->users->isDefined()){
-      tx('Session')->system->users->set([]);
+    //Create the users array in the session.
+    if(!tx('Session')->exists('system', 'users')){
+      tx('Session')->edit('system', 'users', []);
     }
     
     //Keep a reference to this "users" object.
-    $this->users =& tx('Session')->system->users;
+    $this->users = tx('Session')->extract('system', 'users');
     
     //Enter a log entry.
     tx('Log')->message($this, 'User class initialized.');
     
   }
   
+  //Return true if there is an active user.
   public function isLoggedIn()
   {
     
@@ -41,25 +38,31 @@ class User
     
   }
   
+  //Return the array representing the active user.
   public function getActiveUser()
   {
     
-    $active = $this->users->filter(function($node){
-      return $node->check('active');
+    //Filter the users by "active" boolean.
+    $active = wrap($this->users)->filter(function($node){
+      return wrap($node)->check('active');
     });
     
+    //This is bad.
     if($active->size() > 1){
       throw new \exception\InternalServerError('More than one active user.');
     }
     
+    //No active user found.
     if($active->size() < 1){
       return false;
     }
     
+    //Return the active user array.
     return $active->idx(0);
     
   }
   
+  //Returns true if the currently active user has the given permission.
   public function hasPermission($component, $key)
   {
 

@@ -7,8 +7,6 @@ class FunctionWrapper extends BaseScalarData
   public function __construct($value)
   {
     
-    raw($value);
-    
     if(!($value instanceof \Closure)){
       throw new \exception\InvalidArgument('Expecting $value to be a Closure. %s given.', typeof($value));
     }
@@ -22,6 +20,14 @@ class FunctionWrapper extends BaseScalarData
   {
     
     return new StringWrapper('[data\Function]');
+    
+  }
+  
+  //Return null.
+  public function toJSON()
+  {
+    
+    return new StringWrapper('null');
     
   }
   

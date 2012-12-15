@@ -7,8 +7,6 @@ class BooleanWrapper extends BaseScalarData
   public function __construct($value)
   {
     
-    raw($value);
-    
     if(!(is_bool($value))){
       throw new \exception\InvalidArgument('Expecting $value to be a boolean. %s given.', typeof($value));
     }
@@ -22,6 +20,14 @@ class BooleanWrapper extends BaseScalarData
   {
     
     return new StringWrapper((string) $this->value);
+    
+  }
+  
+  //Return a StringWrapper containing the boolean in JSON format.
+  public function toJSON()
+  {
+    
+    return $this->visualize();
     
   }
   

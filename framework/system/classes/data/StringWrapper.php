@@ -9,8 +9,6 @@ class StringWrapper extends BaseScalarData
   public function __construct($value)
   {
     
-    raw($value);
-    
     if(!is_string($value)){
       throw new \exception\InvalidArgument('Expecting $value to be string. %s given.', typeof($value));
     }
@@ -24,6 +22,14 @@ class StringWrapper extends BaseScalarData
   {
     
     return $this;
+    
+  }
+  
+  //Return a StringWrapper containing this string in JSON format.
+  public function toJSON()
+  {
+    
+    return $this->visualize();
     
   }
   

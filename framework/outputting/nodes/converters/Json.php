@@ -1,6 +1,7 @@
 <?php namespace outputting\nodes\converters;
 
 use \classes\BaseConverter;
+use \classes\data\ArrayWrapper;
 
 class Json extends BaseConverter
 {
@@ -9,7 +10,7 @@ class Json extends BaseConverter
   protected function convertToRaw()
   {
     
-    return json_encode($this->standard->raw());
+    return $this->standard->raw()->toJSON()->get();
     
   }
   
@@ -17,7 +18,7 @@ class Json extends BaseConverter
   protected function convertToStandard()
   {
     
-    return json_decode($this->raw->data);
+    return new ArrayWrapper(json_decode($this->raw->data));
     
   }
   

@@ -36,7 +36,9 @@ class Outputting
     
     //Get the right class.
     if(!($container_class = $this->getStandardFor($data))){
-      throw new \exception\NotImplemented('There is no standard for the provided data.');
+      throw new \exception\NotImplemented(
+        'There is no standard for the provided data type (%s).', typeof($data)
+      );
     }
     
     //Return an instance.

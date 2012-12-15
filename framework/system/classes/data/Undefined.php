@@ -19,6 +19,14 @@ class Undefined extends BaseData
     
   }
   
+  //Return undefined.
+  public function toJSON()
+  {
+    
+    return new StringWrapper('undefined');
+    
+  }
+  
   //Return "NULL".
   public function visualize()
   {

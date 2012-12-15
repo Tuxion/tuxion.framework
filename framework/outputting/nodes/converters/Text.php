@@ -9,7 +9,7 @@ class Text extends BaseConverter
   protected function convertToRaw()
   {
     
-    return wrap($this->standard->raw())->visualize()->unwrap();
+    return wrap($this->standard->raw()->toArray())->visualize()->unwrap();
     
   }
   

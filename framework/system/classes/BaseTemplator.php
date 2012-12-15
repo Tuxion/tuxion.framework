@@ -39,6 +39,14 @@ abstract class BaseTemplator
     
   }
   
+  //Returns the raw data.
+  public function get()
+  {
+    
+    return $this->data->raw();
+    
+  }
+  
   //Return the standard data in this template as given type.
   public function to($type)
   {

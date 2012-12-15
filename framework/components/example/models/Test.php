@@ -2,7 +2,7 @@
 
 use \classes\sql\BaseModel;
 
-class Test extends BaseModel;
+class Test extends BaseModel
 {
   
   static
@@ -10,16 +10,12 @@ class Test extends BaseModel;
     $relations = [
       'Derp' => ['id', 'Derp.test_id', 'LEFT']
     ];
-
-  //Returns the title and description the prettiest way possible.
-  public function get_post()
+  
+  //Return the ID.
+  public function get_id()
   {
     
-    //Cache the result because this is a heavy operation.
-    $this->cache();
-    
-    return '<article><h1>'.$this->arrayGet('title').'</h1><p>'.
-    $this->arrayGet('description').'</p></article>';
+    return '#'.$this->_get('id');
     
   }
   

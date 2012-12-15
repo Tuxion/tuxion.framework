@@ -10,10 +10,6 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
   //   arrayGet as private _arrayGet;
   // }
   
-  //Private properties.
-  private
-    $wrap_nodes=false;
- 
   ##
   ## MAGIC METHODS
   ##
@@ -65,7 +61,17 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
   public function toJSON()
   {
     
-    return new StringWrapper(json_encode($this->arr));
+    $assoc = $this->isAssociative();
+    
+    return $this
+    
+    ->map(function($node, $key)use($assoc){
+      return ($assoc ? wrap($key)->toJSON().':' : '').$this->wrapRaw($key)->toJSON();
+    })
+    
+    ->join(', ')
+    ->prepend($assoc ? '{' : '[')
+    ->append($assoc ? '}' : ']');
     
   }
   
@@ -78,13 +84,14 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
     }
     
     return $this
-      ->map(function($node, $key){
-        return wrap($key)->visualize().' => '.wrap($node)->visualize();
-      })
-      ->join(', ')
-      ->prepend('[')
-      ->append(']')
-    ;
+    
+    ->map(function($node, $key){
+      return wrap($key)->visualize().' => '.wrap($node)->visualize();
+    })
+    
+    ->join(', ')
+    ->prepend('[')
+    ->append(']');
     
   }
   
@@ -369,11 +376,40 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
     
   }
   
+  //Return the node under [key] if it was wrapped, otherwise wrap it first.
+  public function wrapRaw($key)
+  {
+    
+    //Return undefined if the node does not exist.
+    if(!$this->arrayExists($key)){
+      return new Undefined;
+    }
+    
+    //Return the node.
+    return wrapRaw($this->arrayGet($key));
+    
+  }
+  
   //Return the wrapped alternative if this array is empty.
   public function alt($alternative)
   {
     
     return ($this->isEmpty() ? wrap($alternative) : $this);
+    
+  }
+  
+  
+  ##
+  ## INFORMATION METHODS
+  ##
+  
+  //Return false if all keys are numeric.
+  public function isAssociative()
+  {
+    
+    return ! $this->every(function($val, $key){
+      return is_numeric($key);
+    });
     
   }
   

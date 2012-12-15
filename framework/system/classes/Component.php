@@ -254,22 +254,6 @@ class Component
     
   }
   
-  //Create a Builder object which will return the given model when executed.
-  public function fetchA($model_name, &$model=null)
-  {
-    
-    return new sql\Builder(A, $this, $model_name, $model);
-    
-  }
-  
-  //Create a Builder object which will return a Result when executed.
-  public function fetchAll($model_name, &$model=null)
-  {
-    
-    return new sql\Builder(ALL, $this, $model_name, $model);
-    
-  }
-  
   //Get the path that leads to this component.
   public function getPath()
   {

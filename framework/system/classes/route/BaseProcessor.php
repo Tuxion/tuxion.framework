@@ -3,6 +3,7 @@
 use \classes\Materials;
 use \classes\Component;
 use \classes\locators\Component as ComponentLocator;
+use \classes\sql\Builder;
 
 abstract class BaseProcessor
 {
@@ -201,6 +202,22 @@ abstract class BaseProcessor
     
   }
   
+  //Create a Builder object which will return the given model when executed.
+  public function fetchA($model_name, &$model=null)
+  {
+    
+    return new Builder(A, $this->component(), $model_name, $model);
+    
+  }
+  
+  //Create a Builder object which will return a Result when executed.
+  public function fetchAll($model_name, &$model=null)
+  {
+    
+    return new Builder(ALL, $this->component(), $model_name, $model);
+    
+  }
+  
   //Checks if we have a materials and uses the given string to generate an error if we do not.
   protected function needsMaterials($for_what)
   {
@@ -214,6 +231,5 @@ abstract class BaseProcessor
     throw new \exception\Restriction('The processor needs materials %s.', strtolower($for_what));
     
   }
-  
   
 }

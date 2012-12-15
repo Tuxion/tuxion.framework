@@ -39,15 +39,15 @@ abstract class BaseModel extends Row
     
     //Is it cached?
     if(array_key_exists($table_name, $table_info)){
-      return $table_info[$table_name];
+      return wrap($table_info[$table_name]);
     }
     
     //Create the new entry in our cache.
-    $table_info[$table_name] = $tinfo = wrap([
+    $table_info[$table_name] = $tinfo = [
       'auto_increment' => false,
       'primary_keys' => [],
       'fields' => []
-    ]);
+    ];
     
     //Fetch info from the database.
     tx('Sql')->exe("SHOW COLUMNS FROM `$table_name`")
@@ -57,12 +57,12 @@ abstract class BaseModel extends Row
       
       //Check if it's an auto_increment.
       if($column->Extra == 'auto_increment'){
-        $tinfo->auto_increment = $column->Field;
+        $tinfo['auto_increment'] = $column->Field;
       }
 
       //Check if it's a primary key.
-      if($column->Key == 'PRI' && !$tinfo->primary_keys->has($column->Field)){
-        $tinfo->primary_keys[] = $column->Field;
+      if($column->Key == 'PRI' && !wrap($tinfo['primary_keys'])->has($column->Field)){
+        $tinfo['primary_keys'][] = $column->Field;
       }
 
       //Set some essential information per column.
@@ -106,12 +106,12 @@ abstract class BaseModel extends Row
         ->lowercase()
         ->split(',')
         ->map(function($arg){
-          return $arg->trim(' \'');
+          return wrap($arg)->trim(' \'')->unwrap();
         })
       ->unwrap();
       
       //Store.
-      $tinfo->fields[$column->Field] = $finfo->unwrap();
+      $tinfo['fields'][$column->Field] = $finfo->unwrap();
       
     });
 
@@ -136,7 +136,7 @@ abstract class BaseModel extends Row
     $this->component = $component;
     
     //We're going to do some stuff with the fields.
-    self::tableInfo()->fields
+    self::tableInfo()->wrap('fields')
     
     //Apply default values.
     ->each(function($info, $field_name){
@@ -319,6 +319,14 @@ abstract class BaseModel extends Row
     tx('Sql')->nonQuery($query, $data->values()->concat($this->pks()->values())->toArray())->execute();
     
     return $this;
+    
+  }
+  
+  //Get the node, skipping custom getters. For internal use.
+  protected function _get($key)
+  {
+    
+    return parent::arrayGet($key);
     
   }
   

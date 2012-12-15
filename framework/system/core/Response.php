@@ -115,6 +115,11 @@ class Response
   public function outputMaterials(Materials $materials, $part=null, $to_stream=true)
   {
     
+    //Was output generated?
+    if(!$materials->output){
+      $materials->exception(new \exception\BadImplementation('The endpoint does not generate output.'));
+    }
+    
     //Get the inner template.
     $inner_template = (is_object($materials->inner_template)
       ? $this->getTemplate($materials->inner_template, $materials->mime)

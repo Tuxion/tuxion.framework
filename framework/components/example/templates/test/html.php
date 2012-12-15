@@ -1,3 +1,3 @@
-<b><?=$t->foo?></b>
-<p><?=$t->nyerk?></p>
-<hr>
+<? $t->get()->each(function($row){
+  echo $row->id;
+}); ?>

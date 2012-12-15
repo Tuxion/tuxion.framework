@@ -54,7 +54,7 @@ class PreProcessor extends BaseProcessor
   {
     
     //Handle arguments.
-    $permissions = wrap(func_get_args())->flatten()->get();
+    $permissions = wrap(func_get_args())->flatten();
     
     //Here we will gather the failed permissions.
     $failed = [];
@@ -64,7 +64,7 @@ class PreProcessor extends BaseProcessor
     {
       
       //Check if the user has this permission.
-      if(tx('User')->hasPermission($this->component_name, $permission)){
+      if(tx('User')->hasPermission($this->component()->name, $permission)){
         continue;
       }
       
@@ -85,7 +85,7 @@ class PreProcessor extends BaseProcessor
       //Create the less friendly exception message.
       else{
         throw new \exception\Authorization(
-          'You do not have the following permissions: %s', implode(', ', $permissions)
+          'You do not have the following permissions: %s', $permissions->join(', ')
         );
       }
       
