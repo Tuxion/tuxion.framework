@@ -1,4 +1,4 @@
-# Tuxion Framework 0.1.1 Alpha
+# Tuxion Framework 0.1.1 Beta
 
 ## Description
 
