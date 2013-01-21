@@ -193,12 +193,13 @@ trait ArrayContainer
     
     //Get the used keys.
     $used = array_keys($this->arr);
+    $used_numeric = array_filter($used, function($v){return is_numeric($v);});
     
     //Get the currently highest key.
-    $i = max(array_filter($used, function($v){return is_numeric($v);})) + 1;
+    $i = ((count($used_numeric) > 0) ? (max($used_numeric) + 1) : 0);
     
     //Loop arguments.
-    foreach($arrays as $array)
+    foreach(func_get_args() as $array)
     {
       
       //Cast ArrayContainers to arrays.
@@ -225,6 +226,33 @@ trait ArrayContainer
     //Enable chaining.
     return $this;
     
+  }
+  
+  //Like merge, but only sets values that are not set the this array yet.
+  public function defaults()
+  {
+    
+    //Loop arguments.
+    foreach(func_get_args() as $array)
+    {
+      
+      //Cast ArrayContainers to arrays.
+      if(self::_isArr($array)){
+        $array = $array->toArray(false);
+      }
+      
+      //Loop the array.
+      foreach($array as $key => $value){
+        if(!$this->arrayExists($key)){
+          $this->arraySet($key, $value);
+        }
+      }
+      
+    }
+    
+    //Enable chaining.
+    return $this;
+        
   }
   
   //Push a new value into the array.
@@ -279,6 +307,67 @@ trait ArrayContainer
     }
     
     return $this;
+    
+  }
+  
+  
+  ##
+  ## ITERATIONS
+  ##
+  
+  //Return the value of the node under the cursor.
+  public function current()
+  {
+    
+    return current($this->arr);
+    
+  }
+  
+  //Return the key of the node under the cursor.
+  public function key()
+  {
+    
+    return key($this->arr);
+    
+  }
+  
+  //Advance the cursor and return the value of that node.
+  public function next()
+  {
+    
+    return next($this->arr);
+    
+  }
+  
+  //Move the cursor back one node and return the value of it.
+  public function prev()
+  {
+    
+    return prev($this->arr);
+    
+  }
+  
+  //Reset the cursor to the first node and return the value.
+  public function reset()
+  {
+    
+    return reset($this->arr);
+    
+  }
+  
+  //Move the cursor to the last node and return the value.
+  public function end()
+  {
+    
+    return end($this->arr);
+    
+  }
+  
+  //Return an array with 2 nodes. The key and the value. Advances the cursor.
+  public function pair()
+  {
+    
+    return each($this->arr);
     
   }
   
@@ -509,7 +598,7 @@ trait ArrayContainer
   public function arrayPermission($int)
   {
     
-    return wrap($this->arr_permissions)->hasBit($int)->isTrue();
+    return wrap($this->arr_permissions)->hasBit($int);
     
   }
   

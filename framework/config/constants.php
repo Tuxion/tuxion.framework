@@ -28,6 +28,7 @@ return [
   
   //Common variables.
   'n'  => "\r\n",
-  'br' => "<br>\n"
+  'br' => "<br>\n",
+  'st' => true
   
 ];

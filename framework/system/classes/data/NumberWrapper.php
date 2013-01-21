@@ -242,15 +242,15 @@ class NumberWrapper extends BaseScalarData
   ##
   
   //Check if a bitwise haystack contains the needle bit.
-  function hasBit($needle)
+  public function hasBit($needle)
   {
     
-    return new BooleanWrapper(($this->value & $needle) === $needle);
+    return (($this->value & $needle) === $needle);
     
   }
   
   //Counts the amount of bits set to 1.
-  function countBits()
+  public function countBits()
   {
     
     $v = $this->value;

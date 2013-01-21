@@ -23,6 +23,10 @@ function route(){
   
 }
 
-function url(){
-  return call_user_func_array('classes\\Url::create', func_get_args());
+//Alias for tx('Request')->makeUrl($input)
+function murl($input)
+{
+  
+  return tx('Request')->makeUrl($input);
+  
 }

@@ -38,9 +38,18 @@ class Exception extends \Exception
     
   }
   
-  public function setPrev(Exception $previous)
+  public function setPrev($previous)
   {
+    
+    if(!($previous instanceof self || $previous instanceof Error)){
+      throw new \exception\InvalidArgument(
+        'Expecting $previous to be an instance of Exception or Error. %s given.',
+        ucfirst(typeof($previous))
+      );
+    }
+    
     $this->prev = $previous;
+    
   }
   
   public function getPrev()

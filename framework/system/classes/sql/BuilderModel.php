@@ -43,7 +43,7 @@ class BuilderModel
   public function __get($key)
   {
     
-    if(!$this->tinfo->fields->arrayExists($key)){
+    if(!wrap($this->tinfo->fields)->arrayExists($key)){
       throw new \exception\Sql(
         'The "%s"-model in %s does not have field "%s" in its table (%s).',
         $this->name, $this->component->title, $key, $this->minfo->table_name

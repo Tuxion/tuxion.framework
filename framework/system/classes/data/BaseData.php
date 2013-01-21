@@ -15,14 +15,6 @@ abstract class BaseData
   //Must implement "get" to return the native value.
   abstract public function get();
   
-  //Alias for get.
-  final public function unwrap()
-  {
-    
-    return $this->get();
-    
-  }
-  
   //Must implement string casting.
   abstract public function toString();
   
@@ -37,6 +29,26 @@ abstract class BaseData
   {
     
     return $this->toString()->get();
+    
+  }
+  
+  //Alias for get.
+  final public function unwrap()
+  {
+    
+    return $this->get();
+    
+  }
+  
+  //Put the value in the given reference.
+  public function put(&$reference)
+  {
+    
+    //Do it.
+    $reference = $this->get();
+    
+    //Enable chaining.
+    return $this;
     
   }
   
@@ -134,7 +146,7 @@ abstract class BaseData
     
     //No string given? Do the old stuff.
     if(!is_string($check)){
-      return wrap($this->_is($check));
+      return $this->_is($check);
     }
     
     //Uppercase the first letter of the given check.
@@ -146,7 +158,7 @@ abstract class BaseData
     }
     
     //Do the old stuff using the boolean returned by the given check method.
-    return wrap($this->_is($this->{"is$check"}()));
+    return $this->_is($this->{"is$check"}());
     
   }
   
@@ -156,7 +168,7 @@ abstract class BaseData
     
     //No string given? Do the old stuff.
     if(!is_string($check)){
-      return wrap($this->_not($check));
+      return $this->_not($check);
     }
     
     //Uppercase the first letter of the given check.
@@ -168,7 +180,7 @@ abstract class BaseData
     }
     
     //Do the old stuff using the boolean returned by the given check method.
-    return wrap($this->_not($this->{"is$check"}()));
+    return $this->_not($this->{"is$check"}());
   
   }
   
@@ -180,7 +192,7 @@ abstract class BaseData
       return $this->_success();
     }
     
-    return wrap($this->_success($callback));
+    return wrapRaw($this->_success($callback));
     
   }
   
@@ -192,7 +204,7 @@ abstract class BaseData
       return $this->_failure();
     }
     
-    return wrap($this->_failure($callback));
+    return wrapRaw($this->_failure($callback));
     
   }
   

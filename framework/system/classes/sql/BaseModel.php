@@ -115,7 +115,7 @@ abstract class BaseModel extends Row
       
     });
 
-    return self::tableInfo();
+    return wrap($tinfo);
     
   }
   
@@ -141,8 +141,8 @@ abstract class BaseModel extends Row
     //Apply default values.
     ->each(function($info, $field_name){
       
-      if(!$info->value->isEmpty() || $info->check('null_allowed')){
-        $this->arraySet($field_name, $info->value->get());
+      if(!wrap($info['value'])->isEmpty() || wrap($info)->check('null_allowed')){
+        $this->arraySet($field_name, $info['value']);
       }
       
       else{

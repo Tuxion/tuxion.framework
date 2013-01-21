@@ -1,6 +1,6 @@
 <?php namespace config\urls;
 
-$domain = 'localhost';
+$domain = '192.168.1.100';
 $path = 'tuxion.framework';
 $base = $domain.($path ? "/$path" : '');
 

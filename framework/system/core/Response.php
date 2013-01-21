@@ -3,7 +3,7 @@
 use \classes\route\Router;
 use \classes\Materials;
 use \classes\Render;
-use \classes\Url;
+use \classes\data\UrlWrapper;
 use \classes\locators\Template;
 
 class Response
@@ -27,24 +27,21 @@ class Response
   {
     
     //Get the path.
-    $path = tx('Request')->url->segments->path;
-    
-    //Bite off the system base (the system base length + 2 for the leading and trailing slashes).
-    $path = $start = substr($path, strlen(tx('Config')->urls->path)+2);
+    $path = $start = tx('Request')->url->getPath();
     
     //Clean the path.
-    $path = Router::cleanPath($path);
+    $path = $path->clean();
     
     //Redirect if the router object changed the path.
-    if($path != $start){
+    if($path->eq($start)->failure()){
       tx('Log')->message($this, 'clean path redirect', "'$start' -> '$path'");
-      return $this->redirect(url("/$path"))->_handleRedirect();
+      return $this->redirect(murl("/$path"))->_handleRedirect();
     }
     
     //Output.
     $this->outputRoute(
       tx('Request')->method(),
-      $path,
+      $path->slice(wrap(tx('Config')->urls->path)->length()+2)->unwrap(),
       tx('Request')->data,
       tx('Request')->accept['mimes'][0]['value']
     );
@@ -228,7 +225,7 @@ class Response
   }
   
   //Set the URL to redirect to.
-  public function redirect(Url $url)
+  public function redirect(UrlWrapper $url)
   {
     
     //Set the redirect URL.

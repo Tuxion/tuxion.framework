@@ -47,12 +47,14 @@ class Controllers
     Router::handleArguments(func_get_args(), $type, $path);
     $matches = [];
     
+    
     //Iterate our controllers to filter them down.
     foreach($this->controllers as $controller)
     {
       
       //Should we filter on path?
-      if(!is_null($path)){
+      if(!is_null($path))
+      {
         
         //Needs to be an exact match.
         if(substr_count($path, '/') !== substr_count($controller->path, '/')){
@@ -60,14 +62,14 @@ class Controllers
         }
         
         //If the path doesn't match.
-        if(Router::matchPath($controller->path, $path)===false){
+        if( ! path($path)->isMatch(path($controller->path)) ){
           continue;
         }
         
       }
       
       //Should we filter on type?
-      if(!is_null($type) && wrap($controller->type)->hasBit($type)->isFalse()){
+      if(!is_null($type) && ! wrap($controller->type)->hasBit($type)){
         continue;
       }
       

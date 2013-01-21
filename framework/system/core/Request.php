@@ -1,6 +1,6 @@
 <?php namespace core;
 
-use \classes\Url;
+use \classes\data\UrlWrapper;
 use \classes\OutputData;
 
 class Request
@@ -39,7 +39,10 @@ class Request
     $port = ((tx('Server')->server_port == 80) ? '' : (':'.tx('Server')->server_port));
     
     //Set the URL.
-    $this->url = Url::create("$scheme://$server$port$req_uri", true, false);
+    $this->url = new UrlWrapper("$scheme://$server$port$req_uri");
+    
+    //Set the merge options for later merging.
+    $this->url->setMergeOptions(UrlWrapper::MERGE_PATH_PREPEND_ROOT);
     
     //Set the request-method.
     switch(tx('Server')->request_method){
@@ -63,11 +66,7 @@ class Request
     
     //Get the input body from the URL.
     if($this->method(GET)){
-      $input = new OutputData(
-        $this->url->segments->arrayExists('query')
-        ? $this->url->segments->query
-        : ''
-      );
+      $input = new OutputData($this->url->getQuery()->unwrap());
     }
     
     //Get the input body from the request body.
@@ -148,7 +147,15 @@ class Request
       return $this->method;
     }
     
-    return wrap($in)->hasBit($this->method)->isTrue();
+    return wrap($in)->hasBit($this->method);
+    
+  }
+  
+  //Use the request URL to create a new URL.
+  public function makeUrl($input)
+  {
+    
+    return $this->url->merge($input);
     
   }
   

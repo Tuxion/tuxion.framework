@@ -1,4 +1,4 @@
-# Tuxion Framework 0.1.1 Beta
+# Tuxion Framework - Active development version.
 
 ## Description
 
@@ -20,14 +20,7 @@ PHP and JavaScript programmer.
 
 ## Change log
 
-### [Version 0.1.1](https://github.com/Tuxion/tuxion.framework/tree/master)
- * More structured use of name spaces.
- * Lots of bug fixes.
- * Extended DataWrappers
- * Extended Standard Data Converters.
-
-### [Version 0.1](https://github.com/Tuxion/tuxion.framework/tree/940779eee25311464b17c41b98b2f58dfa43940c)
- * First version to go to Beta!
+The change-log can be found in `CHANGES.md` in this directory.
 
 ## License
 

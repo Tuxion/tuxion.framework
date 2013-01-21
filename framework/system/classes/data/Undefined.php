@@ -67,4 +67,12 @@ class Undefined extends BaseData
     
   }
   
+  //Undefined is always empty.
+  public function isEmpty()
+  {
+    
+    return true;
+    
+  }
+  
 }

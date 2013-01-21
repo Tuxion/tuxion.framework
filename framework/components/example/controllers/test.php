@@ -1,11 +1,6 @@
 <?php namespace components\controllers\example;
 
-//Must have the right permissions.
-route(GET|POST|PUT|DELETE, 'test')->pre('Validating permissions.', function(){
-  $this->permissions('eat_pie');
-});
-
-//Get Tests from the database.
-route(GET, 'test/all')->end('Loading Tests from database.', function(){
-  $this->output($this->fetchAll('Test')->execute());
+//Get a single Test from the database.
+route(GET, 'test/$int')->end('Loading a Test from the database.', function($id){
+  $this->output($this->fetchA('Test', $T)->where($T->id, $id)->execute());
 });

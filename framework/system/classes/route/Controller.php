@@ -215,7 +215,7 @@ class Controller
     $type = (is_null($type) ? $this->type : $type);
     
     //A sub-controller with a type that doesn't fit in the parent controller will never work.
-    if(wrap($this->type)->hasBit($type)->isFalse()){
+    if( ! wrap($this->type)->hasBit($type)){
       throw new \exception\Restriction(
         'You can not make sub-controllers with type %s while the parent controller has type %s.',
         $type, $this->type
@@ -259,12 +259,12 @@ class Controller
       }
       
       //Return the cleaned path.
-      return Router::cleanPath($this->context->getRootPath().$path);
+      return path($this->context->getRootPath().$path)->clean()->get();
       
     }
     
     //Relative path.
-    return Router::cleanPath($this->path.'/'.$path);
+    return path($this->path.'/'.$path)->clean()->get();
     
   }
   

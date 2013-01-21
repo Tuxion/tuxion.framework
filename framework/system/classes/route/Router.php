@@ -2,95 +2,11 @@
 
 use \classes\Materials;
 use \classes\Component;
+use \classes\data\PathWrapper;
+use \classes\data\FileWrapper;
 
 class Router
 {
-  
-  //Cleans up the request-URI-path in order for it to match our routing systems.
-  public static function cleanPath($path)
-  {
-    
-    //OK!
-    if($path === ''){
-      return $path;
-    }
-    
-    //Do the following.
-    do{
-    
-      //Remember what the path was like before we started mangling it.
-      $start = $path;
-    
-      //Decode.
-      $path = urldecode($path);
-  
-      //Replace backward slashes.
-      $path = str_replace('\\', '/', $path);
-      
-      //Trim double slashes.
-      $path = preg_replace('~/+~', '/', $path);
-      
-      //Replace /../ stuff.
-      $path = preg_replace('~(?=\/)\.\.*/~', './', $path);
-      
-      //Replace spaces.
-      $path = str_replace(' ', '+', $path);
-      
-      //Replace illegal characters.
-      $path = preg_replace('~[#@?!]+~', '-', $path);
-      
-      //Explode into segments.
-      $segments = explode('/', $path);
-      
-      //Used to detect the endpoint.
-      $endpoint = false;
-      
-      //Validate and normalize segments.
-      foreach(array_keys($segments) as $key)
-      {
-        
-        //Keep a reference.
-        $segment =& $segments[$key];
-        
-        //Have we met our end yet?
-        if($endpoint){
-          unset($segments[$key], $segment);
-          continue;
-        }
-        
-        //Trim off the illegal characters off the end.
-        $segment = preg_replace('~[\.]+$~', '', $segment);
-        
-        //Trim off the illegal characters off the end and start.
-        $segment = trim($segment, '+');
-        
-        //Detect premature endpoints.
-        if(strpos($segment, '.')){
-          $endpoint = true;
-        }
-        
-        //Unset if empty.
-        if(empty($segment)){
-          unset($segments[$key]);
-        }
-        
-        //Unset the reference.
-        unset($segment);
-        
-      }
-      
-      //Use the normalized segments as path.
-      $path = implode('/', $segments);
-      
-    }
-    
-    //And keep repeating it as long as it is still changing stuff.
-    while($path !== $start);
-    
-    //Return the new path.
-    return $path;
-    
-  }
   
   //Accepts an array with up to 2 arguments and returns an array with keys "type" and "path".
   public static function handleArguments($args, &$type=null, &$path=null)
@@ -137,106 +53,6 @@ class Router
     
   }
   
-  //Accepts 2 paths, one containing keys like: "path/$name", and one containing values like: "path/Avaq".
-  public static function matchPath($keys, $values)
-  {
-    
-    
-    //Prepare variables.
-    $keys = explode('/', self::cleanPath($keys));
-    $values = explode('/', self::cleanPath($values));
-    $parameters = [];
-    
-    //If the output type is neutral, don't compare it.
-    if(substr_count(end($keys), '.') === 0 && substr_count(end($values), '.') > 0){
-      $trimmed = strstr(array_pop($values), '.', true);
-      array_push($values, $trimmed);
-    }
-    
-    //Don't mind the .parts.
-    $values[count($values)-1] = str_replace('.part', '', end($values));
-    
-    //Make sure nothing goes weird.
-    reset($keys);
-    reset($values);
-    
-    //If there are not enough values for the keys, it is not a match.
-    if(count($values) < count($keys)){
-      return false;
-    }
-    
-    //Validate segments and find parameters.
-    while( (list(,$key) = each($keys)) && (list(,$value) = each($values)) )
-    {
-      
-      //Split on file extension.
-      @list($key,$kext) = explode('.', $key);
-      @list($value,$vext) = explode('.', $value);
-      
-      //When both file extensions are present, they must have the same mime-type.
-      if($kext && $vext && tx('Mime')->getMime($kext) !== tx('Mime')->getMime($vext)){
-        return false;
-      }
-      
-      //Are we dealing with a parameter?
-      if($key{0} == '$')
-      {
-        
-        //Are we dealing with a character class?
-        if($key{1} == '['
-        && substr($key, -1) == ']'
-        && substr_count($key, '[') == 1
-        && substr_count($key, ']') == 1
-        ){
-          
-          //Test is the value matches the character class.
-          if(preg_match('~^'.substr($key, 1).'+$~', $value) !== 1){
-            return false;
-          }
-          
-        }
-        
-        //Are we dealing with a data-preset?
-        switch(substr($key, 1))
-        {
-          
-          case 'int':
-            if(preg_match('~^[0-9]+$~', $value) !== 1){
-              return false;
-            }
-          break;
-          
-          case 'float':
-            if(preg_match('~^[0-9]+\.[0-9]+$~', $value) !== 1){
-              return false;
-            }
-          break;
-          
-          case 'word':
-            if(preg_match('~^\w+$~', $value) !== 1){
-              return false;
-            }
-          break;
-          
-        }
-        
-        //Add the value to our parameters.
-        $parameters[substr($key, 1)] = $value;
-        
-      }
-      
-      //If not, both segments must be the same, or it won't be a match.
-      elseif($key !== $value){
-        return false;
-      }
-      
-    }
-    
-    //Return the array of parameters if everything was matched.
-    return $parameters;
-    
-  }
-  
   //Private properties.
   private
     $state=0,
@@ -258,7 +74,7 @@ class Router
     $this->type = $type;
     
     //Clean the path.
-    $this->path = self::cleanPath($path);
+    $this->path = path($path)->clean()->get();
     
     //Split the path into segments, and put them in the future.
     $this->future = explode('/', $this->path);
@@ -314,7 +130,7 @@ class Router
       ? $this->materials->full_path
       : $this->path;
     
-    return trim(strstr(str_replace('.part', '', $path), '.'), '.');
+    return path($path)->clean()->getFile()->getExt();
     
   }
   
@@ -322,7 +138,7 @@ class Router
   public function isPart()
   {
     
-    return substr_count($this->path, '.part') > 0;
+    return path($this->path)->getFile()->isPart();
     
   }
   
@@ -337,7 +153,7 @@ class Router
     {
       
       //See if the type matches the current request type.
-      if(wrap($type)->hasBit($this->type)->isFalse()){
+      if(wrap($type)->hasBit($this->type)){
         return false;
       }
       
@@ -348,7 +164,7 @@ class Router
       return true;
     }
     
-    return self::matchPath($path, $this->path) !== false;
+    return path($this->path)->isMatch(path($path));
     
   }
   
@@ -356,18 +172,20 @@ class Router
   public function params($keys)
   {
     
+    //Create a log entry.
     tx('Log')->message($this, 'extracting parameters', "'$keys' from '{$this->path}'");
     
-    //Get the parameters.
-    $params = self::matchPath($keys, $this->path);
+    //Get keys and values wrapped.
+    $keys = path($keys);
+    $values = path($this->path);
     
-    //Make sure the given path was a match.
-    if($params === false){
-      throw new \exception\InvalidArgument('The given path did not match the route.');
+    //Make sure the given path is a match.
+    if(!$values->isMatch($keys)){
+      throw new \exception\InvalidArgument('The given path does not even match the route.');
     }
     
     //Return the parameters.
-    return $params;
+    return $values->getValues($keys);
     
   }
   
@@ -390,7 +208,7 @@ class Router
     }
     
     //Prepare some variables.
-    $path = $this->cleanPath($path);
+    $path = path($path)->clean()->get();
     $segments = explode('/', $path);
     
     //Change the future.
@@ -714,7 +532,7 @@ class Router
     
     //Check if it wasn't found.
     if($result->count() == 0){
-      throw new \exception\NotFound('"%s" Is not a valid alias.', $alias);
+      throw new \exception\NotFound('"%s" Is not an existing alias.', $alias);
     }
     
     //Reroute to the alias.

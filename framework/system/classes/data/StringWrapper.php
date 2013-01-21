@@ -1,6 +1,6 @@
 <?php namespace classes\data;
 
-class StringWrapper extends BaseScalarData
+class StringWrapper extends BaseScalarData implements \ArrayAccess
 {
   
   const TRIM_DEFAULTS = ' \t\n\r\0\x0B';
@@ -16,6 +16,40 @@ class StringWrapper extends BaseScalarData
     $this->value = $value;
     
   }
+  
+  //Semi-magic method implemented by \ArrayAccess.
+  public function offsetGet($key)
+  {
+    
+    return new self($this->value{$key});
+    
+  }
+  
+  //Semi-magic method implemented by \ArrayAccess.
+  public function offsetSet($key, $val)
+  {
+    
+    $this->value = substr_replace($this->value, $val, $key, 1);
+    
+  }
+  
+  //Semi-magic method implemented by \ArrayAccess.
+  public function offsetExists($key)
+  {
+    
+    return ($this->length() >= ($key+1));
+    
+  }
+  
+  //Semi-magic method implemented by \ArrayAccess.
+  public function offsetUnset($key)
+  {
+    
+    $this->value = substr_replace($this->value, $val, '', 1);
+    
+  }
+  
+
   
   //Return $this. ;)
   public function toString()
@@ -98,9 +132,9 @@ class StringWrapper extends BaseScalarData
     
     //Do the right trim.
     switch($direction){
-      case LEFT: return new self(ltrim($characters));
-      case BOTH: return new self(trim($characters));
-      case RIGHT: return new self(rtrim($characters));
+      case LEFT: return new self(ltrim($this->value, $characters));
+      case BOTH: return new self(trim($this->value, $characters));
+      case RIGHT: return new self(rtrim($this->value, $characters));
     }
     
   }
@@ -191,22 +225,30 @@ class StringWrapper extends BaseScalarData
   public function slice($offset=0, $length=null)
   {
     
-    return new self(substr($this->value, $offset, $length));
+    return new self($offset >= $this->length()
+      ? ''
+      : (is_null($length)
+        ? substr($this->value, $offset)
+        : substr($this->value, $offset, $length)
+      )
+    );
     
   }
   
   //Perform a regular expression and return a wrapped array containing the matches.
-  public function parse($regex, $flags=0)
+  //Parse changes the success state based on if there are results!
+  public function parse($regex, $flags=0, $offset=0)
   {
     
     //Try to parse using the given arguments.
     try{
-      preg_match($regex, $this->get(), $matches, $flags);
+      $this->is(preg_match($regex, $this->get(), $matches, $flags, $offset));
       return new ArrayWrapper($matches);
     }
     
     //Throw a parsing exception when it fails.
     catch(\exception\Error $e){
+      $this->is(false);
       $new = new \exception\Parsing(
         'An error occured while parsing "%s" using "%s": %s',
         $this->value, $regex, $e->getMessage()
@@ -238,6 +280,18 @@ class StringWrapper extends BaseScalarData
   {
     
     return new self(htmlentities($this->value, $flags, 'UTF-8'));
+    
+  }
+  
+  //Parse the string as URL encrypted data and return the resulting array.
+  public function decode()
+  {
+    
+    //Parse it.
+    parse_str($this->value, $parsed);
+    
+    //Wrap and return.
+    return new ArrayWrapper($parsed);
     
   }
   

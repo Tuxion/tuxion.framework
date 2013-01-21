@@ -1,6 +1,8 @@
 <?php
 
-function wrap(){
+//Wrap something.
+function wrap()
+{
   
   $data = (func_num_args() == 1 ? func_get_arg(0) : (func_num_args() > 1 ? func_get_args() : null));
   
@@ -36,20 +38,79 @@ function wrap(){
   
 }
 
+//Create a UrlWrapper.
+function url($input)
+{
+  
+  return new \classes\data\UrlWrapper($input);
+  
+}
+
+//Create an EmailWrapper.
+function email($input)
+{
+  
+  return new \classes\data\EmailWrapper($input);
+  
+}
+
+//Create an IPv4Wrapper.
+function ipv4($input)
+{
+  
+  return new \classes\data\IPv4Wrapper($input);
+  
+}
+
+//Create an IPv6Wrapper.
+function ipv6($input)
+{
+  
+  return new \classes\data\IPv6Wrapper($input);
+  
+}
+
+//Create a PhoneNumberWrapper.
+function phone($input)
+{
+  
+  return new \classes\data\PhoneNumberWrapper($input);
+  
+}
+
+//Create a PathWrapper.
+function path($input)
+{
+  
+  return new \classes\data\PathWrapper($input);
+  
+}
+
+//Create a QueryStringWrapper.
+function queryString($input)
+{
+  
+  return new \classes\data\QueryStringWrapper($input);
+  
+}
+
 //Only wrap raw input.
 function wrapRaw($input)
 {
   
   if(is_wrapped($input)){
-    return $input;
+    return clone $input;
   }
   
   return wrap($input);
   
 }
 
-function is_wrapped($data){
+function is_wrapped($data)
+{
+  
   return ($data instanceof \classes\data\BaseData);
+  
 }
 
 function unwrap($data)
@@ -69,7 +130,7 @@ function raw(
 ){
   
   if(func_num_args() > 10){
-    throw new \exception\Restriction('HAHA! You can only extract raw() values of 10 variables at a time.');
+    throw new \exception\Restriction('HAHA! You can only extract raw() values from 10 variables at a time.');
   }
   
   $v0 = unwrap($v0);

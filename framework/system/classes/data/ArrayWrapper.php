@@ -80,7 +80,7 @@ class ArrayWrapper extends BaseData implements \IteratorAggregate, \ArrayAccess
   {
     
     if($short){
-      return new StringWrapper('['.$this->size().']');
+      return new StringWrapper('array('.$this->size().')');
     }
     
     return $this
