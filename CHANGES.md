@@ -1,6 +1,7 @@
 ### Development
  * Added new specific StringWrappers like: URL, email, path, phone number.
  * Fixed bugs in the query-builder.
+ * Improved code surrounding the identification of controller objects.
 
 ### [Version 0.1.1 Beta](https://github.com/Tuxion/tuxion.framework/tree/v0.1.1_beta)
  * More structured use of name spaces.

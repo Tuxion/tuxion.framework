@@ -56,8 +56,7 @@ trait Successable
     }
     
     if($this->success === true){
-      $return = $callback($this);
-      if(!is_null($return)) return $return;
+      return $this->_doCallback($callback);
     }
       
     return $this;
@@ -73,11 +72,24 @@ trait Successable
     }
     
     if($this->success === false){
-      $return = $callback($this);
-      if(!is_null($return)) return $return;
+      return $this->_doCallback($callback);
     }
     
     return $this;
+    
+  }
+  
+  //Executes a callback and returns its return value if it has one. Returns $this otherwise.
+  public function _doCallback(callable $callback)
+  {
+    
+    #TODO: Use reflection to detect if there is a return value. $reflect = new \ReflectionFunction($callback);
+    
+    //Get the return value.
+    $return = $callback($this);
+    
+    //Return this or the value.
+    return (is_null($return) ? $this : $return);
     
   }
   

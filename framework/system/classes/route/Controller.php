@@ -14,17 +14,15 @@ class Controller
   //Public properties.
   public
     $type=15,
-    $path;
-  
-  //Private properties.
-  private
-    $context=null;
+    $path,
+    $root=false;
   
   //The constructor sets the type, root, path and router.
-  public function __construct($type, $path)
+  public function __construct($type, $path, $root = false)
   {
     
     $this->path = $path;
+    $this->root = $root;
     
     if(is_int($type)){
       $this->type = $type;
@@ -32,46 +30,12 @@ class Controller
     
   }
   
-  //Set the context. Duh.
-  public function setContext(ControllerContext $context)
-  {
-    
-    //Are we being cheeky?
-    if(!is_null($this->context)){
-      throw new \exception\Restriction('You can not set contexts when the context has already been set.');
-    }
-    
-    //Set.
-    $this->context = $context;
-    
-    //Enable chaining.
-    return $this;
-    
-  }
-  
-  //Removes the context.
-  public function clearContext()
-  {
-    
-    //Unset.
-    $this->context = null;
-    
-    //Enable chaining.
-    return $this;
-    
-  }
-  
   //Add a preprocessor to this controller.
   public function pre($description, \Closure $callback)
   {
     
-    //We need context.
-    if(is_null($this->context)){
-      throw new \exception\Restriction('Can not create processors when no context is set.');
-    }
-    
     //Create the processor.
-    $this->pres[] = new PreProcessor($description, $callback, $this->context);
+    $this->pres[] = new PreProcessor($description, $callback);
     
     //Enable chaining.
     return $this;
@@ -81,11 +45,6 @@ class Controller
   //Add an endpoint to this controller.
   public function end()
   {
-    
-    //We need context.
-    if(is_null($this->context)){
-      throw new \exception\Restriction('Can not create processors when no context is set.');
-    }
     
     //Handle arguments.
     $args = func_get_args();
@@ -122,7 +81,7 @@ class Controller
     }
     
     //Yep.
-    $this->end = new EndPoint($description, $callback, $this->context);
+    $this->end = new EndPoint($description, $callback);
     
     //Enable chaining.
     return $this;
@@ -133,13 +92,8 @@ class Controller
   public function post($description, \Closure $callback)
   {
     
-    //We need context.
-    if(is_null($this->context)){
-      throw new \exception\Restriction('Can not create processors when no context is set.');
-    }
-    
     //Create the processor.
-    $this->posts[] = new PostProcessor($description, $callback, $this->context);
+    $this->posts[] = new PostProcessor($description, $callback);
     
     //Enable chaining.
     return $this;
@@ -226,7 +180,7 @@ class Controller
     $path = $this->fullPath($path);
     
     //Return the controller.
-    return tx('Controllers')->get($type, $path)->setContext($this->context);
+    return tx('Controllers')->get($type, $path);
     
   }
   
@@ -254,12 +208,12 @@ class Controller
     {
       
       //Is this object allowed to use absolute paths?
-      if(!$this->context){
+      if(!$this->root){
         throw new \exception\Restriction('You can not use absolute paths here, you tried: "%s".', $path);
       }
       
       //Return the cleaned path.
-      return path($this->context->getRootPath().$path)->clean()->get();
+      return path($this->root.$path)->clean()->get();
       
     }
     

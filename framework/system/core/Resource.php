@@ -46,7 +46,6 @@ class Resource
     //Return the resource locator.
     return $r;
     
-    
   }
   
   //Return the system-specified location of a certain resource [type]. NULL If none found.

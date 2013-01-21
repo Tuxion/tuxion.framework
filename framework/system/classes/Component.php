@@ -149,8 +149,7 @@ class Component
     {
     
       //Get the controller object for the next include.
-      $controller = tx('Controllers')->get(GET|POST|PUT|DELETE, "com/{$this->name}")
-        ->setContext(new ControllerContext($this->locator, $file, 'com'));
+      $controller = tx('Controllers')->get(GET|POST|PUT|DELETE, "com/{$this->name}", 'com');
       
       //Log.
       tx('Log')->message($this, 'created controller', $this->title.': '.$file);
@@ -161,9 +160,6 @@ class Component
       
       //Include the controller files.
       require($file);
-      
-      //Clear the context.
-      $controller->clearContext();
     
     }
     

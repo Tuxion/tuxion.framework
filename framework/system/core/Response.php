@@ -270,14 +270,6 @@ class Response
     
   }
   
-  //Set the status header that will be sent with the output.
-  public function setStatusHeader($code, $message=null)
-  {
-    
-    #TODO: Create the setStatusHeader method.
-    
-  }
-  
   //What to do when we have set a redirect.
   private function _handleRedirect()
   {

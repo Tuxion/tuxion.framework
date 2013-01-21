@@ -11,15 +11,16 @@ abstract class BaseProcessor
   //Private properties.
   private
     $description,
-    $callback,
-    $context;
+    $callback;
   
   //Protected properties.
   protected
+    $locator,
+    $file,
     $materials=null;
   
-  //Store the given callback.
-  public function __construct($description, \Closure $callback, ControllerContext $context)
+  //Store the given callback and meta data from it.
+  public function __construct($description, \Closure $callback)
   {
     
     //Validate argument.
@@ -30,10 +31,36 @@ abstract class BaseProcessor
       );
     }
     
+    //Create a reflector for the callback.
+    $reflector = new \ReflectionFunction($callback);
+    
+    //Split the namespace for inspection.
+    $namespace = wrap($reflector->getNamespaceName())->split('\\');
+    
+    //Get the right locator.
+    switch($namespace[0])
+    {
+      
+      //Get a component locator.
+      case 'components': $locator = tx('Resource')->getLocator('Component', $namespace[2]); break;
+      
+      //Anything else is not recognised.
+      default:
+        throw new \exception\NotImplemented(
+          'Can not create a controller from the %s namespace.', $namespace[0]
+        );
+      break;
+      
+    }
+    
+    //Get the file.
+    $file = path($reflector->getFileName())->getFile();
+    
     //Set properties.
+    $this->locator = $locator;
+    $this->file = $file;
     $this->description = $description;
     $this->callback = $callback->bindTo($this);
-    $this->context = $context;
     
   }
   
@@ -85,11 +112,19 @@ abstract class BaseProcessor
     
   }
   
-  //Return the context.
-  public function getContext()
+  //Return the locator.
+  public function getLocator()
   {
     
-    return $this->context;
+    return $this->locator;
+    
+  }
+  
+  //Return the file.
+  public function getFile()
+  {
+    
+    return $this->file;
     
   }
   
@@ -189,16 +224,13 @@ abstract class BaseProcessor
       return Component::get($identifier);
     }
     
-    //Get the locator from our context.
-    $locator = $this->context->getLocator();
-    
     //If the locator is no ComponentLocator, we can't do anything.
-    if(!($locator instanceof ComponentLocator)){
+    if(!($this->locator instanceof ComponentLocator)){
       throw new \exception\Restriction('Can only leave $identifier empty when you are in component context.');
     }
     
     //Return the Component object by retrieving it using the locator.
-    return Component::get($locator);
+    return Component::get($this->locator);
     
   }
   

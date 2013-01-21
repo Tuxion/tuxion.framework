@@ -423,9 +423,8 @@ class Router
     //Create the locator to the inner template.
     $this->materials->inner_template = (
       $endpoint
-      ->getContext()
       ->getLocator()
-      ->template(explode('.', basename($endpoint->getContext()->getFilename()))[0])
+      ->template($endpoint->getFile()->getName())
     );
     
     //Call the endpoint.
