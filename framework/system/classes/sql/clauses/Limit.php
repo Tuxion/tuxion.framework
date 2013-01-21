@@ -33,7 +33,7 @@ class Limit extends BaseClause
   }
   
   //Extend the prepare method to check if input is numeric.
-  public function prepare($input)
+  public function prepare($input, &$data = null)
   {
     
     //Prepare.
@@ -43,11 +43,11 @@ class Limit extends BaseClause
     if(empty($data)){
       return $prepared;
     }
-      
+    
     //We want a single numeric value.
-    if(count($data) > 1 || is_numeric($data[0])){
+    if(count($data) > 1 || !is_numeric($data[0])){
       throw new \exception\InvalidArgument(
-        'Expecting a single numeric value. "%s" given.', implode('" and "', $data)
+        'Expecting a single numeric value. %s given.', implode('" and "', $data)
       );
     }
     

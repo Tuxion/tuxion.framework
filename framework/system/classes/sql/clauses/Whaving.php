@@ -29,7 +29,7 @@ class Whaving extends BaseClause
     
     //Map the internal strings.
     ->map(function($cond){
-      return $cond->get()->getString();
+      return $cond->getString();
     })
     
     //Join them using AND's.

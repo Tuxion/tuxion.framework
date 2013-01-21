@@ -269,7 +269,8 @@ class Builder
     
     //Create a factory, call it to create a condition and pass that on to the where clause.
     else{
-      $this->clause('where')->addCondition(call_user_func_array($this->conditionFactory(), func_get_args()));
+      $this->conditionFactory($factory);
+      $this->clause('where')->addCondition(call_user_func_array($factory, func_get_args()));
     }
     
     //Enable chaining.
@@ -312,7 +313,8 @@ class Builder
     
     //Create a factory, call it to create a condition and pass that on to the having clause.
     else{
-      $this->clause('having')->addCondition(call_user_func_array($this->conditionFactory(), func_get_args()));
+      $this->conditionFactory($factory);
+      $this->clause('having')->addCondition(call_user_func_array($factory, func_get_args()));
     }
     
     //Enable chaining.
