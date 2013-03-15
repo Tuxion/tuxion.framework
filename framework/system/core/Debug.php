@@ -10,7 +10,8 @@ class Debug
     
     //Set error variables.
     error_reporting(E_ALL | E_STRICT);
-    ini_set('display_errors', 'on');
+    ini_set('display_errors', 'On');
+    ini_set('html_errors', 'Off');
     set_error_handler([$this, 'errorHandler']);
     set_exception_handler([$this, 'exceptionHandler']);
     
@@ -40,11 +41,11 @@ class Debug
       '%s: %s'.(tx('Config')->config->debug ? ' (%s @ %s)' : ''),
       wrap($e)->baseclass()->get(),
       $e->getMessage(),
-      substr($e->getFile(), strlen(tx('Config')->paths->root)+1),
+      wrap($e->getFile())->stripRoot(),
       $e->getLine()
     );
     
-    #TEMP: Commented until better exception handling is implemented.
+    #TEMP: Disabled until better exception handling is implemented.
     //Uncaught exceptions. We can't do much with them.
     // set_status_header($this->getExceptionResponseCode($e), $msg);
     
@@ -128,7 +129,7 @@ class Debug
       if(!array_key_exists('file', $entry)){
         $out .= '<b>[internal code]</b>';
       }else{
-        $out .= '<b title="'.@substr(@$entry['file'], strlen(tx('Config')->paths->root)+1).'">'.basename(@$entry['file']).'</b>';
+        $out .= '<b title="'.path($entry['file'])->stripRoot().'">'.basename(@$entry['file']).'</b>';
         $out .= '@<i>'.@$entry['line'].'</i>';
       }
       

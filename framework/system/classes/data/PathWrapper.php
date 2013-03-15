@@ -215,6 +215,23 @@ class PathWrapper extends StringWrapper
     
   }
   
+  //Removes the system root from the beginning path.
+  public function stripRoot()
+  {
+    
+    //Get the root path.
+    $root = tx('Config')->paths->root;
+    
+    //Check if this path has the root at the beginning.
+    if(strpos($this->get(), $root) !== 0){
+      return clone $this;
+    }
+    
+    //Return a new path with the root sliced off.
+    return new self($this->slice(strlen($root)+1)->get());
+    
+  }
+  
   //Merges the given path with this one.
   public function merge($input, $clear_ext = false)
   {

@@ -1,7 +1,6 @@
 <?php namespace outputting\error;
 
 use \classes\BaseTemplator as Base;
-use \classes\BaseStandardData;
 use \classes\Materials;
 
 class Templator extends Base

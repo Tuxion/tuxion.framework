@@ -13,7 +13,7 @@ class Response
   public
     $redirect_url=false;
   
-  //When this class initiates, we instruct the router to route to the page request path.
+  //Log the initialization.
   public function init()
   {
     
@@ -224,26 +224,6 @@ class Response
         
   }
   
-  //Set the URL to redirect to.
-  public function redirect(UrlWrapper $url)
-  {
-    
-    //Set the redirect URL.
-    $this->redirect_url = $url;
-    
-    //Enable chaining.
-    return $this;
-    
-  }
-  
-  //Returns true if we redirected, or false otherwise.
-  public function redirected()
-  {
-    
-    return ($this->redirect_url !== false);
-    
-  }
-  
   //Return the right template file in given directory based on mime-type.
   public function getTemplate(Template $locator, $mime)
   {
@@ -267,6 +247,26 @@ class Response
     }
 
     return $templates[0];
+    
+  }
+  
+  //Set the URL to redirect to.
+  public function redirect(UrlWrapper $url)
+  {
+    
+    //Set the redirect URL.
+    $this->redirect_url = $url;
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Returns true if we redirected, or false otherwise.
+  public function redirected()
+  {
+    
+    return ($this->redirect_url !== false);
     
   }
   
