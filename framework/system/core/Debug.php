@@ -41,7 +41,7 @@ class Debug
       '%s: %s'.(tx('Config')->config->debug ? ' (%s @ %s)' : ''),
       wrap($e)->baseclass()->get(),
       $e->getMessage(),
-      wrap($e->getFile())->stripRoot(),
+      path($e->getFile())->stripRoot(),
       $e->getLine()
     );
     
@@ -50,7 +50,7 @@ class Debug
     // set_status_header($this->getExceptionResponseCode($e), $msg);
     
     // //Give the output in HTML.
-    // header('Content-type: text/html; charset=UTF-8');
+    // header('Content-Type: text/html; charset=UTF-8');
     
     //Output the message.
     echo $msg;
@@ -87,7 +87,7 @@ class Debug
       {
         
         if(array_key_exists('class', $entry)){
-          $ret .= ($entry['type'] == '->' ? "object({$entry['class']})" : $entry['class']).$entry['type'];
+          $ret .= ($entry['type'] == '->' ? "{{$entry['class']}}" : $entry['class']).$entry['type'];
         }
         
         $ret .= $entry['function'];
@@ -138,7 +138,7 @@ class Debug
       //Combine call_user_funcs with the next entry.
       if($entry['function'] == 'call_user_func' || $entry['function'] == 'call_user_func_array'){
         
-        $out .= $func($entry).'( '.$func($trace[$i+1]).''.$args($trace[$i+1]).' )';
+        $out .= $func($trace[$i+1]).''.$args($trace[$i+1]).' ('.$func($entry).')';
         $i++;
         
       }

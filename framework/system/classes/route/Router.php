@@ -372,7 +372,9 @@ class Router
     
     //Test if we have a route matching the full path.
     if(empty($controllers)){
-      throw new \exception\NotFound('This page does not exist.');
+      throw new \exception\NotFound(
+        'This page does not exist: "%s/%s"', tx('Request')->url->format('%scheme://%domain'), $this->path
+      );
     }
     
     //Sort controllers based on the "solidness" of the paths. Parameters are weaker than statics.
@@ -387,12 +389,15 @@ class Router
       //Higher numbers mean that it's less solid.
       $solidness = 0;
       
+      //Save the total number of segments, so we won't have to count them at every iteration of them.
+      $total = count($segments);
+      
       //Detect parameters. The further the parameter is away from the endpoint, the less solid the path.
       foreach($segments as $segment)
       {
         
         if($segment{0} == '$'){
-          $solidness = count($segments) - $i;
+          $solidness = $total - $i;
         }
         
         $i++;

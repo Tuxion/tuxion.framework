@@ -16,7 +16,7 @@ tx('Config');
 tx('Debug');
 
 //Do everything you need to do to output the data.
-tx('Output');
+tx('Response')->output();
 
 //Log the end of the page-load.
 tx('Log')->message('root', '--page-load completed--');

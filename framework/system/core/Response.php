@@ -5,6 +5,8 @@ use \classes\Materials;
 use \classes\Render;
 use \classes\data\UrlWrapper;
 use \classes\locators\Template;
+use \outputting\nodes\Standard as StandardNode;
+use \outputting\error\Standard as StandardError;
 
 class Response
 {
@@ -49,7 +51,7 @@ class Response
   }
   
   //Uses the given Router object to forge a response for our client.
-  public function outputRoute($method, $path, \outputting\nodes\Standard $data, $mime, $part=null, $to_stream=true)
+  public function outputRoute($method, $path, StandardNode $data, $mime, $part=null, $to_stream=true)
   {
     
     //Make the Materials and the Router.
@@ -162,7 +164,7 @@ class Response
         $new->setPrev($e);
         
         //If we were already dealing with an exception.
-        if($materials->output instanceof \outputting\error\Standard)
+        if($materials->output instanceof StandardError)
         {
           
           //If we were already dealing with HTML.
@@ -213,7 +215,7 @@ class Response
     {
       
       $output_data->setHeader('Status', $materials->getStatus());
-      $output_data->setHeader('Content-type', $materials->mime.'; charset=utf-8');
+      $output_data->setHeader('Content-Type', $materials->mime.'; charset=utf-8');
       $output_data->output();
       return;
       

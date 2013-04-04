@@ -1,5 +1,7 @@
 <?php namespace classes\data;
 
+use \ReflectionObject;
+
 class ObjectWrapper extends BaseData
 {
   
@@ -87,6 +89,14 @@ class ObjectWrapper extends BaseData
       ? substr(strrchr($this->_public_class()->get(), '\\'), 1)
       : $this->_public_class()->get()
     );
+    
+  }
+  
+  //Return a Reflection instance of this object.
+  public function getReflector()
+  {
+    
+    return new ReflectionObject($this->object);
     
   }
   

@@ -83,7 +83,8 @@ trait Successable
   public function _doCallback(callable $callback)
   {
     
-    #TODO: Use reflection to detect if there is a return value. $reflect = new \ReflectionFunction($callback);
+    #TODO: Use reflection to detect if there is a return value.
+    //$reflect = new \ReflectionFunction($callback);
     
     //Get the return value.
     $return = $callback($this);

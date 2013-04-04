@@ -45,6 +45,18 @@ abstract class BaseData
   {
     
     //Do it.
+    $reference = $this;
+    
+    //Enable chaining.
+    return $this;
+    
+  }
+  
+  //Put the value in the given reference.
+  public function putRaw(&$reference)
+  {
+    
+    //Do it.
     $reference = $this->get();
     
     //Enable chaining.

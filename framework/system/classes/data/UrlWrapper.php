@@ -11,7 +11,8 @@ class UrlWrapper extends StringWrapper
     MERGE_PATH_PREPEND_ROOT   = 0b100,
     
     //Matching patterns.
-    MATCH_DOMAIN = '(?:[a-zA-Z0-9\-]+)(?:\.[a-zA-Z0-9\-]+)+',
+    MATCH_DOMAIN = '[a-zA-Z0-9\-\.]+',
+    MATCH_IPV4   = '(?:\d+)(?:\.\d+)+',
     MATCH_PATH   = '[a-zA-Z0-9$\-.+!*\'(),&;/@]*';
   
   //Parse the given URL and return an array of segments.
@@ -23,23 +24,23 @@ class UrlWrapper extends StringWrapper
     
     //Parse it.
     $segments = $wrapped->parse(
-      '~^'.                                  //Begin: regular expression.
-      '(?:(?<scheme>.+?):)'.                 //Scheme (required).
-      '(?://'.                               //Begin: scheme data (optional).
-        '(?:'.                               //Begin: authentication (optional).
-          '(?:(?<username>.*?))'.            //User name (required).
-          '(?::(?<password>.*?))?'.          //Password (optional).
-        '@)?'.                               //End: authentication.
-        '(?<domain>'.self::MATCH_DOMAIN.')'. //Domain (required).
-        '(?::(?<port>\d+))?'.                //Port (optional).
-      '(?:(?<path>'.self::MATCH_PATH.'))?'.  //Path (optional).
-      ')?'.                                  //End: scheme data.
-      '(?<specific>.*)'.                     //Protocol-specific data.
-      '$~'                                   //End: Regular expression.
-    )
-    
-    //Assign it to a variable.
-    ->put($segments);
+      '~^'.                                    //Begin: regular expression.
+      '(?:(?<scheme>.+?):)'.                   //Scheme (required).
+      '(?://'.                                 //Begin: scheme data (optional).
+        '(?:'.                                 //Begin: authentication (optional).
+          '(?:(?<username>.*?))'.              //User name (required).
+          '(?::(?<password>.*?))?'.            //Password (optional).
+        '@)?'.                                 //End: authentication.
+        '(?:'.                                 //Begin: domain or IP-address.
+          '(?<ipv4>'.self::MATCH_IPV4.')|'.    //IPV4 (required)
+          '(?<domain>'.self::MATCH_DOMAIN.')'. //Domain (required).
+        ')'.                                   //End: domain or IP-address.
+        '(?::(?<port>\d+))?'.                  //Port (optional).
+        '(?:(?<path>'.self::MATCH_PATH.'))?'.  //Path (optional).
+      ')?'.                                    //End: scheme data.
+      '(?<specific>.*)'.                       //Protocol-specific data.
+      '$~'                                     //End: regular expression.
+    );
     
     //Check if the URL was valid.
     if($wrapped->failure()){
@@ -171,6 +172,34 @@ class UrlWrapper extends StringWrapper
     
   }
   
+  //Return a new UrlWrapper based on the given format.
+  public function format($format='%scheme://%domain%path%specific')
+  {
+    
+    //Pre-parse the data.
+    $this->parseAndCache();
+    
+    //Fill the format with data.
+    $formatted = str_replace(
+      ['%scheme', '%username', '%password', '%ipv4', '%domain', '%port', '%path', '%specific'],
+      [
+        $this->parsed['scheme'],
+        $this->parsed['username'],
+        $this->parsed['password'],
+        $this->parsed['ipv4'],
+        $this->parsed['domain'],
+        $this->parsed['port'],
+        $this->parsed['path'],
+        $this->parsed['specific']
+      ],
+      $format
+    );
+    
+    //Return the new UrlWrapper.
+    return new self($formatted);
+    
+  }
+  
   //Set the options that are to be used when this URL is merged with another one.
   public function setMergeOptions($flags)
   {
@@ -295,13 +324,13 @@ class UrlWrapper extends StringWrapper
       
       
       //Handle "KEEP" values.
-      if($value === "KEEP" && array_key_exists($key, $old_qd)){
+      if($value === "{KEEP}" && array_key_exists($key, $old_qd)){
         $new_qd[$key] = $old_qd[$key];
         return true;
       }
       
       //Handle "DROP" values.
-      if($value === "DROP"){
+      if($value === "{DROP}"){
         return true;
       }
       
@@ -352,6 +381,12 @@ class UrlWrapper extends StringWrapper
     //Wrap the path.
     $this->parsed['path'] = new PathWrapper($this->parsed['path']);
     
+    //Wrap the IPv4 address?
+    if(array_key_exists('ipv4', $this->parsed)){
+      #TEMP: Disabled until wrapper is implemented.
+      //$this->parsed['ipv4'] = $this->parsed['domain'] = new IPv4Wrapper($this->parsed['ipv4']);
+    }
+        
     //Create the method name for parsing the protocol-specific data.
     $parse_method = 'parse'.ucfirst($this->parsed['scheme']);
     

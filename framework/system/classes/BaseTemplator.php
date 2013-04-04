@@ -92,7 +92,7 @@ abstract class BaseTemplator
       return tx('Response')->outputRoute(
         $this->materials->router->type,
         $path,
-        (is_null($data) ? new \outputting\nodes\Standard([]) : $data),
+        (is_null($data) ? new \outputting\nodes\Standard(wrap([])) : $data),
         $this->materials->mime,
         true,
         false
