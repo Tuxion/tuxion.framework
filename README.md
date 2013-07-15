@@ -1,4 +1,9 @@
-# Tuxion Framework 0.1.1 Beta
+# Tuxion Framework 0.1.1 Discontinued
+
+## Attention!
+
+This project has become [Forall](https://github.com/ForallFramework), where it's being
+redevelopped as separate packages.
 
 ## Description
 
